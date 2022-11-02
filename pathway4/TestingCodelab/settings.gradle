@@ -15,4 +15,4 @@
  */
 
 include ':app'
-rootProject.name = "Rally"
+rootProject.name = "TestingCodelab"
