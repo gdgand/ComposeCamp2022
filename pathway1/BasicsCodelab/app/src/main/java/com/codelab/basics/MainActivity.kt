@@ -38,6 +38,13 @@ private fun Greeting(name: String) {
     }
 }
 
+@Composable
+private fun MyApp() {
+    Surface(color = MaterialTheme.colors.background) {
+        Greeting("Android")
+    }
+}
+
 /**
  * 매개변수가 없는 구성 가능한 함수 또는 기본 매개변수를 포함하는 함수에
  * @[Preview] 를 사용할 수 있다
