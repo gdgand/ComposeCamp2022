@@ -53,10 +53,10 @@ fun MyApp(names: List<String> = listOf("World", "Compose")) {
  * 매개변수가 없는 구성 가능한 함수 또는 기본 매개변수를 포함하는 함수에
  * @[Preview] 를 사용할 수 있다
  */
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 320)
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
-        Greeting("Android")
+        MyApp()
     }
 }
