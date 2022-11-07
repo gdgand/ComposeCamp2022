@@ -28,7 +28,19 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp(names: List<String> = listOf("World", "Compose")) {
+fun MyApp() {
+
+    var shouldShowOnboarding by remember { mutableStateOf(true) }
+
+    if (shouldShowOnboarding) {
+        OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
+    } else {
+        Greetings()
+    }
+}
+
+@Composable
+private fun Greetings(names: List<String> = listOf("World", "Compose")) {
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
         for (name in names) {
             Greeting(name = name)
@@ -70,11 +82,11 @@ private fun Greeting(name: String) {
     }
 }
 
-
+/**
+ * 이 방법은 상태가 아닌 함수를 OnboardingScreen에 전달하는 방식으로 이 컴포저블의 재사용 가능성을 높이고 다른 컴포저블이 상태를 변경하지 않도록 보호하고 있습니다.
+ */
 @Composable
-fun OnboardingScreen() {
-    // TODO: This state should be hoisted
-    var shouldShowOnboarding by remember { mutableStateOf(true) }
+fun OnboardingScreen(onContinueClicked: () -> Unit) {
 
     Surface {
         Column(
@@ -84,8 +96,9 @@ fun OnboardingScreen() {
         ) {
             Text("Welcome to the Basics Codelab!")
             Button(
-                modifier = Modifier.padding(vertical = 24.dp),
-                onClick = { shouldShowOnboarding = false }
+                modifier = Modifier
+                    .padding(vertical = 24.dp),
+                onClick = onContinueClicked
             ) {
                 Text("Continue")
             }
@@ -97,7 +110,7 @@ fun OnboardingScreen() {
 @Composable
 fun OnboardingPreview() {
     BasicsCodelabTheme {
-        OnboardingScreen()
+        OnboardingScreen(onContinueClicked = {}) // Do nothing on click.
     }
 }
 
