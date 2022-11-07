@@ -58,7 +58,7 @@
 
 - LazyColumn은 화면에 보이는 항목만 렌더링하므로 항목이 많은 목록을 렌더링할 때 성능이 향상됩니다.
 - 참고: LazyColumn과 LazyRow는 Android 뷰의 RecyclerView와 동일합니다.
-
+- LazyColumn은 RecyclerView와 처럼 하위 요소를 재활용하지 않습니다. 컴포저블을 방출하는 것은 Android Views를 인스턴스화하는 것보다 상대적으로 비용이 적게 들므로 LazyColumn은 스크롤 할 때 새 컴포저블을 방출하고 계속 성능을 유지합니다.
 
 
 --------------
