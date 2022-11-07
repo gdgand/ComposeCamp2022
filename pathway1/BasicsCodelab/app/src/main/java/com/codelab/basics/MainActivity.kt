@@ -44,11 +44,9 @@ fun MyApp(names : List<String> = listOf("World","Compose")){
 fun Greeting(name: String) {
     Surface(
         color = MaterialTheme.colors.primary,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
-        Column(modifier = Modifier.padding(24.dp)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(24.dp)) {
             Text(text = "Hello")
             Text(text = name)
         }
