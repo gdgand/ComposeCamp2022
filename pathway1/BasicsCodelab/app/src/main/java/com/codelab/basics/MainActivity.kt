@@ -17,13 +17,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BasicsCodelabTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    MyApp()
-                }
+                MyApp()
             }
         }
     }
@@ -43,6 +37,27 @@ fun MyApp(){
 
 
 @Composable
+fun OnboardingScreen(onContinueClicked: () -> Unit) {
+
+    Surface {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Welcome to the Basic Codelab!")
+            Button(
+                modifier = Modifier.padding(vertical = 24.dp),
+                onClick = onContinueClicked
+            ) {
+                Text(text = "Continue")
+            }
+        }
+    }
+
+}
+
+@Composable
 fun Greetings(names : List<String> = listOf("World","Compose")){
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
         for (name in names) {
@@ -51,7 +66,13 @@ fun Greetings(names : List<String> = listOf("World","Compose")){
     }
 }
 
-
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+fun OnboardingPreview() {
+    BasicsCodelabTheme {
+        OnboardingScreen(onContinueClicked = {})
+    }
+}
 
 @Composable
 fun Greeting(name: String) {
@@ -91,34 +112,5 @@ fun Greeting(name: String) {
 fun DefaultPreview() {
     BasicsCodelabTheme {
         MyApp()
-    }
-}
-
-@Composable
-fun OnboardingScreen(onContinueClicked: () -> Unit) {
-
-    Surface {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "Welcome to the Basic Codelab!")
-            Button(
-                modifier = Modifier.padding(vertical = 24.dp),
-                onClick = onContinueClicked
-            ) {
-                Text(text = "Continue")
-            }
-        }
-    }
-
-}
-
-@Preview(showBackground = true, widthDp = 320, heightDp = 320)
-@Composable
-fun OnboardingPreview() {
-    BasicsCodelabTheme {
-        OnboardingScreen(onContinueClicked = {})
     }
 }
