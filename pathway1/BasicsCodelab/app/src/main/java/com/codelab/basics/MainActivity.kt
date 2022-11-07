@@ -42,25 +42,26 @@ fun MyApp(names: List<String> = listOf("World", "Compose")) {
     }
 }
 
+/*
+- weight 수정자는 요소를 유연하게 만들기 위해 가중치가 없는 다른 요소(유연성 부족이라고 함)를 효과적으로 밀어내어 요소의 사용 가능한 모든 공간을 채웁니다.
+- OutlinedButton 은 weight 를 주지 않았으므로 이를 밀어낸다.
+- 만약 OutlinedButton 에 10f weight 를 주면 1:10 비율로 배치된다.
+ */
 @Composable
 private fun Greeting(name: String) {
     val expanded = remember { mutableStateOf(false) }
+
     Surface(
         color = MaterialTheme.colors.primary,
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp) // 수직 4dp, 수평 8dp
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
     ) {
         Row(modifier = Modifier.padding(24.dp)) {
-            /*
-            - weight 수정자는 요소를 유연하게 만들기 위해 가중치가 없는 다른 요소(유연성 부족이라고 함)를 효과적으로 밀어내어 요소의 사용 가능한 모든 공간을 채웁니다.
-            - OutlinedButton 은 weight 를 주지 않았으므로 이를 밀어낸다.
-            - 만약 OutlinedButton 에 10f weight 를 주면 1:10 비율로 배치된다.
-             */
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = "Hello, ")
                 Text(text = name)
             }
             OutlinedButton(
-                onClick = { expanded.value = !expanded.value },
+                onClick = { expanded.value = !expanded.value }
             ) {
                 Text(if (expanded.value) "Show less" else "Show more")
             }
