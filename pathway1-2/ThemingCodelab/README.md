@@ -1,4 +1,4 @@
-# Jetpack Compose Theming Codelab
+# Jetpack Compose Theming Codelab 
 
 This folder contains the source code for the [Jetpack Compose Theming codelab](https://developer.android.com/codelabs/jetpack-compose-theming).
 
