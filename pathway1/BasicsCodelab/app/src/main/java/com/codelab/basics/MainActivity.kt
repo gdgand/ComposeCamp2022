@@ -32,23 +32,23 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun Greeting(name: String) {
-    Surface(
-        color = MaterialTheme.colors.primary,
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-    ) {
-        Column(modifier = Modifier.padding(24.dp).fillMaxWidth()) {
-            Text(text = "Hello,")
-            Text(text = name)
+fun MyApp(names: List<String> = listOf("World", "Compose")) {
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+        for (name in names) {
+            Greeting(name = name)
         }
     }
 }
 
 @Composable
-fun MyApp(names: List<String> = listOf("World", "Compose")) {
-    Column {
-        for (name in names) {
-            Greeting(name = name)
+private fun Greeting(name: String) {
+    Surface(
+        color = MaterialTheme.colors.primary,
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(24.dp)) {
+            Text(text = "Hello, ")
+            Text(text = name)
         }
     }
 }
