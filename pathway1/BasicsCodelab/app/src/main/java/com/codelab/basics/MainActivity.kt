@@ -1,5 +1,6 @@
 package com.codelab.basics
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -137,10 +138,16 @@ fun OnboardingPreview() {
  * 매개변수가 없는 구성 가능한 함수 또는 기본 매개변수를 포함하는 함수에
  * @[Preview] 를 사용할 수 있다
  */
+@Preview(
+    showBackground = true,
+    widthDp = 320,
+    uiMode = UI_MODE_NIGHT_YES,
+    name = "DefaultPreviewDark"
+)
 @Preview(showBackground = true, widthDp = 320)
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
-        MyApp()
+        Greetings()
     }
 }
