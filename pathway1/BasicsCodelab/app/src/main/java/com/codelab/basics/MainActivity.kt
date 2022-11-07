@@ -38,7 +38,7 @@ private fun Greeting(name: String) {
 
 @Composable
 private fun MyApp() {
-    Surface(color = MaterialTheme.colors.background) {
+    Surface(color = MaterialTheme.colors.background, modifier = Modifier.fillMaxSize()) {
         Greeting("Android")
     }
 }
