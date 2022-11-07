@@ -1,5 +1,6 @@
 package com.codelab.basics
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
@@ -97,7 +99,17 @@ private fun Greeting(name: String) {
                 .padding(bottom = extraPadding.coerceAtLeast(0.dp)) // coerceAtLeast(minimumValue) minimumValue 이하로 내려가지 않는것을 보장
             ) {
                 Text(text = "Hello, ")
-                Text(text = name)
+                /**
+                 * 일반적으로 MaterialTheme 내부의 색상, 모양, 글꼴 스타일을 유지하는 것이 훨씬 좋습니다. 예를 들어, 어두운 모드는 색상을 하드 코딩하는 경우 구현하기 어렵고 오류가 발생하기 쉬운 작업이 많이 요구됩니다.
+                 * 그러나 가끔 색상과 글꼴 스타일의 선택에서 약간 벗어나야 할 때도 있습니다. 이러한 상황에서는 기존에 사용하고 있는 색상이나 스타일을 기반으로 하는 것이 좋습니다.
+                 * 이를 위해 copy 함수를 사용하여 미리 정의된 스타일을 수정할 수 있습니다. 다음과 같이 숫자를 더 굵게 만들어 보세요.
+                 */
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.h4.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
             }
             
             OutlinedButton(
@@ -114,5 +126,19 @@ private fun Greeting(name: String) {
 fun DefaultPreview() {
     BasicsCodelabTheme {
         MyApp()
+    }
+}
+
+@Preview(
+    showBackground = true,
+    widthDp = 320,
+    uiMode = UI_MODE_NIGHT_YES,
+    name = "PreviewGreetingsDark"
+)
+@Preview(showBackground = true, widthDp = 320)
+@Composable
+fun PreviewGreetings() {
+    BasicsCodelabTheme {
+        Greetings()
     }
 }
