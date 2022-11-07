@@ -11,6 +11,8 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,19 +32,25 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun Greeting(name: String) {
+    val expanded = remember { mutableStateOf(false) }
+    val extraPadding = if (expanded.value) 48.dp else 0.dp
     Surface(
         color = MaterialTheme.colors.primary,
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
     ) {
         Row(modifier = Modifier.padding(24.dp)) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(bottom = extraPadding)
+            ) {
                 Text(text = "Hello, ")
                 Text(text = name)
             }
             OutlinedButton(
-                onClick = { /*TODO*/ }
+                onClick = { expanded.value = !expanded.value }
             ) {
-                Text(text = "Show more")
+                Text(text = if (expanded.value) "Show more" else "Show More")
             }
         }
 
