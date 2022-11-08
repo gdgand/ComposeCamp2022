@@ -21,6 +21,7 @@ import com.example.crane.buildsrc.Versions
 buildscript {
     repositories {
         google()
+        mavenCentral()
     }
     dependencies {
         classpath Libs.androidGradlePlugin
