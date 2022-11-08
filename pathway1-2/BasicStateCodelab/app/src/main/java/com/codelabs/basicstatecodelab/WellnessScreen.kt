@@ -7,33 +7,35 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 
 @Composable
-fun WellnessScreen(modifier: Modifier = Modifier) {
+fun WellnessScreen(
+    modifier: Modifier = Modifier,
+    wellnessViewModel: WellnessViewModel = viewModel()
+) {
     Column(modifier = modifier) {
         StatefulCounter()
-        val list = remember { getWellnessTasks().toMutableStateList() }
-        WellnessTasksList(list = list, onCloseTask = { task -> list.remove(task) })
+        WellnessTasksList(
+            list = wellnessViewModel.tasks,
+            onCheckedTask = { task, checked ->
+                wellnessViewModel.changeTaskChecked(task, checked)
+            },
+            onCloseTask = { task -> wellnessViewModel.remove(task) })
     }
 }
 
-private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i") }
 @Composable
 fun StatefulCounter(modifier: Modifier = Modifier) {
     var waterCount by remember { mutableStateOf(0) }
 
-    var juiceCount by remember { mutableStateOf(0) }
-
-    Row {
-        StatelessCounter(waterCount, { waterCount++ })
-        StatelessCounter(waterCount, { waterCount *= 2 })
-    }
+    StatelessCounter(waterCount, { waterCount++ })
 }
+
 @Composable
 fun StatelessCounter(count: Int, onIncrement: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(16.dp)) {
@@ -49,8 +51,8 @@ fun StatelessCounter(count: Int, onIncrement: () -> Unit, modifier: Modifier = M
 
 @Preview
 @Composable
-fun WellnessScreenPreview(){
-    BasicStateCodelabTheme{
+fun WellnessScreenPreview() {
+    BasicStateCodelabTheme {
         WellnessScreen()
     }
 }

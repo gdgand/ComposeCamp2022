@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 @Composable
 fun WellnessTasksList(
     modifier: Modifier = Modifier,
+    onCheckedTask: (WellnessTask, Boolean) -> Unit,
     onCloseTask: (WellnessTask) -> Unit,
     list: List<WellnessTask>
 ) {
@@ -16,7 +17,12 @@ fun WellnessTasksList(
         modifier = modifier,
     ) {
         items(list,  key = { task -> task.id }) { task ->
-            WellnessTaskItem(taskName = task.label, onClose = { onCloseTask(task)})
+            WellnessTaskItem(
+                taskName = task.label,
+                checked = task.checked,
+                onCheckedChange = { checked -> onCheckedTask(task, checked) },
+                onClose = { onCloseTask(task) }
+            )
         }
     }
 }
