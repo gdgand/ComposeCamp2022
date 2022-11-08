@@ -105,7 +105,20 @@ fun AlignYourBodyElement(
 fun FavoriteCollectionCard(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        modifier = modifier
+    ) {
+        Row {
+            Image(
+                painter = painterResource(R.drawable.fc2_nature_meditations),
+                contentDescription = null
+            )
+            Text(
+                text = stringResource(R.string.fc2_nature_meditations)
+            )
+        }
+    }
 }
 
 // Step: Align your body row - Arrangements
