@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "BasicsCodelab"
-include ':app'
+include(":app")
