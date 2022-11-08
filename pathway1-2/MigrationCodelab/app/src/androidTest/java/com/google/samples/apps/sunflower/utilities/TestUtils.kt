@@ -24,8 +24,8 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra
 import com.google.samples.apps.sunflower.data.GardenPlanting
 import com.google.samples.apps.sunflower.data.Plant
 import org.hamcrest.Matcher
-import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.`is`
 import java.util.Calendar
 
 /**
