@@ -109,10 +109,15 @@ fun FavoriteCollectionCard(
         shape = MaterialTheme.shapes.small,
         modifier = modifier
     ) {
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.width(192.dp)
+        ) {
             Image(
                 painter = painterResource(R.drawable.fc2_nature_meditations),
-                contentDescription = null
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(56.dp)
             )
             Text(
                 text = stringResource(R.string.fc2_nature_meditations)
