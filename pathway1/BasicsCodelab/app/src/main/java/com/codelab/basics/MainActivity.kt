@@ -14,6 +14,7 @@ import com.codelab.basics.ui.theme.BasicsCodelabTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         //test
         setContent {
