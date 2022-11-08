@@ -15,7 +15,10 @@ import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 
 @Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
-    StatefulCounter(modifier)
+    Column(modifier = modifier) {
+        StatefulCounter()
+        WellnessTasksList()
+    }
 }
 @Composable
 fun StatefulCounter(modifier: Modifier = Modifier) {
