@@ -7,13 +7,16 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -103,10 +106,10 @@ private fun Greeting(name: String) {
 //        )
 //    )
 
-    // Surface : 다른 배경 색상을 적용할 수 있음
-    Surface(
-        color = MaterialTheme.colors.primary,
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+    Box(
+        modifier = Modifier
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .background(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colors.primary)
     ) {
         Row(
             modifier = Modifier
