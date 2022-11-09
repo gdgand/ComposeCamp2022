@@ -1,7 +1,10 @@
 package com.codelab.basics
 
+import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,33 +14,33 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import com.codelab.basics.home.HomeData
 import com.codelab.basics.home.HomeViewModel
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun HomeScreen(
     onNavigateToMain: () -> Unit,
     viewModel: HomeViewModel = HomeViewModel(),
     isPreview: Boolean = false,
 ) {
+    val homeDatas = viewModel.homeDatas.value
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.primary)
+            .background(MaterialTheme.colors.background)
     ) {
-        val homeDatas = viewModel.homeDatas.value
-        
         LazyColumn {
             items(homeDatas) { homeData ->
                 HomeDataCardView(homeData = homeData)
@@ -46,28 +49,39 @@ fun HomeScreen(
 
         if(isPreview) {
             HomeDataCardView(homeData = HomeViewModel.previewData)
+            HomeDataCardView(
+                homeData = HomeViewModel.previewData,
+                state = mutableStateOf(true)
+            )
         }
+    }
+
+    BackHandler(enabled = true) {
+        onNavigateToMain.invoke()
     }
 }
 
 @Composable
 private fun HomeDataCardView(
-    homeData: HomeData
+    homeData: HomeData,
+    state: MutableState<Boolean> = mutableStateOf(false)
 ) {
-    val isExpanded = remember { mutableStateOf(false) }
+    val isExpanded = remember { state }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 18.dp)
-            .animateContentSize(
+            .padding(
+                start = 8.dp,
+                end = 8.dp,
+                top = 8.dp
+            ).animateContentSize(
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
                     stiffness = Spring.StiffnessLow
                 )
-            ).clickable {
-                isExpanded.value = !isExpanded.value
-            },
-        backgroundColor = MaterialTheme.colors.secondary,
+            ),
+        backgroundColor = MaterialTheme.colors.primary,
         shape = RoundedCornerShape(8.dp),
         elevation = 5.dp,
     ) {
@@ -80,19 +94,19 @@ private fun HomeDataCardView(
                 Text(
                     text = homeData.title,
                     style = MaterialTheme.typography.body1,
-                    color = MaterialTheme.colors.onSecondary
+                    color = MaterialTheme.colors.onPrimary
                 )
                 Text(
                     text = homeData.index.toString(),
                     style = MaterialTheme.typography.h4,
-                    color = MaterialTheme.colors.onSecondary,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colors.onPrimary,
                 )
                 if(isExpanded.value) {
                     Text(
                         text = homeData.content,
                         style = MaterialTheme.typography.body2,
-                        color = MaterialTheme.colors.onSecondary
+                        color = MaterialTheme.colors.onPrimary
                     )
                 }
             }
@@ -106,12 +120,16 @@ private fun HomeDataCardView(
             ) {
                 Icon(
                     imageVector = if(isExpanded.value) {
-                        Icons.Default.KeyboardArrowDown
+                        Icons.Filled.ExpandLess
                     } else {
-                        Icons.Default.KeyboardArrowUp
+                        Icons.Filled.ExpandMore
                     },
-                    tint = MaterialTheme.colors.onSecondary,
-                    contentDescription = "Expand or Collapse button"
+                    contentDescription = if(isExpanded.value) {
+                        "Show less"
+                    } else {
+                        "Show more"
+                    },
+                    tint = MaterialTheme.colors.onPrimary
                 )
             }
         }

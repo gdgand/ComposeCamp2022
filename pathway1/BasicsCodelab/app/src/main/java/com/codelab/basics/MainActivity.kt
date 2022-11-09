@@ -6,14 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.codelab.basics.MainActivity.Companion.HOME
-import com.codelab.basics.MainActivity.Companion.MAIN
+import com.codelab.basics.MainActivity.Companion.ONBOARDING
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,14 +27,32 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    AppNavHost(modifier = Modifier.fillMaxSize())
+//                    AppNavHost(modifier = Modifier.fillMaxSize())
+                    MyApp()
                 }
             }
         }
     }
     companion object {
-        const val MAIN = "main"
+        const val ONBOARDING = "onBoarding"
         const val HOME = "home"
+    }
+}
+
+@Composable
+private fun MyApp() {
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
+
+    if(shouldShowOnboarding) {
+        OnboardingScreen(
+            onNavigateToHome = {
+                shouldShowOnboarding = false
+            }
+        )
+    } else {
+        HomeScreen(onNavigateToMain = {
+            shouldShowOnboarding = true
+        })
     }
 }
 
@@ -41,15 +60,15 @@ class MainActivity : ComponentActivity() {
 private fun AppNavHost(
     modifier: Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = MAIN
+    startDestination: String = ONBOARDING
 ) {
     NavHost(
         modifier = modifier,
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(MAIN) {
-            MainScreen(
+        composable(ONBOARDING) {
+            OnboardingScreen(
                 onNavigateToHome = {
                     navController.navigate(HOME)
                 }
@@ -58,7 +77,7 @@ private fun AppNavHost(
         composable(HOME) {
             HomeScreen(
                 onNavigateToMain = {
-                    navController.navigate(MAIN)
+                    navController.navigate(ONBOARDING)
                 }
             )
         }
