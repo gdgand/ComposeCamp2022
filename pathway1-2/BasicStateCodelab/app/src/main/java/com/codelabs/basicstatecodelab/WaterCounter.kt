@@ -16,6 +16,8 @@ import androidx.compose.runtime.mutableStateOf
 fun WaterCounter(modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(16.dp)) {
         // Changes to count are now tracked by Compose
+        // 그러나
+        // 리컴포지션이 발생하면 count 변수가 다시 0으로 초기화되므로! 값이 항상 0 으로 표기된다.
         val count: MutableState<Int> = mutableStateOf(0)
 
         Text("You've had ${count.value} glasses.")
