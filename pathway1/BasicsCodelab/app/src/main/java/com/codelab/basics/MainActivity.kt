@@ -24,10 +24,18 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    MyApp()
                 }
             }
         }
+    }
+}
+
+
+@Composable
+private fun MyApp() {
+    Surface(color = MaterialTheme.colors.background) {
+        Greeting(name = "Android")
     }
 }
 
