@@ -124,14 +124,14 @@ fun FavoriteCollectionCard(
         modifier = modifier
     ) {
         Row(
-            modifier = Modifier.width(width = 192.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.width(width = 192.dp)
         ) {
             Image(
                 painter = painterResource(id = drawableResId),
                 contentScale = ContentScale.Crop,
                 contentDescription = null,
-                modifier = Modifier.fillMaxHeight()
+                modifier = Modifier.size(56.dp)
             )
             Text(
                 text = stringResource(id = stringResId),
