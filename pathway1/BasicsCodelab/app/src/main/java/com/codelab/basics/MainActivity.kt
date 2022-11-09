@@ -26,9 +26,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun MyApp(names: List<String> = listOf("World", "Compose")) {
+private fun MyApp(names: List<String> = listOf("Android", "Compose")) {
     Column {
-        for (name in names) {
+        names.forEach { name ->
             Greeting(name = name)
         }
     }
