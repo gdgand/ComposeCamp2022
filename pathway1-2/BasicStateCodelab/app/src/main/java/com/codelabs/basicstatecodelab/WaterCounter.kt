@@ -12,7 +12,6 @@ import androidx.compose.ui.unit.dp
 fun WaterCounter(modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(16.dp)) {
         var count by remember { mutableStateOf(0) }
-
         if (count > 0) {
             Text("You've had $count glasses.")
         }
