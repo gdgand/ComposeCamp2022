@@ -38,6 +38,9 @@ private fun BasicMyApp(names: List<String> = listOf("Android", "Malibin")) {
 
 @Composable
 fun Greeting(name: String) {
+    val expandedState = remember { mutableStateOf(false) }
+    val expandedPadding = if (expandedState.value) 48.dp else 0.dp
+
     Surface(
             color = MaterialTheme.colors.primary,
             modifier = Modifier.padding(vertical = 4.dp)
@@ -48,15 +51,17 @@ fun Greeting(name: String) {
                         .fillMaxWidth()
         ) {
             Column(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                            .weight(1f)
+                            .padding(bottom = expandedPadding)
             ) {
                 Text(text = "Hello, ")
                 Text(text = name)
             }
             OutlinedButton(
-                    onClick = {}
+                    onClick = { expandedState.value = !expandedState.value }
             ) {
-                Text(text = "Show more")
+                Text(text = if (expandedState.value) "Show less" else "Show more")
             }
         }
     }
