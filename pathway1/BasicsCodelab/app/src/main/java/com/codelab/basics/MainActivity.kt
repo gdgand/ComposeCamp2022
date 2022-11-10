@@ -1,5 +1,6 @@
 package com.codelab.basics
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.text.font.FontWeight
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,7 +89,11 @@ fun Greeting(name: String) {
                     )
             ) {
                 Text(text = "Hello, ")
-                Text(text = name)
+                Text(
+                    text = name, style = MaterialTheme.typography.h4.copy(
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                )
             }
             OutlinedButton(onClick = { expanded.value = !expanded.value }) {
                 Text(if (expanded.value) "Show less" else "Show more")
@@ -96,7 +102,11 @@ fun Greeting(name: String) {
     }
 }
 
-@Preview(showBackground = true, widthDp = 320)
+@Preview(
+    showBackground = true, widthDp = 320,
+    uiMode = UI_MODE_NIGHT_YES,
+    name = "DefaultDreviewDark"
+)
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
