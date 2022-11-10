@@ -130,7 +130,9 @@ fun CardContent(name: String) {
     ) {
         Column(modifier = Modifier
             .weight(1f)
-            .padding(12.dp))
+            .padding(12.dp)
+            .padding(50.dp))
+
         {
             Text(text = "Hello, ")
             Text(text = name, style = MaterialTheme.typography.h4.copy(
