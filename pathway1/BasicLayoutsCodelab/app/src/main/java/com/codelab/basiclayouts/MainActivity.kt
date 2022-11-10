@@ -102,9 +102,30 @@ fun AlignYourBodyElement(
 // Step: Favorite collection card - Material Surface
 @Composable
 fun FavoriteCollectionCard(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    @DrawableRes image: Int = R.drawable.fc2_nature_meditations,
+    @StringRes text: Int = R.string.fc2_nature_meditations,
 ) {
-    // Implement composable here
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        modifier = modifier
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.width(192.dp)
+        ) {
+            Image(
+                painter = painterResource(image),
+                contentDescription = null,
+                modifier = Modifier.size(56.dp),
+                contentScale = ContentScale.Crop
+            )
+            Text(
+                text = stringResource(text),
+                style = MaterialTheme.typography.h3
+            )
+        }
+    }
 }
 
 // Step: Align your body row - Arrangements
