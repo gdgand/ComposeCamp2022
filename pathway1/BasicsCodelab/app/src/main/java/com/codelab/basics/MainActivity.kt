@@ -83,7 +83,7 @@ fun Greeting(name: String) {
                 modifier = Modifier
                     .weight(1f)
                     .padding(
-                        bottom = extraPadding
+                        bottom = extraPadding.coerceAtLeast(0.dp)
                     )
             ) {
                 Text(text = "Hello, ")
