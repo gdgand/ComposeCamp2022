@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">BasicsCodelab</string>
+    <string name="app_name" translatable="false">BasicsCodelab</string>
+    <string name="greeting_info">Composem ipsum color sit lazy, padding theme elit, sed do bouncy.</string>
 </resources>
