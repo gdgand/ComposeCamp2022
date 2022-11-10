@@ -32,8 +32,8 @@ fun StatelessCounter(count: Int, onIncrement: () -> Unit, modifier: Modifier = M
 fun StatefulCounter() {
   var waterCount by rememberSaveable { mutableStateOf(0) }
 
-  var juiceCount by rememberSaveable { mutableStateOf(0) }
+//  var juiceCount by rememberSaveable { mutableStateOf(0) }
 
   StatelessCounter(waterCount, { waterCount++ })
-  StatelessCounter(juiceCount, { juiceCount++ })
+//  StatelessCounter(juiceCount, { juiceCount++ })
 }
