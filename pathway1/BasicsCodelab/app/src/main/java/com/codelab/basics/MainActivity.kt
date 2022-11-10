@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,7 +28,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp() {
-    var shouldShowOnboarding by remember { mutableStateOf(true) }
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
     if (shouldShowOnboarding) {
         OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
     } else {
@@ -46,8 +47,8 @@ private fun Greetings(names: List<String> = List(1000) { "$it" } ) {
 
 @Composable
 fun Greeting(name: String) {
-    val expanded = remember { mutableStateOf(false) }
-    val extraPadding = if (expanded.value) 48.dp else 0.dp
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val extraPadding = if (expanded) 48.dp else 0.dp
 
     Surface(
         color = MaterialTheme.colors.primary,
@@ -63,9 +64,9 @@ fun Greeting(name: String) {
                 Text(text = name)
             }
             OutlinedButton(
-                onClick = { expanded.value = !expanded.value }
+                onClick = { expanded = !expanded }
             ) {
-                Text(if (expanded.value) "Show less" else "Show more")
+                Text(if (expanded) "Show less" else "Show more")
             }
         }
     }
