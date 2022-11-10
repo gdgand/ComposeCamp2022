@@ -33,7 +33,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +45,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toDrawable
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
 import java.util.*
 
@@ -221,7 +222,37 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 // Step: Bottom navigation - Material
 @Composable
 private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
-    // Implement composable here
+    BottomNavigation(
+        modifier,
+        backgroundColor = MaterialTheme.colors.background
+    ) {
+        BottomNavigationItem(
+            selected = true,
+            onClick = { },
+            label = {
+                Text(stringResource(id = R.string.bottom_navigation_home))
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Spa,
+                    contentDescription = null
+                )
+            }
+        )
+        BottomNavigationItem(
+            selected = false,
+            onClick = { },
+            label = {
+                Text(stringResource(id = R.string.bottom_navigation_profile))
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = null
+                )
+            }
+        )
+    }
 }
 
 // Step: MySoothe App - Scaffold
