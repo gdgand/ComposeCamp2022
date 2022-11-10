@@ -31,5 +31,5 @@ dependencyResolutionManagement {
         maven { url 'https://androidx.dev/snapshots/builds/8843244/artifacts/repository' }
     }
 }
-rootProject.name = "MySoothe"
+rootProject.name = "BasicLayoutsCodelab"
 include ':app'
