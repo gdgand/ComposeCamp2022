@@ -3,6 +3,9 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,7 +45,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BasicMyApp() {
-    var shouldShowOnboarding by remember { mutableStateOf(true) }
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
 
     if (shouldShowOnboarding) {
         OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
@@ -82,8 +86,15 @@ private fun Greetings(names: List<String> = List(1000) { "$it" }) {
 
 @Composable
 private fun Greeting(name: String) {
-    val expandedState = remember { mutableStateOf(false) }
-    val expandedPadding = if (expandedState.value) 48.dp else 0.dp
+    var expandedState by remember { mutableStateOf(false) }
+
+    val expandedPadding by animateDpAsState(
+        if (expandedState) 48.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
 
     Surface(
         color = MaterialTheme.colors.primary,
@@ -103,9 +114,9 @@ private fun Greeting(name: String) {
                 Text(text = name)
             }
             OutlinedButton(
-                onClick = { expandedState.value = !expandedState.value }
+                onClick = { expandedState = !expandedState }
             ) {
-                Text(text = if (expandedState.value) "Show less" else "Show more")
+                Text(text = if (expandedState) "Show less" else "Show more")
             }
         }
     }
