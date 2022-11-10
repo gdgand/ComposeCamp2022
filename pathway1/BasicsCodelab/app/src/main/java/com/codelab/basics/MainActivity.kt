@@ -3,6 +3,7 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
@@ -34,7 +35,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(name: String) {
     Surface(color = MaterialTheme.colors.primary) {
-        Text(text = "Hello $name!", modifier = Modifier.padding(24.dp))
+        Column(modifier = Modifier.padding(24.dp)) {
+            Text(text = "Hello,")
+            Text(text = name)
+            Introduce(name = "Compose")
+        }
     }
 }
 
@@ -42,9 +47,8 @@ fun Greeting(name: String) {
 fun Introduce(name: String) {
     Text(
         text = "My Name is $name!",
-        fontSize = 16.sp,
+        fontSize = 20.sp,
         maxLines = 1,
-        modifier = Modifier.padding(start = 24.dp, top = 48.dp)
     )
 }
 
