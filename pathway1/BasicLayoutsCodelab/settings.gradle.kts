@@ -19,7 +19,7 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        maven { url 'https://androidx.dev/snapshots/builds/8843244/artifacts/repository' }
+        maven("https://androidx.dev/snapshots/builds/8843244/artifacts/repository")
     }
 }
 dependencyResolutionManagement {
@@ -27,9 +27,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-        maven { url 'https://androidx.dev/snapshots/builds/8843244/artifacts/repository' }
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
+        maven("https://androidx.dev/snapshots/builds/8843244/artifacts/repository")
     }
 }
 rootProject.name = "BasicLayoutsCodelab"
-include ':app'
+include(":app")
