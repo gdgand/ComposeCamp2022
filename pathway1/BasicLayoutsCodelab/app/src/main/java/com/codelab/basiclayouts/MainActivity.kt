@@ -22,7 +22,6 @@ import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -254,7 +253,11 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
 // Step: MySoothe App - Scaffold
 @Composable
 fun MySootheApp() {
-    // Implement composable here
+    MySootheTheme {
+        Scaffold(bottomBar = { SootheBottomNavigation() }) { padding ->
+            HomeScreen(Modifier.padding(padding))
+        }
+    }
 }
 //endregion
 
