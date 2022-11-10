@@ -26,18 +26,36 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun BasicMyApp(names: List<String> = listOf("Android", "Malibin")) {
-    Column(
-            modifier = Modifier.padding(
-                    horizontal = 8.dp,
-                    vertical = 4.dp
-            )
-    ) {
-        names.forEach { Greeting(name = it) }
+    var shouldShowOnboarding: Boolean by remember { mutableStateOf(true) }
+
+    if (shouldShowOnboarding) {
+        OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
+    } else {
+        Greetings()
     }
 }
 
 @Composable
-fun Greeting(name: String) {
+fun OnboardingScreen(onContinueClicked: () -> Unit) {
+    Surface {
+        Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(text = "Welcome to Basics Codelab!")
+            Button(
+                    modifier = Modifier.padding(vertical = 24.dp),
+                    onClick = onContinueClicked,
+            ) {
+                Text(text = "Continue")
+            }
+        }
+    }
+}
+
+@Composable
+private fun Greetings(names: List<String> = listOf("Android", "Malibin")) {
     val expandedState = remember { mutableStateOf(false) }
     val expandedPadding = if (expandedState.value) 48.dp else 0.dp
 
@@ -72,5 +90,13 @@ fun Greeting(name: String) {
 fun DefaultPreview() {
     BasicsCodelabTheme {
         BasicMyApp()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+fun OnboardingPreview() {
+    ComposeBasicCodelabTheme {
+        OnboardingScreen(onContinueClicked = {})
     }
 }
