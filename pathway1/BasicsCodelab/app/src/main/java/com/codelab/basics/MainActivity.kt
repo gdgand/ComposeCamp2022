@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
@@ -29,13 +28,15 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun MyApp(names: List<String> = listOf<String>("World", "Compose")) {
+private fun MyApp(
+    modifier: Modifier = Modifier,
+    names: List<String> = listOf("World", "Compose")
+) {
 //    Surface(color = MaterialTheme.colors.background) {
 //        GreetingColumn(name = "Android")
 //    }
 
-    Column(
-    ) {
+    Column(modifier = Modifier.padding(4.dp)) {
         for (name in names) {
             Greeting(name = name)
         }
@@ -45,24 +46,19 @@ private fun MyApp(names: List<String> = listOf<String>("World", "Compose")) {
 @Composable
 fun Greeting(name: String) {
     Surface(
-        color = MaterialTheme.colors.primary,
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
+        color = MaterialTheme.colors.primary
     ) {
-        Row(
-            modifier = Modifier.padding(24.dp)
-        ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Hello")
-                Text(text = "$name!")
+        Row(modifier = Modifier.padding(24.dp)) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = "Hello,")
+                Text(text = name)
             }
-            
+
             OutlinedButton(onClick = { /*TODO*/ }) {
-                Text(text = "Show More")
+                Text(text = "Show more")
             }
         }
-
     }
 }
 
