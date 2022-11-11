@@ -49,53 +49,55 @@ class MainActivity : ComponentActivity() {
 // Step: Search bar - Modifiers
 @Composable
 fun SearchBar(modifier: Modifier = Modifier) {
-    TextField(
-        value = "",
-        onValueChange = {},
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp),
-        leadingIcon = {
-            Icon(imageVector = Icons.Default.Search, contentDescription = null)
-        },
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = MaterialTheme.colors.surface
-        ),
-        placeholder = {
-            Text(stringResource(id = R.string.placeholder_search))
-        }
-    )
+    TextField(value = "", onValueChange = {}, modifier = modifier
+        .fillMaxWidth()
+        .heightIn(min = 56.dp), leadingIcon = {
+        Icon(imageVector = Icons.Default.Search, contentDescription = null)
+    }, colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.surface), placeholder = {
+        Text(stringResource(id = R.string.placeholder_search))
+    })
 }
 
 // Step: Align your body - Alignment
 @Composable
-fun AlignYourBodyElement(
-    @DrawableRes drawable: Int,
-    @StringRes text: Int,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Image(
-            painter = painterResource(id = drawable),
+fun AlignYourBodyElement(@DrawableRes drawable: Int, @StringRes text: Int, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Image(painter = painterResource(id = drawable),
             contentDescription = null,
-            modifier = Modifier.size(88.dp)
+            modifier = Modifier
+                .size(88.dp)
                 .clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )
-        Text(
-            text = stringResource(id = text),
+            contentScale = ContentScale.Crop)
+        Text(text = stringResource(id = text),
             modifier = Modifier.paddingFromBaseline(top = 24.dp, bottom = 8.dp),
-            style = MaterialTheme.typography.h3
-        )
+            style = MaterialTheme.typography.h3)
     }
 }
 
 // Step: Favorite collection card - Material Surface
 @Composable
-fun FavoriteCollectionCard(modifier: Modifier = Modifier) { // Implement composable here
+fun FavoriteCollectionCard(@DrawableRes drawable: Int, @StringRes text: Int, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.small
+    ) {
+        Row(
+            modifier = Modifier.width(192.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = drawable),
+                contentDescription = null,
+                modifier = Modifier.size(56.dp),
+                contentScale = ContentScale.Crop
+            )
+            Text(
+                text = stringResource(id = text),
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+        }
+    }
 }
 
 // Step: Align your body row - Arrangements
@@ -154,10 +156,7 @@ fun SearchBarPreview() {
 @Composable
 fun AlignYourBodyElementPreview() {
     MySootheTheme {
-        AlignYourBodyElement(
-            drawable = R.drawable.ab1_inversions,
-            text = R.string.ab1_inversions,
-            modifier = Modifier.padding(8.dp))
+        AlignYourBodyElement(drawable = R.drawable.ab1_inversions, text = R.string.ab1_inversions, modifier = Modifier.padding(8.dp))
     }
 }
 
@@ -165,7 +164,11 @@ fun AlignYourBodyElementPreview() {
 @Composable
 fun FavoriteCollectionCardPreview() {
     MySootheTheme {
-        FavoriteCollectionCard(modifier = Modifier.padding(8.dp))
+        FavoriteCollectionCard(
+            drawable = R.drawable.fc2_nature_meditations,
+            text = R.string.fc2_nature_meditations,
+            modifier = Modifier.padding(8.dp)
+        )
     }
 }
 
