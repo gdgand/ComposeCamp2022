@@ -17,6 +17,7 @@
 package com.codelab.basiclayouts
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
@@ -252,9 +253,20 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
 }
 
 // Step: MySoothe App - Scaffold
+/**
+ * https://stackoverflow.com/questions/70209466/what-is-the-purpose-of-the-paddingvalues-parameter-in-a-scaffold
+ */
 @Composable
 fun MySootheApp() {
-    // Implement composable here
+    MySootheTheme {
+        Scaffold(  // 최상위 Composable
+            bottomBar = { SootheBottomNavigation() }
+        ) { padding ->  // HomeScreen에 대한 bottom padding이 지정됨
+            // PaddingValues(start=0.0.dp, top=0.0.dp, end=0.0.dp, bottom=56.0.dp)
+            Log.e("PADDING VALUE", "${padding.toString()}")
+            HomeScreen(modifier = Modifier.padding(padding))
+        }
+    }
 }
 
 private val alignYourBodyData = listOf(
