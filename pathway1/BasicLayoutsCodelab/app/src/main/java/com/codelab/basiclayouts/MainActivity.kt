@@ -43,6 +43,7 @@ import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -120,7 +121,19 @@ fun FavoriteCollectionsGrid(modifier: Modifier = Modifier) {
 
 // Step: Home section - Slot APIs
 @Composable
-fun HomeSection(modifier: Modifier = Modifier) { // Implement composable here
+fun HomeSection(
+    @StringRes text: Int,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(id = text).uppercase(Locale.getDefault()),
+            modifier = Modifier.paddingFromBaseline(top = 40.dp, bottom = 8.dp)
+                .padding(horizontal = 16.dp)
+        )
+        content()
+    }
 }
 
 // Step: Home screen - Scrolling
@@ -193,7 +206,7 @@ fun AlignYourBodyRowPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
 fun HomeSectionPreview() {
-    MySootheTheme { HomeSection() }
+    MySootheTheme { HomeSection(R.string.align_your_body) { AlignYourBodyRow()} }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
