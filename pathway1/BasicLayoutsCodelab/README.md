@@ -35,3 +35,22 @@ limitations under the License.
 [ab4_tabata.jpg](https://www.pexels.com/photo/fashion-man-people-art-4662438/) - Elly Fairytale
 [ab5_hiit.jpg](https://www.pexels.com/photo/man-wearing-white-pants-under-blue-sky-999309/) - The Lazy Artist Gallery
 [ab6_pre_natal_yoga.jpg](https://www.pexels.com/photo/woman-doing-yoga-396133/) - freestocks.org
+
+- Modifier
+    - **`fillMaxWidth**(fraction: **Float** = 1.0f)` - match parent
+    - **`heightIn**(min: **Dp** = Dp.Unspecified, max: **Dp** = Dp.Unspecified)`
+
+- Image
+    - ContentScale
+      <img width="401" alt="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2022-11-12_%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB_12 12 40" src="https://user-images.githubusercontent.com/87517193/201391461-fc21b16a-9e78-4d0b-b25b-111dbd3811e9.png">
+    
+    
+- LazyRow
+    - `Arrangement.spacedBy(8.dp)`
+        - Add a fixed space in between each child composable
+    - `contentPadding = PaddingValues(horizontal = 16.dp)`
+- LazyHorizontalGrid
+- Slot APIs
+- Use a Lazy layout when you have many elements in a list or large data sets to load
+- Scaffold
+    - **top-level configurable composable** for apps that implement Material design
