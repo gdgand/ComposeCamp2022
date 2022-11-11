@@ -24,6 +24,9 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -79,25 +82,13 @@ fun AlignYourBodyElement(@DrawableRes drawable: Int, @StringRes text: Int, modif
 // Step: Favorite collection card - Material Surface
 @Composable
 fun FavoriteCollectionCard(@DrawableRes drawable: Int, @StringRes text: Int, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.small
-    ) {
-        Row(
-            modifier = Modifier.width(192.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = drawable),
+    Surface(modifier = modifier, shape = MaterialTheme.shapes.small) {
+        Row(modifier = Modifier.width(192.dp), verticalAlignment = Alignment.CenterVertically) {
+            Image(painter = painterResource(id = drawable),
                 contentDescription = null,
                 modifier = Modifier.size(56.dp),
-                contentScale = ContentScale.Crop
-            )
-            Text(
-                text = stringResource(id = text),
-                style = MaterialTheme.typography.h3,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+                contentScale = ContentScale.Crop)
+            Text(text = stringResource(id = text), style = MaterialTheme.typography.h3, modifier = Modifier.padding(horizontal = 16.dp))
         }
     }
 }
@@ -105,11 +96,7 @@ fun FavoriteCollectionCard(@DrawableRes drawable: Int, @StringRes text: Int, mod
 // Step: Align your body row - Arrangements
 @Composable
 fun AlignYourBodyRow(modifier: Modifier = Modifier) {
-    LazyRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
-    ) {
+    LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = 16.dp)) {
         items(alignYourBodyData) { item ->
             AlignYourBodyElement(drawable = item.drawable, text = item.text)
         }
@@ -118,7 +105,17 @@ fun AlignYourBodyRow(modifier: Modifier = Modifier) {
 
 // Step: Favorite collections grid - LazyGrid
 @Composable
-fun FavoriteCollectionsGrid(modifier: Modifier = Modifier) { // Implement composable here
+fun FavoriteCollectionsGrid(modifier: Modifier = Modifier) {
+    LazyHorizontalGrid(rows = GridCells.Fixed(2),
+        contentPadding = PaddingValues(16.dp),
+        modifier = modifier.height(136.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(favoriteCollectionsData) { item ->
+            FavoriteCollectionCard(drawable = item.drawable, text = item.text,
+            modifier = Modifier.height(56.dp))
+        }
+    }
 }
 
 // Step: Home section - Slot APIs
@@ -175,11 +172,9 @@ fun AlignYourBodyElementPreview() {
 @Composable
 fun FavoriteCollectionCardPreview() {
     MySootheTheme {
-        FavoriteCollectionCard(
-            drawable = R.drawable.fc2_nature_meditations,
+        FavoriteCollectionCard(drawable = R.drawable.fc2_nature_meditations,
             text = R.string.fc2_nature_meditations,
-            modifier = Modifier.padding(8.dp)
-        )
+            modifier = Modifier.padding(8.dp))
     }
 }
 
