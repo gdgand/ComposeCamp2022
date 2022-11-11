@@ -37,8 +37,8 @@ limitations under the License.
 [ab6_pre_natal_yoga.jpg](https://www.pexels.com/photo/woman-doing-yoga-396133/) - freestocks.org
 
 - Modifier
-    - **`fillMaxWidth**(fraction: **Float** = 1.0f)` - match parent
-    - **`heightIn**(min: **Dp** = Dp.Unspecified, max: **Dp** = Dp.Unspecified)`
+    - `fillMaxWidth(fraction: Float = 1.0f)` - match parent
+    - `heightIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified)`
 
 - Image
     - ContentScale
