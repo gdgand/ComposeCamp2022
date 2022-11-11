@@ -103,7 +103,7 @@ fun Header(
     Surface(
         color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
         contentColor = MaterialTheme.colors.primary,
-        modifier = modifier
+        modifier = modifier.semantics { heading() }
     ) {
         Text(
             text = text,
