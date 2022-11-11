@@ -42,6 +42,7 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -49,18 +50,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.theming.R
 import com.codelab.theming.data.Post
 import com.codelab.theming.data.PostRepo
+import com.codelab.theming.ui.start.theme.JetnewsTheme
 import java.util.Locale
 
 @Composable
 fun Home() {
     val featured = remember { PostRepo.getFeaturedPost() }
     val posts = remember { PostRepo.getPosts() }
-    MaterialTheme {
+    JetnewsTheme(darkTheme = false) {
         Scaffold(
             topBar = { AppBar() }
         ) { innerPadding ->
@@ -110,6 +113,7 @@ fun Header(
 ) {
     Text(
         text = text,
+        style = MaterialTheme.typography.subtitle2,
         modifier = modifier
             .fillMaxWidth()
             .background(Color.LightGray)
@@ -142,10 +146,12 @@ fun FeaturedPost(
             val padding = Modifier.padding(horizontal = 16.dp)
             Text(
                 text = post.title,
+                style = MaterialTheme.typography.h6,
                 modifier = padding
             )
             Text(
                 text = post.metadata.author.name,
+                style = MaterialTheme.typography.body2,
                 modifier = padding
             )
             PostMetadata(post, padding)
@@ -169,12 +175,19 @@ private fun PostMetadata(
         post.tags.forEachIndexed { index, tag ->
             if (index != 0) {
                 append(tagDivider)
+                val tagStyle = MaterialTheme.typography.overline.toSpanStyle().copy(
+                    background = MaterialTheme.colors.primary.copy(alpha = 0.1f)
+                )
+                withStyle(tagStyle) {
+                    append(" ${tag.uppercase()}")
+                }
             }
             append(" ${tag.uppercase(Locale.getDefault())} ")
         }
     }
     Text(
         text = text,
+        style = MaterialTheme.typography.body2,
         modifier = modifier
     )
 }
@@ -192,6 +205,7 @@ fun PostItem(
         icon = {
             Image(
                 painter = painterResource(post.imageThumbId),
+                modifier = Modifier.clip(shape = MaterialTheme.shapes.small),
                 contentDescription = null
             )
         },
@@ -217,7 +231,18 @@ private fun PostItemPreview() {
 @Composable
 private fun FeaturedPostPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    FeaturedPost(post = post)
+    JetnewsTheme(darkTheme = false) {
+        FeaturedPost(post = post)
+    }
+}
+
+@Preview("Featured Post")
+@Composable
+private fun FeaturedPostDarkPreview() {
+    val post = remember { PostRepo.getFeaturedPost() }
+    JetnewsTheme(darkTheme = true) {
+        FeaturedPost(post = post)
+    }
 }
 
 @Preview("Home")
