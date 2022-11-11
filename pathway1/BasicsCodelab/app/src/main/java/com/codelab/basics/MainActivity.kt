@@ -40,7 +40,11 @@ fun Greeting(name: String) {
                 Text(text = "Hello,")
                 Text(text = name)
             }
-
+            ElevatedButton(
+                onClick = { /*TODO*/ }
+            ) {
+                Text(text = "Show more")
+            }
         }
 
     }
