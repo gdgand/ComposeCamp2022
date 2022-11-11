@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 
 class MainActivity : ComponentActivity() {
@@ -89,7 +90,7 @@ fun OnboardingScreen(
 
 @Composable
 private fun MyApp(modifier: Modifier = Modifier, ) {
-    var shouldShowOnboarding by remember { mutableStateOf(true) }
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
 
     Surface(modifier) {
         if (shouldShowOnboarding) {
