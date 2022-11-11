@@ -21,7 +21,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.*
@@ -195,7 +195,21 @@ fun HomeSection(
 // Step: Home screen - Scrolling
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    // Implement composable here
+    Column(
+            modifier = modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(vertical = 16.dp),
+    ) {
+        Spacer(modifier = Modifier.height(16.dp))
+        SearchBar(modifier = Modifier.padding(horizontal = 16.dp))
+        HomeSection(title = R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+        HomeSection(title = R.string.favorite_collections) {
+            FavoriteCollectionsGrid()
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+    }
 }
 
 // Step: Bottom navigation - Material
