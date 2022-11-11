@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,13 +30,15 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun MyApp(names: List<String> = listOf("World", "Compose")) {
-    Column(
-        modifier = Modifier
-            .padding(vertical = 4.dp)
-    ) {
-        for (name in names) {
-            Greeting(name)
+private fun MyApp(modifier: Modifier = Modifier) {
+    var shouldShowOnboarding by remember { mutableStateOf(true) }
+    Surface(modifier) {
+        if (shouldShowOnboarding) {
+            OnboardingScreen {
+                shouldShowOnboarding = false
+            }
+        } else {
+            Greetings()
         }
     }
 }
@@ -75,10 +78,53 @@ fun Greeting(name: String) {
     }
 }
 
+@Composable
+private fun Greetings(
+    modifier: Modifier = Modifier,
+    names: List<String> = listOf("World", "Compose")
+) {
+    Column(
+        modifier = modifier
+            .padding(vertical = 4.dp)
+    ) {
+        for (name in names) {
+            Greeting(name)
+        }
+    }
+}
+
+@Composable
+private fun OnboardingScreen(
+    modifier: Modifier = Modifier,
+    onContinueClicked: () -> Unit
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Welcome to the Basics Codelab!")
+        Button(
+            modifier = Modifier.padding(vertical = 24.dp),
+            onClick = { onContinueClicked() }
+        ) {
+            Text("Continue")
+        }
+    }
+}
+
 @Preview(showBackground = true, widthDp = 320)
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
-        MyApp() //Greeting("Android")
+        MyApp(Modifier.fillMaxSize()) //Greeting("Android")
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+private fun OnboardingPreview() {
+    BasicsCodelabTheme {
+        OnboardingScreen { }
     }
 }
