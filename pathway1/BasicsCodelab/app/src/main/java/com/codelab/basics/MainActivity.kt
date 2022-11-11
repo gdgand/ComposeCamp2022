@@ -1,6 +1,7 @@
 package com.codelab.basics
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,8 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,18 +48,26 @@ private fun MyApp(
 
 @Composable
 fun Greeting(name: String) {
+    Log.e("GREETING", "CALLED")
+    val expanded = remember { mutableStateOf(false) }  // Recomposition시 상태 기억; remember
+    val extraPadding = if (expanded.value) 48.dp else 0.dp
+
     Surface(
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
         color = MaterialTheme.colors.primary
     ) {
         Row(modifier = Modifier.padding(24.dp)) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f).padding(bottom = extraPadding)) {
                 Text(text = "Hello,")
                 Text(text = name)
             }
 
-            OutlinedButton(onClick = { /*TODO*/ }) {
-                Text(text = "Show more")
+            OutlinedButton(onClick = {
+                expanded.value = !expanded.value
+                Log.e("EXPAND", "${expanded.value}")
+
+            }) {
+                Text(text = if (expanded.value) "Show less" else "Show more")
             }
         }
     }
