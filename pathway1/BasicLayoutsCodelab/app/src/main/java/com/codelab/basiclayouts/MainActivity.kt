@@ -24,6 +24,9 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -161,7 +164,17 @@ fun AlignYourBodyRow(
 fun FavoriteCollectionsGrid(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    LazyHorizontalGrid(
+        rows = GridCells.Fixed(2),
+        modifier = modifier.height(120.dp),  // 명확한 높이 지정, heightIn은 min, max 지정 가능
+        verticalArrangement = Arrangement.spacedBy(8.dp), // item간 위아래 간격
+        horizontalArrangement = Arrangement.spacedBy(8.dp),  // item간 양옆 간격
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        items(favoriteCollectionsData) { item ->
+            FavoriteCollectionCard(imageId = item.drawable, textId = item.text)
+        }
+    }
 }
 
 // Step: Home section - Slot APIs
