@@ -3,6 +3,7 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +13,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
 
@@ -43,10 +45,14 @@ private fun MyApp(modifier: Modifier = Modifier) {
 
 @Composable
 fun Greeting(name: String) {
-    val isButtonExpanded = remember {
-        mutableStateOf(false)
-    }
-    val extraPadding = if (isButtonExpanded.value) 48.dp else 0.dp
+    var isButtonExpanded by remember { mutableStateOf(false) }
+    val extraPadding by animateDpAsState(
+        if (isButtonExpanded) 48.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioHighBouncy,
+            stiffness = Spring.StiffnessHigh
+        )
+    )
 
     Surface(
         color = MaterialTheme.colors.primary,
@@ -61,16 +67,16 @@ fun Greeting(name: String) {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(bottom = extraPadding)
+                    .padding(bottom = extraPadding.coerceAtLeast(0.dp))
             ) {
                 Text("Hello, ")
                 Text(name)
             }
 
             OutlinedButton(
-                onClick = { isButtonExpanded.value = !isButtonExpanded.value }
+                onClick = { isButtonExpanded = !isButtonExpanded }
             ) {
-                Text(if (isButtonExpanded.value) "Show less" else "Show more")
+                Text(if (isButtonExpanded) "Show less" else "Show more")
             }
         }
     }
