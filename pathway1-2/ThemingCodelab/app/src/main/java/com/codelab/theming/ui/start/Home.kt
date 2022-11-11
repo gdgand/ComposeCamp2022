@@ -174,7 +174,7 @@ private fun PostMetadata(
             if (index != 0) {
                 append(tagDivider)
             }
-            append(" ${tag.uppercase(Locale.getDefault())} ")
+
             withStyle(tagStyle){
                 append(" ${tag.uppercase()}")
             }
