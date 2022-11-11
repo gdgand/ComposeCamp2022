@@ -49,8 +49,9 @@ fun MyApp(modifier: Modifier = Modifier) {
 
 @Composable
 fun OnBoardingScreen(onContinueClicked: () -> Unit) {
-
-    Surface {
+    Surface(
+        color = MaterialTheme.colors.background
+    ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -69,18 +70,24 @@ fun OnBoardingScreen(onContinueClicked: () -> Unit) {
 
 @Composable
 private fun Greetings(names: List<String> = List(1000) { "$it" }) {
-    LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
-        items(items = names) { name ->
-            Greeting(name = name)
+    Surface(
+        color = MaterialTheme.colors.background
+    ) {
+        LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
+            items(items = names) { name ->
+                Greeting(name = name)
+            }
         }
     }
+
 }
 
 @Composable
 private fun Greeting(name: String) {
+
     Card(
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
-        //contentColor = MaterialTheme.colors.primary
+        contentColor = MaterialTheme.colors.primary
     ) {
         CardContent(name)
     }
