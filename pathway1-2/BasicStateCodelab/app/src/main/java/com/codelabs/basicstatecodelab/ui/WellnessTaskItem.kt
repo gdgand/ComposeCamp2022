@@ -52,9 +52,12 @@ fun WellnessTaskItem(
                 .padding(start = 16.dp),
             text = taskName
         )
-        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
         IconButton(onClick = onClose) {
-            Icon(Icons.Filled.Close, contentDescription = null)
+            Icon(Icons.Filled.Close, contentDescription = "Close")
         }
     }
 }
