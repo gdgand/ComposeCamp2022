@@ -38,8 +38,10 @@ class MainActivity : ComponentActivity() {
 // Step: Search bar - Modifiers
 @Composable
 fun SearchBar(
+    //수정자로 모든 디자인, 느낌 동작 제어
     modifier: Modifier = Modifier
 ) {
+    //구성요소 구현(searchbar) 기본 구성요소 아마 edittext?
     TextField(
         value = "",
         onValueChange = {},
@@ -64,8 +66,12 @@ fun SearchBar(
 // Step: Align your body - Alignment
 @Composable
 fun AlignYourBodyElement(
+    //이미지와 텍스트를 동적
+    @DrawableRes drawable: Int,
+    @StringRes text : Int,
     modifier: Modifier = Modifier
 ) {
+    //image, text 컴포저블이 필요, 세로방향 - column
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -128,6 +134,7 @@ fun FavoriteCollectionCard(
 fun AlignYourBodyRow(
     modifier: Modifier = Modifier
 ) {
+    //스크롤 가능한 행을 구현(LazyRow)
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -147,10 +154,14 @@ fun AlignYourBodyRow(
 fun FavoriteCollectionsGrid(
     modifier: Modifier = Modifier
 ) {
+    //column도 있지만 그리드 요소 매핑의 효과적인 LazyHorizontalGrid
     LazyHorizontalGrid(
+        //두 개의 고정 행
         rows = GridCells.Fixed(2),
         contentPadding = PaddingValues(horizontal = 16.dp),
+        //수평
         horizontalArrangement = Arrangement.spacedBy(8.dp),
+        //수직
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.height(120.dp)
     ) {
@@ -168,6 +179,8 @@ fun FavoriteCollectionsGrid(
 @Composable
 fun HomeSection(
     @StringRes title : Int,
+    //@Composable 호출은 @Composable 함수의 컨텍스트에서만 발생할 수 있어서
+    //@Composable이 먼저 선언되면 안됨
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
@@ -187,6 +200,9 @@ fun HomeSection(
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
     Column(
+        //rememberScrollState : 스크롤 동작을 수동으로 추가
+        //현재는 스크롤 상태를 수정할 필요가 없어 rememberScrollState를 사용하여 영구 ScrollState 인스턴스를 만들었지만
+        //필요한 경우 ScrollState 필요
         modifier
             .verticalScroll(rememberScrollState())
             .padding(vertical = 16.dp)
@@ -240,7 +256,14 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
 // Step: MySoothe App - Scaffold
 @Composable
 fun MySootheApp() {
-    // Implement composable here
+    MySootheTheme {
+        //최상위 수준 컴포저블
+        Scaffold(
+            bottomBar = { SootheBottomNavigation() }
+        ) { paddingValues ->
+            HomeScreen(Modifier.padding(paddingValues))
+        }
+    }
 }
 
 private val alignYourBodyData = listOf(
@@ -277,7 +300,11 @@ fun SearchBarPreview() {
 fun AlignYourBodyElementPreview() {
     MySootheTheme {
         AlignYourBodyElement(
-            modifier = Modifier.padding(8.dp)
+            AlignYourBodyElement(
+                text = R.string.ab1_inversions,
+                drawable = R.drawable.ab1_inversions,
+                modifier = Modifier.padding(8.dp)
+            )
         )
     }
 }
@@ -287,7 +314,9 @@ fun AlignYourBodyElementPreview() {
 fun FavoriteCollectionCardPreview() {
     MySootheTheme {
         FavoriteCollectionCard(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
+            text = R.string.fc2_nature_meditations,
+            drawable = R.drawable.fc2_nature_meditations
         )
     }
 }
@@ -307,7 +336,11 @@ fun AlignYourBodyRowPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
 fun HomeSectionPreview() {
-    MySootheTheme { HomeSection() }
+    MySootheTheme {
+        HomeSection(R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+    }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
