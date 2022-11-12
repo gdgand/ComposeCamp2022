@@ -183,9 +183,20 @@ fun FavoriteCollectionsGrid(
 // Step: Home section - Slot APIs
 @Composable
 fun HomeSection(
-    modifier: Modifier = Modifier
+    @StringRes title: Int,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
 ) {
-    // Implement composable here
+    Column(modifier) {
+        Text(
+            text = stringResource(id = title),
+            style = MaterialTheme.typography.h2,
+            modifier = Modifier
+                .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
+                .padding(horizontal = 16.dp)
+        )
+        content()
+    }
 }
 
 // Step: Home screen - Scrolling
@@ -296,7 +307,20 @@ fun AlignYourBodyRowPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
 fun HomeSectionPreview() {
-    MySootheTheme { HomeSection() }
+    MySootheTheme {
+        HomeSection(R.string.align_your_body) {
+            AlignYourBodyRow(
+                listOf(
+                    ImageAndText(R.drawable.ab1_inversions, R.string.ab1_inversions),
+                    ImageAndText(R.drawable.ab2_quick_yoga, R.string.ab2_quick_yoga),
+                    ImageAndText(R.drawable.ab3_stretching, R.string.ab3_stretching),
+                    ImageAndText(R.drawable.ab4_tabata, R.string.ab4_tabata),
+                    ImageAndText(R.drawable.ab5_hiit, R.string.ab5_hiit),
+                    ImageAndText(R.drawable.ab6_pre_natal_yoga, R.string.ab6_pre_natal_yoga),
+                )
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
