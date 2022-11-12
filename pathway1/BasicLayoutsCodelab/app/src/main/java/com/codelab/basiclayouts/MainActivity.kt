@@ -221,7 +221,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 // Step: Bottom navigation - Material
 @Composable
 private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
-    BottomNavigation(modifier = modifier) {
+    BottomNavigation(
+        modifier = modifier,
+        backgroundColor = MaterialTheme.colors.background
+    ) {
         BottomNavigationItem(
             selected = true,
             onClick = { /*TODO*/ },
