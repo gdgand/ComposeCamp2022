@@ -38,7 +38,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -57,6 +59,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -193,15 +196,41 @@ fun FavoriteCollectionsGrid(
 // Step: Home section - Slot APIs
 @Composable
 fun HomeSection(
+    @StringRes titleResId: Int,
     modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
 ) {
-    // Implement composable here
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(id = titleResId).uppercase(Locale.getDefault()),
+            style = MaterialTheme.typography.h2,
+            modifier = Modifier
+                .paddingFromBaseline(
+                    top = 40.dp,
+                    bottom = 8.dp
+                )
+                .padding(horizontal = 16.dp)
+        )
+        content()
+    }
 }
 
 // Step: Home screen - Scrolling
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    // Implement composable here
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 16.dp)
+    ) {
+        SearchBar(modifier = Modifier.padding(horizontal = 16.dp))
+        HomeSection(titleResId = R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+        HomeSection(titleResId = R.string.favorite_collections) {
+            FavoriteCollectionsGrid()
+        }
+    }
 }
 
 // Step: Bottom navigation - Material
@@ -284,10 +313,16 @@ fun AlignYourBodyRowPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
 fun HomeSectionPreview() {
-    MySootheTheme { HomeSection() }
+    MySootheTheme {
+        HomeSection(
+            titleResId = R.string.align_your_body
+        ) {
+            AlignYourBodyRow()
+        }
+    }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
+@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2, heightDp = 180)
 @Composable
 fun ScreenContentPreview() {
     MySootheTheme { HomeScreen() }
