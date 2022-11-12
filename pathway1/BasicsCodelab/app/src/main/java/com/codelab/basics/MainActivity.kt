@@ -3,9 +3,9 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BasicsCodelabTheme {
-                MyApp(Modifier.fillMaxSize())
+                MyApp()
             }
         }
     }
@@ -33,25 +33,41 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String) {
-    Surface(color = MaterialTheme.colors.background) {
-        Column(modifier = Modifier.padding(24.dp)) {
-            Text(text = "Hello!")
-            Text(text = "$name!")
+    Surface(
+        color = MaterialTheme.colors.primary,
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = "Hello, ")
+                Text(text = "$name!")
+            }
+
+            Button(onClick = { /*TODO*/ }) {
+                Text(text = "Show More")
+            }
         }
     }
 }
 
-
 // 기본적으로 함수는 빈 수정자 ( Modifier ) 를 가지고 있는것이 좋다.
 @Composable
-private fun MyApp(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier,
-
-    ) {
-        Greeting("Android")
+private fun MyApp(
+    modifier: Modifier = Modifier,
+    names: List<String> = listOf("World", "Compose")
+) {
+    Column(modifier = modifier.padding(vertical = 4.dp)) {
+        for (name in names) {
+            Greeting(name = name)
+        }
     }
 }
+
+// Surface 란 무엇일까 ?
 
 @Preview(showBackground = true)
 @Composable
