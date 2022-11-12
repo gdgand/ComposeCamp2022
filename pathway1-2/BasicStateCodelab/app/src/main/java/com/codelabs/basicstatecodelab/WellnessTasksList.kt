@@ -24,7 +24,7 @@ fun WellnessTaskList(
             WellnessTaskItem(
                 taskName = task.label,
                 checked = task.checked,
-                onCheckedChange = { onCheckedTask(task,task.checked)},
+                onCheckedChange = { checked -> onCheckedTask(task, checked) },
                 onClose = { onCloseTask(task) },
             )
         }
