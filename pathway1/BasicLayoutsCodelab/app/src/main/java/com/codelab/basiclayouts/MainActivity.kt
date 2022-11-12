@@ -257,6 +257,13 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
 @Composable
 fun MySootheApp() {
     // Implement composable here
+    MySootheTheme {
+        Scaffold(   // 앱을 위한 구성 가능한 최상위 수준 컴포저블
+            bottomBar = { SootheBottomNavigation() }
+        ) { padding ->
+            HomeScreen(Modifier.padding(padding))
+        }
+    }
 }
 
 private val alignYourBodyData = listOf(
