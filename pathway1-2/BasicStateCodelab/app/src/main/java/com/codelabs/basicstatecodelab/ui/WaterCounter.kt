@@ -73,9 +73,7 @@ fun StatelessCounter(count: Int, onIncrement: () -> Unit, modifier: Modifier = M
 @Composable
 fun StatefulCounter() {
     var waterCount by rememberSaveable { mutableStateOf(0) }
-    var juiceCount by rememberSaveable { mutableStateOf(0) }
     StatelessCounter(count = waterCount, onIncrement = { waterCount++ })
-    StatelessCounter(count = juiceCount, onIncrement = { juiceCount++ })
 }
 
 @Preview(showBackground = true)
@@ -88,5 +86,8 @@ fun StatefulCounterPreview() {
 
 @Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
-    WaterCounter(modifier = modifier)
+    Column(modifier = modifier) {
+        StatefulCounter()
+        WellnessTasksList()
+    }
 }
