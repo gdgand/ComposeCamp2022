@@ -23,6 +23,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -130,12 +132,26 @@ fun FavoriteCollectionCard(
     }
 }
 
+data class AlignYourBody(
+    @DrawableRes val drawable: Int,
+    @StringRes val text: Int,
+)
+
 // Step: Align your body row - Arrangements
 @Composable
 fun AlignYourBodyRow(
+    alignYourBodyData: List<AlignYourBody>,
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        modifier = modifier
+    ) {
+        items(alignYourBodyData) { item ->
+            AlignYourBodyElement(item.drawable, item.text)
+        }
+    }
 }
 
 // Step: Favorite collections grid - LazyGrid
@@ -234,7 +250,18 @@ fun FavoriteCollectionsGridPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
 fun AlignYourBodyRowPreview() {
-    MySootheTheme { AlignYourBodyRow() }
+    MySootheTheme {
+        AlignYourBodyRow(
+            listOf(
+                AlignYourBody(R.drawable.ab1_inversions, R.string.ab1_inversions),
+                AlignYourBody(R.drawable.ab2_quick_yoga, R.string.ab2_quick_yoga),
+                AlignYourBody(R.drawable.ab3_stretching, R.string.ab3_stretching),
+                AlignYourBody(R.drawable.ab4_tabata, R.string.ab4_tabata),
+                AlignYourBody(R.drawable.ab5_hiit, R.string.ab5_hiit),
+                AlignYourBody(R.drawable.ab6_pre_natal_yoga, R.string.ab6_pre_natal_yoga),
+            )
+        )
+    }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
