@@ -64,6 +64,24 @@ fun Greeting(name: String) {
 }
 
 
+@Composable
+fun OnboardingScreen(modifier: Modifier = Modifier) {
+    // TODO: This state should be hoisted
+    var shouldShowOnboarding by remember { mutableStateOf(true) }
+
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Welcome to the Basics Codelab!")
+        Button(
+            modifier = Modifier.padding(vertical = 24.dp),
+            onClick = { shouldShowOnboarding = false }
+        ) {
+            Text("Continue")
+        }
+    }
 }
 
 
@@ -71,6 +89,6 @@ fun Greeting(name: String) {
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
-        Greeting("Android")
+        OnboardingScreen()
     }
 }
