@@ -12,12 +12,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
 
+/***
+ * Material 은 설정한 색상에 맞게 주변 child Compose 들이 자동으로 변한다
+ * Modifier -> padding 값 등 수정할 수 있는 수정자를 의미
+ ***/
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             BasicsCodelabTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
