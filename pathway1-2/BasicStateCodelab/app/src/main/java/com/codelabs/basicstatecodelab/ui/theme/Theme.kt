@@ -1,4 +1,4 @@
-package com.codelabs.basicstatecodelab.ui.theme
+package com.github.stonybean.basicstatecodelab.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
