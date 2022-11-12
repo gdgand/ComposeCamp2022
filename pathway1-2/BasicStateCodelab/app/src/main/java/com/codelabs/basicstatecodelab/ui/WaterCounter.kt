@@ -83,11 +83,3 @@ fun StatefulCounterPreview() {
         StatefulCounter()
     }
 }
-
-@Composable
-fun WellnessScreen(modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        StatefulCounter()
-        WellnessTasksList()
-    }
-}
