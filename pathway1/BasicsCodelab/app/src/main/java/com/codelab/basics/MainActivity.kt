@@ -22,12 +22,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BasicsCodelabTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    Greeting("Android")
-                }
+                MyApp(Modifier.fillMaxSize())
             }
         }
     }
@@ -36,6 +31,18 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(name: String) {
     Text(text = "Hello $name!")
+}
+
+
+// 기본적으로 함수는 빈 수정자 ( Modifier ) 를 가지고 있는것이 좋다.
+@Composable
+private fun MyApp(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colors.background
+    ) {
+        Greeting("Android")
+    }
 }
 
 @Preview(showBackground = true)
