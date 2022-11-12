@@ -147,8 +147,8 @@ fun HomeSection(
 fun HomeScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
-            .padding(vertical = 16.dp)
             .verticalScroll(rememberScrollState())
+            .padding(vertical = 16.dp)
     ) {
         SearchBar(modifier = Modifier.padding(horizontal = 16.dp))
         HomeSection(text = R.string.align_your_body) {         
@@ -185,7 +185,13 @@ private fun SootheBottomNavigation(
 // Step: MySoothe App - Scaffold
 @Composable
 fun MySootheApp() {
-
+    MySootheTheme {
+        Scaffold(
+            bottomBar = { SootheBottomNavigation()}
+        ) { paddingValues ->
+            HomeScreen(modifier = Modifier.padding(paddingValues))
+        }
+    }
 }
 
 private val alignYourBodyData = listOf(R.drawable.ab1_inversions to R.string.ab1_inversions,
