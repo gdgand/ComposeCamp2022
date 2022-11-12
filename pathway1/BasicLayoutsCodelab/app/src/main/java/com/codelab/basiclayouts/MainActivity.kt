@@ -66,7 +66,30 @@ fun SearchBar(
 fun AlignYourBodyElement(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Image(painter = painterResource(id = drawable),
+            //그냥 장식용이라 null로 설정
+            contentDescription = null,
+            //이미지의 사이즈 조절 (현재는 둥근형태, fit, fillbounds 등이 있다)
+            contentScale = ContentScale.Crop,
+            //수정자를 불러와 size와 clip으로 형태(shape)조절
+            modifier = Modifier
+                .size(88.dp)
+                .clip(CircleShape)
+        )
+        Text(
+            text = stringResource(id = text),
+            style = MaterialTheme.typography.h3,
+            modifier = Modifier.paddingFromBaseline(
+                top = 24.dp, bottom = 8.dp
+            )
+
+        )
+
+    }
 }
 
 // Step: Favorite collection card - Material Surface
