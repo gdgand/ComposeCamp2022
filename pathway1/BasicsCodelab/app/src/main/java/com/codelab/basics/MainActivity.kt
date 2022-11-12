@@ -67,7 +67,7 @@ private fun MyApp(
     }
 }
 
-// Surface 란 무엇일까 ?
+// Surface 란 무엇일까 ? -> https://stackoverflow.com/questions/65918835/when-should-i-use-android-jetpack-compose-surface-composable
 
 @Preview(showBackground = true)
 @Composable
@@ -76,3 +76,4 @@ fun DefaultPreview() {
         Greeting("Android")
     }
 }
+
