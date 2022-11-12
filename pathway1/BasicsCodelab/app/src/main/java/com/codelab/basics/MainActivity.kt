@@ -10,6 +10,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
@@ -48,26 +49,32 @@ fun MyApp() {
 
 @Composable
 fun Greetings(names: List<String> = List(1000) { "$it" }) {
+    var expandedIndex: Int by rememberSaveable {
+        mutableStateOf(-1)
+    }
     LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
-        items(items = names) { name ->
-            Greeting(name = name)
+        itemsIndexed(items = names) { i, name ->
+            Greeting(name = name, isExpanded = i == expandedIndex) {
+                expandedIndex =
+                    if (expandedIndex == i) -1
+                    else i
+            }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String) {
+fun Greeting(name: String, isExpanded: Boolean, onExpandButtonClicked: () -> Unit) {
     Card(
         backgroundColor = MaterialTheme.colors.primary,
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
     ) {
-        CardContent(name = name)
+        CardContent(name, isExpanded, onExpandButtonClicked)
     }
 }
 
 @Composable
-fun CardContent(name: String) {
-    var isExpanded by remember { mutableStateOf(false) }
+fun CardContent(name: String, isExpanded: Boolean, onExpandButtonClicked: () -> Unit) {
 
     Row(
         modifier = Modifier
@@ -99,7 +106,7 @@ fun CardContent(name: String) {
             }
         }
         IconButton(
-            onClick = { isExpanded = !isExpanded }
+            onClick = { onExpandButtonClicked.invoke() }
         ) {
             Icon(
                 imageVector =
