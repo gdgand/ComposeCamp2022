@@ -24,6 +24,9 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -87,7 +90,9 @@ fun AlignYourBodyElement(
             painter = painterResource(drawable),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.size(88.dp).clip(CircleShape)
+            modifier = Modifier
+                .size(88.dp)
+                .clip(CircleShape)
         )
         Text(
             text = stringResource(text),
@@ -151,6 +156,20 @@ fun FavoriteCollectionsGrid(
     modifier: Modifier = Modifier
 ) {
     // Implement composable here
+    LazyHorizontalGrid(rows = GridCells.Fixed(2),
+        horizontalArrangement = Arrangement.spacedBy(8.dp), // 컴포저블 사이에 고정된 공간을 추가 - 가로
+        verticalArrangement = Arrangement.spacedBy(8.dp),   // 컴포저블 사이에 고정된 공간을 추가 - 세로
+        contentPadding = PaddingValues(horizontal = 16.dp), // 동일한 패딩을 유지하되 상위 목록의 경계 내에서 콘텐츠를 자르지 않고
+        modifier = modifier.height(120.dp)
+    ) {    // 항목-그리드 요소 매핑
+        items(favoriteCollectionsData) { item ->
+            FavoriteCollectionCard(
+                drawable = item.drawable,
+                text = item.text,
+                modifier = Modifier.height(56.dp)
+            )
+        }
+    }
 }
 
 // Step: Home section - Slot APIs
