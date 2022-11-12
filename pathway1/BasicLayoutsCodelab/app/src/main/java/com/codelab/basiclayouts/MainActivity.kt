@@ -301,7 +301,7 @@ fun HomeSectionPreview() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
+@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2, heightDp = 200)   // heightDp: 미리보기 높이를 제한
 @Composable
 fun ScreenContentPreview() {
     MySootheTheme { HomeScreen() }
