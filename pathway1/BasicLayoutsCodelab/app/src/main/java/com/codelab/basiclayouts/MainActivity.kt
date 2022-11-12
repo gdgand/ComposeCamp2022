@@ -31,6 +31,7 @@ import com.codelab.basiclayouts.ui.theme.MySootheTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // test
         setContent { MySootheApp() }
     }
 }
