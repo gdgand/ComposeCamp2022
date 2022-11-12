@@ -61,6 +61,32 @@ fun WaterCounterPreview() {
 }
 
 @Composable
+fun StatelessCounter(count: Int, onIncrement: () -> Unit, modifier: Modifier = Modifier) {
+    if (count > 0) {
+        Text(text = "You've had $count glasses.")
+    }
+    Button(onClick = onIncrement, modifier = Modifier.padding(top = 8.dp), enabled = count < 10) {
+        Text(text = "Add one")
+    }
+}
+
+@Composable
+fun StatefulCounter() {
+    var waterCount by rememberSaveable { mutableStateOf(0) }
+    var juiceCount by rememberSaveable { mutableStateOf(0) }
+    StatelessCounter(count = waterCount, onIncrement = { waterCount++ })
+    StatelessCounter(count = juiceCount, onIncrement = { juiceCount++ })
+}
+
+@Preview(showBackground = true)
+@Composable
+fun StatefulCounterPreview() {
+    BasicStateCodelabTheme {
+        StatefulCounter()
+    }
+}
+
+@Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
     WaterCounter(modifier = modifier)
 }
