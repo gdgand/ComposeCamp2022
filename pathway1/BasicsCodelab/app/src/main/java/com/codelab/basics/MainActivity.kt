@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -84,7 +85,7 @@ fun Greeting(name: String) {
 private fun MyApp(
     modifier: Modifier = Modifier
 ) {
-    var shouldShowOnBoarding by remember {
+    var shouldShowOnBoarding by rememberSaveable {
         mutableStateOf(true)
     }
 
