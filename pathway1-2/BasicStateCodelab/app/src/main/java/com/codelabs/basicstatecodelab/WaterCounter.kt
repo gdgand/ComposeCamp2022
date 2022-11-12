@@ -14,13 +14,16 @@ fun WaterCounter(modifier: Modifier = Modifier) {
         var count by remember {
             mutableStateOf(0)
         }
-        Text(
-            text = "You've had $count glasses.",
-            modifier = modifier.padding(16.dp)
-        )
+        if (count > 0) {
+            Text(
+                text = "You've had $count glasses.",
+                modifier = modifier.padding(16.dp)
+            )
+        }
         Button(
             onClick = { count++ },
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp),
+            enabled = count < 10
         ) {
             Text(" Add one")
         }
