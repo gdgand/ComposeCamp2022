@@ -24,6 +24,9 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -102,6 +105,11 @@ fun AlignYourBodyElement(
     }
 }
 
+data class ImageAndText(
+    @DrawableRes val drawable: Int,
+    @StringRes val text: Int,
+)
+
 // Step: Favorite collection card - Material Surface
 @Composable
 fun FavoriteCollectionCard(
@@ -132,15 +140,10 @@ fun FavoriteCollectionCard(
     }
 }
 
-data class AlignYourBody(
-    @DrawableRes val drawable: Int,
-    @StringRes val text: Int,
-)
-
 // Step: Align your body row - Arrangements
 @Composable
 fun AlignYourBodyRow(
-    alignYourBodyData: List<AlignYourBody>,
+    alignYourBodyData: List<ImageAndText>,
     modifier: Modifier = Modifier
 ) {
     LazyRow(
@@ -157,9 +160,24 @@ fun AlignYourBodyRow(
 // Step: Favorite collections grid - LazyGrid
 @Composable
 fun FavoriteCollectionsGrid(
+    favoriteCollectionsData: List<ImageAndText>,
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    LazyHorizontalGrid(
+        rows = GridCells.Fixed(2),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.height(120.dp)
+    ) {
+        items(favoriteCollectionsData) { item ->
+            FavoriteCollectionCard(
+                item.drawable,
+                item.text,
+                Modifier.height(56.dp)
+            )
+        }
+    }
 }
 
 // Step: Home section - Slot APIs
@@ -244,7 +262,18 @@ fun FavoriteCollectionCardPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
 fun FavoriteCollectionsGridPreview() {
-    MySootheTheme { FavoriteCollectionsGrid() }
+    MySootheTheme {
+        FavoriteCollectionsGrid(
+            listOf(
+                ImageAndText(R.drawable.fc1_short_mantras, R.string.fc1_short_mantras),
+                ImageAndText(R.drawable.fc2_nature_meditations, R.string.fc2_nature_meditations),
+                ImageAndText(R.drawable.fc3_stress_and_anxiety, R.string.fc3_stress_and_anxiety),
+                ImageAndText(R.drawable.fc4_self_massage, R.string.fc4_self_massage),
+                ImageAndText(R.drawable.fc5_overwhelmed, R.string.fc5_overwhelmed),
+                ImageAndText(R.drawable.fc6_nightly_wind_down, R.string.fc6_nightly_wind_down),
+            )
+        )
+    }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
@@ -253,12 +282,12 @@ fun AlignYourBodyRowPreview() {
     MySootheTheme {
         AlignYourBodyRow(
             listOf(
-                AlignYourBody(R.drawable.ab1_inversions, R.string.ab1_inversions),
-                AlignYourBody(R.drawable.ab2_quick_yoga, R.string.ab2_quick_yoga),
-                AlignYourBody(R.drawable.ab3_stretching, R.string.ab3_stretching),
-                AlignYourBody(R.drawable.ab4_tabata, R.string.ab4_tabata),
-                AlignYourBody(R.drawable.ab5_hiit, R.string.ab5_hiit),
-                AlignYourBody(R.drawable.ab6_pre_natal_yoga, R.string.ab6_pre_natal_yoga),
+                ImageAndText(R.drawable.ab1_inversions, R.string.ab1_inversions),
+                ImageAndText(R.drawable.ab2_quick_yoga, R.string.ab2_quick_yoga),
+                ImageAndText(R.drawable.ab3_stretching, R.string.ab3_stretching),
+                ImageAndText(R.drawable.ab4_tabata, R.string.ab4_tabata),
+                ImageAndText(R.drawable.ab5_hiit, R.string.ab5_hiit),
+                ImageAndText(R.drawable.ab6_pre_natal_yoga, R.string.ab6_pre_natal_yoga),
             )
         )
     }
