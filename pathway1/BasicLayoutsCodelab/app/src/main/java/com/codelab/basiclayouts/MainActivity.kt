@@ -75,7 +75,21 @@ fun SearchBar(
 fun AlignYourBodyElement(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    Column(
+        modifier = modifier
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ab1_inversions),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(88.dp)
+                .clip(CircleShape)
+        )
+        Text(
+            text = stringResource(R.string.ab1_inversions)
+        )
+    }
 }
 
 // Step: Favorite collection card - Material Surface
