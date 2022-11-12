@@ -28,7 +28,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -143,7 +145,6 @@ fun FavoriteCollectionCard(
 // Step: Align your body row - Arrangements
 @Composable
 fun AlignYourBodyRow(
-    alignYourBodyData: List<ImageAndText>,
     modifier: Modifier = Modifier
 ) {
     LazyRow(
@@ -160,7 +161,6 @@ fun AlignYourBodyRow(
 // Step: Favorite collections grid - LazyGrid
 @Composable
 fun FavoriteCollectionsGrid(
-    favoriteCollectionsData: List<ImageAndText>,
     modifier: Modifier = Modifier
 ) {
     LazyHorizontalGrid(
@@ -202,7 +202,19 @@ fun HomeSection(
 // Step: Home screen - Scrolling
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    // Implement composable here
+    Column(
+        modifier
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 16.dp)
+    ) {
+        SearchBar(Modifier.padding(horizontal = 16.dp))
+        HomeSection(title = R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+        HomeSection(title = R.string.favorite_collections) {
+            FavoriteCollectionsGrid()
+        }
+    }
 }
 
 // Step: Bottom navigation - Material
@@ -274,16 +286,7 @@ fun FavoriteCollectionCardPreview() {
 @Composable
 fun FavoriteCollectionsGridPreview() {
     MySootheTheme {
-        FavoriteCollectionsGrid(
-            listOf(
-                ImageAndText(R.drawable.fc1_short_mantras, R.string.fc1_short_mantras),
-                ImageAndText(R.drawable.fc2_nature_meditations, R.string.fc2_nature_meditations),
-                ImageAndText(R.drawable.fc3_stress_and_anxiety, R.string.fc3_stress_and_anxiety),
-                ImageAndText(R.drawable.fc4_self_massage, R.string.fc4_self_massage),
-                ImageAndText(R.drawable.fc5_overwhelmed, R.string.fc5_overwhelmed),
-                ImageAndText(R.drawable.fc6_nightly_wind_down, R.string.fc6_nightly_wind_down),
-            )
-        )
+        FavoriteCollectionsGrid()
     }
 }
 
@@ -291,16 +294,7 @@ fun FavoriteCollectionsGridPreview() {
 @Composable
 fun AlignYourBodyRowPreview() {
     MySootheTheme {
-        AlignYourBodyRow(
-            listOf(
-                ImageAndText(R.drawable.ab1_inversions, R.string.ab1_inversions),
-                ImageAndText(R.drawable.ab2_quick_yoga, R.string.ab2_quick_yoga),
-                ImageAndText(R.drawable.ab3_stretching, R.string.ab3_stretching),
-                ImageAndText(R.drawable.ab4_tabata, R.string.ab4_tabata),
-                ImageAndText(R.drawable.ab5_hiit, R.string.ab5_hiit),
-                ImageAndText(R.drawable.ab6_pre_natal_yoga, R.string.ab6_pre_natal_yoga),
-            )
-        )
+        AlignYourBodyRow()
     }
 }
 
@@ -309,16 +303,7 @@ fun AlignYourBodyRowPreview() {
 fun HomeSectionPreview() {
     MySootheTheme {
         HomeSection(R.string.align_your_body) {
-            AlignYourBodyRow(
-                listOf(
-                    ImageAndText(R.drawable.ab1_inversions, R.string.ab1_inversions),
-                    ImageAndText(R.drawable.ab2_quick_yoga, R.string.ab2_quick_yoga),
-                    ImageAndText(R.drawable.ab3_stretching, R.string.ab3_stretching),
-                    ImageAndText(R.drawable.ab4_tabata, R.string.ab4_tabata),
-                    ImageAndText(R.drawable.ab5_hiit, R.string.ab5_hiit),
-                    ImageAndText(R.drawable.ab6_pre_natal_yoga, R.string.ab6_pre_natal_yoga),
-                )
-            )
+            AlignYourBodyRow()
         }
     }
 }
