@@ -20,7 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
+import com.codelabs.basicstatecodelab.ui.theme.WellnessViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,20 +64,9 @@ fun StatelessCounter(
 }
 
 @Composable
-fun WellnessTaskItem(taskName: String, onClose: () -> Unit ,modifier: Modifier = Modifier) {
-    var checkedState by rememberSaveable { mutableStateOf(false) }
-
-    WellnessTaskItem(
-        taskName = taskName,
-        checked = checkedState,
-        onCheckedChange = { newValue -> checkedState = newValue },
-        onClose = onClose
-    )
-}
-
-@Composable
 fun WellnessTasksList(
     modifier: Modifier = Modifier,
+    onCheckedTask: (WellnessTask, Boolean) -> Unit,
     onCloseTask: (WellnessTask) -> Unit,
     list: List<WellnessTask>
 ) {
@@ -86,12 +77,15 @@ fun WellnessTasksList(
             items = list,
             key = {task -> task.id}
         ) { item ->
-            WellnessTaskItem(taskName = item.label, onClose = { onCloseTask(item) })
+            WellnessTaskItem(
+                taskName = item.label,
+                checked = item.checked,
+                onCheckedChange = { checked -> onCheckedTask(item, checked) },
+                onClose = { onCloseTask(item) }
+            )
         }
     }
 }
-
-private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i") }
 
 @Composable
 fun WellnessTaskItem(
@@ -121,11 +115,19 @@ fun WellnessTaskItem(
 }
 
 @Composable
-fun WellnessScreen(modifier: Modifier = Modifier) {
+fun WellnessScreen(
+    modifier: Modifier = Modifier,
+    wellnessViewModel: WellnessViewModel = viewModel()
+) {
     Column(modifier = modifier) {
         StatefulCounter(modifier)
-        val list = remember { getWellnessTasks().toMutableStateList() }
-        WellnessTasksList(list = list, onCloseTask = { task -> list.remove(task) })
+        WellnessTasksList(
+            list = wellnessViewModel.tasks,
+            onCheckedTask = { task, isChecked ->
+                wellnessViewModel.changeTaskChecked(task, isChecked)
+            },
+            onCloseTask = { task -> wellnessViewModel.remove(task) }
+        )
     }
 
 }
