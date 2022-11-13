@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -64,9 +66,11 @@ fun Greeting(name: String) {
 //                Text(text = "Show more")
 //            }
 //        }
+        val expanded = remember { mutableStateOf(false) }
+        val extraPadding = if(expanded.value) 48.dp else 0.dp
         //코드랩 솔루션 코드
         Row(modifier = Modifier.padding(24.dp)) {
-            Column(modifier = Modifier.weight(1f)
+            Column(modifier = Modifier.weight(1f).padding(bottom = extraPadding)
             ) {
                 Text(text = "Hello,")
                 Text(text = name)
@@ -74,9 +78,9 @@ fun Greeting(name: String) {
 
             //ElevatedButton은 material3
             OutlinedButton(
-                onClick = { /*TODO*/ }
+                onClick = { expanded.value = !expanded.value }
             ) {
-                Text(text = "Show more")
+                Text(text = if(expanded.value) "show less" else "Show more")
             }
         }
     }
