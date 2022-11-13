@@ -54,174 +54,186 @@ import androidx.compose.ui.unit.dp
 import com.codelab.theming.R
 import com.codelab.theming.data.Post
 import com.codelab.theming.data.PostRepo
+import com.codelab.theming.ui.start.theme.JetnewsTheme
 import java.util.Locale
 
 @Composable
 fun Home() {
-    val featured = remember { PostRepo.getFeaturedPost() }
-    val posts = remember { PostRepo.getPosts() }
-    MaterialTheme {
-        Scaffold(
-            topBar = { AppBar() }
-        ) { innerPadding ->
-            LazyColumn(contentPadding = innerPadding) {
-                item {
-                    Header(stringResource(R.string.top))
-                }
-                item {
-                    FeaturedPost(
-                        post = featured,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-                item {
-                    Header(stringResource(R.string.popular))
-                }
-                items(posts) { post ->
-                    PostItem(post = post)
-                    Divider(startIndent = 72.dp)
-                }
-            }
+  val featured = remember { PostRepo.getFeaturedPost() }
+  val posts = remember { PostRepo.getPosts() }
+  JetnewsTheme {
+    Scaffold(
+      topBar = { AppBar() }
+    ) { innerPadding ->
+      LazyColumn(contentPadding = innerPadding) {
+        item {
+          Header(stringResource(R.string.top))
         }
+        item {
+          FeaturedPost(
+            post = featured,
+            modifier = Modifier.padding(16.dp)
+          )
+        }
+        item {
+          Header(stringResource(R.string.popular))
+        }
+        items(posts) { post ->
+          PostItem(post = post)
+          Divider(startIndent = 72.dp)
+        }
+      }
     }
+  }
 }
 
 @Composable
 private fun AppBar() {
-    TopAppBar(
-        navigationIcon = {
-            Icon(
-                imageVector = Icons.Rounded.Palette,
-                contentDescription = null,
-                modifier = Modifier.padding(horizontal = 12.dp)
-            )
-        },
-        title = {
-            Text(text = stringResource(R.string.app_title))
-        },
-        backgroundColor = MaterialTheme.colors.primary
-    )
+  TopAppBar(
+    navigationIcon = {
+      Icon(
+        imageVector = Icons.Rounded.Palette,
+        contentDescription = null,
+        modifier = Modifier.padding(horizontal = 12.dp)
+      )
+    },
+    title = {
+      Text(text = stringResource(R.string.app_title))
+    },
+    backgroundColor = MaterialTheme.colors.primary
+  )
 }
 
 @Composable
 fun Header(
-    text: String,
-    modifier: Modifier = Modifier
+  text: String,
+  modifier: Modifier = Modifier
 ) {
-    Text(
-        text = text,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color.LightGray)
-            .semantics { heading() }
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    )
+  Text(
+    text = text,
+    modifier = modifier
+      .fillMaxWidth()
+      .background(Color.LightGray)
+      .semantics { heading() }
+      .padding(horizontal = 16.dp, vertical = 8.dp)
+  )
 }
 
 @Composable
 fun FeaturedPost(
-    post: Post,
-    modifier: Modifier = Modifier
+  post: Post,
+  modifier: Modifier = Modifier
 ) {
-    Card(modifier) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { /* onClick */ }
-        ) {
-            Image(
-                painter = painterResource(post.imageId),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .heightIn(min = 180.dp)
-                    .fillMaxWidth()
-            )
-            Spacer(Modifier.height(16.dp))
+  Card(modifier) {
+    Column(
+      modifier = Modifier
+        .fillMaxWidth()
+        .clickable { /* onClick */ }
+    ) {
+      Image(
+        painter = painterResource(post.imageId),
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+          .heightIn(min = 180.dp)
+          .fillMaxWidth()
+      )
+      Spacer(Modifier.height(16.dp))
 
-            val padding = Modifier.padding(horizontal = 16.dp)
-            Text(
-                text = post.title,
-                modifier = padding
-            )
-            Text(
-                text = post.metadata.author.name,
-                modifier = padding
-            )
-            PostMetadata(post, padding)
-            Spacer(Modifier.height(16.dp))
-        }
+      val padding = Modifier.padding(horizontal = 16.dp)
+      Text(
+        text = post.title,
+        modifier = padding
+      )
+      Text(
+        text = post.metadata.author.name,
+        modifier = padding
+      )
+      PostMetadata(post, padding)
+      Spacer(Modifier.height(16.dp))
     }
+  }
 }
 
 @Composable
 private fun PostMetadata(
-    post: Post,
-    modifier: Modifier = Modifier
+  post: Post,
+  modifier: Modifier = Modifier
 ) {
-    val divider = "  •  "
-    val tagDivider = "  "
-    val text = buildAnnotatedString {
-        append(post.metadata.date)
-        append(divider)
-        append(stringResource(R.string.read_time, post.metadata.readTimeMinutes))
-        append(divider)
-        post.tags.forEachIndexed { index, tag ->
-            if (index != 0) {
-                append(tagDivider)
-            }
-            append(" ${tag.uppercase(Locale.getDefault())} ")
-        }
+  val divider = "  •  "
+  val tagDivider = "  "
+  val text = buildAnnotatedString {
+    append(post.metadata.date)
+    append(divider)
+    append(stringResource(R.string.read_time, post.metadata.readTimeMinutes))
+    append(divider)
+    post.tags.forEachIndexed { index, tag ->
+      if (index != 0) {
+        append(tagDivider)
+      }
+      append(" ${tag.uppercase(Locale.getDefault())} ")
     }
-    Text(
-        text = text,
-        modifier = modifier
-    )
+  }
+  Text(
+    text = text,
+    modifier = modifier
+  )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostItem(
-    post: Post,
-    modifier: Modifier = Modifier
+  post: Post,
+  modifier: Modifier = Modifier
 ) {
-    ListItem(
-        modifier = modifier
-            .clickable { /* todo */ }
-            .padding(vertical = 8.dp),
-        icon = {
-            Image(
-                painter = painterResource(post.imageThumbId),
-                contentDescription = null
-            )
-        },
-        text = {
-            Text(text = post.title)
-        },
-        secondaryText = {
-            PostMetadata(post)
-        }
-    )
+  ListItem(
+    modifier = modifier
+      .clickable { /* todo */ }
+      .padding(vertical = 8.dp),
+    icon = {
+      Image(
+        painter = painterResource(post.imageThumbId),
+        contentDescription = null
+      )
+    },
+    text = {
+      Text(text = post.title)
+    },
+    secondaryText = {
+      PostMetadata(post)
+    }
+  )
 }
 
 @Preview("Post Item")
 @Composable
 private fun PostItemPreview() {
-    val post = remember { PostRepo.getFeaturedPost() }
-    Surface {
-        PostItem(post = post)
-    }
+  val post = remember { PostRepo.getFeaturedPost() }
+  Surface {
+    PostItem(post = post)
+  }
 }
 
 @Preview("Featured Post")
 @Composable
 private fun FeaturedPostPreview() {
-    val post = remember { PostRepo.getFeaturedPost() }
+  val post = remember { PostRepo.getFeaturedPost() }
+  JetnewsTheme {
     FeaturedPost(post = post)
+  }
+}
+
+@Preview("Featured Post • Dark")
+@Composable
+private fun FeaturedPostDarkPreview() {
+  val post = remember { PostRepo.getFeaturedPost() }
+  JetnewsTheme(darkTheme = true) {
+    FeaturedPost(post = post)
+  }
 }
 
 @Preview("Home")
 @Composable
 private fun HomePreview() {
-    Home()
+  Home()
 }
