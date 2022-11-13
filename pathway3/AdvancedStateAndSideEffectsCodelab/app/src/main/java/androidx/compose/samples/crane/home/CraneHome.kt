@@ -16,13 +16,7 @@
 
 package androidx.compose.samples.crane.home
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BackdropScaffold
-import androidx.compose.material.BackdropValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberBackdropScaffoldState
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.samples.crane.base.CraneDrawer
 import androidx.compose.samples.crane.base.CraneTabBar
