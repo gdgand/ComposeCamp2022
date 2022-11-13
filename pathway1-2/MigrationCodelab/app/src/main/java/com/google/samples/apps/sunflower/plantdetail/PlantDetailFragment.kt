@@ -21,6 +21,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -104,6 +106,19 @@ class PlantDetailFragment : Fragment() {
                         true
                     }
                     else -> false
+                }
+            }
+
+            composeView.apply {
+                // Dispose the Composition when the view's LifecycleOwner
+                // is destroyed
+                setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+                setContent {
+                    MaterialTheme {
+                        PlantDetailDescription(plantDetailViewModel)
+                    }
                 }
             }
         }
