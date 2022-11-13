@@ -27,14 +27,19 @@ class MainActivity : ComponentActivity() {
         setContent {
             BasicsCodelabTheme {
                 // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    Greeting("Android")
-                }
+                GreetingApp(modifier = Modifier.fillMaxSize())
             }
         }
+    }
+}
+
+@Composable
+fun GreetingApp(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colors.background,
+    ) {
+        Greeting(name = "Android")
     }
 }
 
@@ -49,6 +54,6 @@ fun Greeting(name: String) {
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
-        Greeting("Android")
+        GreetingApp()
     }
 }
