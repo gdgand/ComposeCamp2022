@@ -107,14 +107,13 @@ fun Header(
   Surface(
     color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
     contentColor = MaterialTheme.colors.primary,
-    modifier = modifier
+    modifier = modifier.semantics { heading() }
   ) {
     Text(
       text = text,
       style = MaterialTheme.typography.subtitle2,
       modifier = modifier
         .fillMaxWidth()
-        .semantics { heading() }
         .padding(horizontal = 16.dp, vertical = 8.dp)
     )
   }
