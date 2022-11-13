@@ -6,9 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -31,14 +29,21 @@ class MainActivity : ComponentActivity() {
 //컴포저블 재사용
 @Composable
 fun MyApp(
-    modifier: Modifier = Modifier,
-    names: List<String> = listOf("World", "Compose")
+    modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.padding(vertical = 4.dp)) {
-        for (name in names) {
-            Greeting(name)
+    var shouldShowOnboarding by remember { mutableStateOf(true) }
+    Surface(modifier = modifier) {
+        if(shouldShowOnboarding) {
+            OnboardingScreen(
+                onContinueClicked = {
+                    shouldShowOnboarding = false
+                }
+            )
+        } else {
+            Greetings()
         }
     }
+
 }
 
 @Composable
@@ -70,7 +75,9 @@ fun Greeting(name: String) {
         val extraPadding = if(expanded.value) 48.dp else 0.dp
         //코드랩 솔루션 코드
         Row(modifier = Modifier.padding(24.dp)) {
-            Column(modifier = Modifier.weight(1f).padding(bottom = extraPadding)
+            Column(modifier = Modifier
+                .weight(1f)
+                .padding(bottom = extraPadding)
             ) {
                 Text(text = "Hello,")
                 Text(text = name)
@@ -86,10 +93,55 @@ fun Greeting(name: String) {
     }
 }
 
+@Composable
+fun Greetings(
+    modifier: Modifier = Modifier,
+    names: List<String> = listOf("World", "Compose")
+) {
+    Column(modifier = modifier.padding(vertical = 4.dp)) {
+        for (name in names) {
+            Greeting(name)
+        }
+    }
+}
+
+@Composable
+fun OnboardingScreen(modifier: Modifier = Modifier, onContinueClicked: () -> Unit) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Welcome to the Basics Codelab!")
+        Button(
+            modifier = Modifier.padding(24.dp),
+            onClick = onContinueClicked
+        ) {
+            Text(text = "Continue")
+        }
+    }
+}
+
 @Preview(showBackground = true, widthDp = 320)
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
-        MyApp()
+        MyApp(Modifier.fillMaxSize())
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320)
+@Composable
+fun OnboardingPreview() {
+    BasicsCodelabTheme {
+        OnboardingScreen(onContinueClicked = {})
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320)
+@Composable
+fun GreetingsPreview() {
+    BasicsCodelabTheme {
+        Greetings()
     }
 }
