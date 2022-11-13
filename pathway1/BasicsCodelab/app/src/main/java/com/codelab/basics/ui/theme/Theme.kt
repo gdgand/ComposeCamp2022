@@ -12,19 +12,12 @@ private val DarkColorPalette = darkColors(
     secondary = Teal200
 )
 
-private val LightColorPalette = lightColors(
-    primary = Purple500,
-    primaryVariant = Purple700,
-    secondary = Teal200
 
-    /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
+private val LightColorScheme = lightColors(
+    surface = Blue,
+    onSurface = White,
+    primary = LightBlue,
+    onPrimary = Navy
 )
 
 @Composable
@@ -35,7 +28,7 @@ fun BasicsCodelabTheme(
     val colors = if (darkTheme) {
         DarkColorPalette
     } else {
-        LightColorPalette
+        LightColorScheme
     }
 
     MaterialTheme(
