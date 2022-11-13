@@ -54,13 +54,14 @@ import androidx.compose.ui.unit.dp
 import com.codelab.theming.R
 import com.codelab.theming.data.Post
 import com.codelab.theming.data.PostRepo
-import java.util.Locale
+import com.codelab.theming.ui.start.theme.JetnewsTheme
+import java.util.*
 
 @Composable
 fun Home() {
     val featured = remember { PostRepo.getFeaturedPost() }
     val posts = remember { PostRepo.getPosts() }
-    MaterialTheme {
+    JetnewsTheme {
         Scaffold(
             topBar = { AppBar() }
         ) { innerPadding ->
@@ -106,7 +107,7 @@ private fun AppBar() {
 @Composable
 fun Header(
     text: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Text(
         text = text,
@@ -121,7 +122,7 @@ fun Header(
 @Composable
 fun FeaturedPost(
     post: Post,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(modifier) {
         Column(
@@ -157,7 +158,7 @@ fun FeaturedPost(
 @Composable
 private fun PostMetadata(
     post: Post,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val divider = "  •  "
     val tagDivider = "  "
@@ -183,7 +184,7 @@ private fun PostMetadata(
 @Composable
 fun PostItem(
     post: Post,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     ListItem(
         modifier = modifier
@@ -208,8 +209,10 @@ fun PostItem(
 @Composable
 private fun PostItemPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    Surface {
-        PostItem(post = post)
+    JetnewsTheme {
+        Surface {
+            PostItem(post = post)
+        }
     }
 }
 
@@ -217,7 +220,18 @@ private fun PostItemPreview() {
 @Composable
 private fun FeaturedPostPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    FeaturedPost(post = post)
+    JetnewsTheme {
+        FeaturedPost(post = post)
+    }
+}
+
+@Preview("Featured Post Dark")
+@Composable
+private fun FeaturedPostDarkPreview() {
+    val post = remember { PostRepo.getFeaturedPost() }
+    JetnewsTheme(darkTheme = true) {
+        FeaturedPost(post = post)
+    }
 }
 
 @Preview("Home")
