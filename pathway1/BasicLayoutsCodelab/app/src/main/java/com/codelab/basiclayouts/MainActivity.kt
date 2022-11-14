@@ -193,8 +193,18 @@ fun HomeSection(
 
 // Step: Home screen - Scrolling
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
-    // Implement composable here
+fun HomeScreen(
+    modifier: Modifier = Modifier
+) {
+    Column(modifier.padding(vertical = 16.dp)) {
+        SearchBar(Modifier.padding(horizontal = 16.dp))
+        HomeSection(title = R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+        HomeSection(title = R.string.favorite_collections) {
+            FavoriteCollectionsGrid()
+        }
+    }
 }
 
 // Step: Bottom navigation - Material
