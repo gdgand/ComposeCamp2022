@@ -6,23 +6,24 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 
 private val DarkColorScheme = darkColorScheme(
-    surface = Teal200,
-    onSurface = Purple200,
-    primary = Purple500,
-    onPrimary = Purple700
+    surface = Blue,
+    onSurface = Navy,
+    primary = Navy,
+    onPrimary = Chartreuse
 )
 
 private val LightColorScheme = lightColorScheme(
-    surface = Teal200,
-    onSurface = Purple200,
-    primary = Purple500,
-    onPrimary = Purple700
+    surface = Blue,
+    onSurface = White,
+    primary = LightBlue,
+    onPrimary = Navy
 )
 
 @Suppress("DEPRECATION")
@@ -55,45 +56,3 @@ fun BasicsCodelabTheme(
         content = content
     )
 }
-
-/*
-private val DarkColorPalette = darkColorScheme(
-    primary = Purple200,
-    primaryVariant = Purple700,
-    secondary = Teal200
-)
-
-private val LightColorPalette = lightColorScheme(
-    primary = Purple500,
-    primaryVariant = Purple700,
-    secondary = Teal200
-
-    /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
-)
-
-@Composable
-fun BasicsCodelabTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
-    } else {
-        LightColorPalette
-    }
-
-    MaterialTheme(
-        colors = colors,
-        typography = Typography,
-        shapes = Shapes,
-        content = content
-    )
-}
-*/
