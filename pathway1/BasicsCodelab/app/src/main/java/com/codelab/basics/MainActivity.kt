@@ -19,20 +19,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BasicsCodelabTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    Greeting("Android")
-                }
+                MyApp(modifier = Modifier.fillMaxSize())
             }
         }
     }
 }
 
+// 함수는 기본적으로 빈 수정자가 할당되는 수정자 매개변수를 포함하는 것이 좋다
 @Composable
-fun Greeting(name: String) {
+private fun MyApp(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colors.background
+    ) {
+        Greeting("Android")
+    }
+}
+
+@Composable
+private fun Greeting(name: String) {
     Surface(color = MaterialTheme.colors.primary) { // Surface로 text의 백그라운드 색상 전환
         Text(
             text = "Hello $name!",
@@ -45,6 +50,6 @@ fun Greeting(name: String) {
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
-        Greeting("Android")
+        MyApp()
     }
 }
