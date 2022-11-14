@@ -13,7 +13,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -40,27 +39,35 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
-    WaterCounter(modifier)
+    StatefulCounter(modifier = modifier)
 }
 
 @Composable
-private fun WaterCounter(
+private fun StatefulCounter(
+    modifier: Modifier = Modifier
+) {
+    var count by rememberSaveable { mutableStateOf(0) }
+    StatelessCounter(count, { count++ }, modifier)
+}
+
+@Composable
+private fun StatelessCounter(
+    count: Int,
+    onIncrement: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(16.dp)) {
-        var count by rememberSaveable { mutableStateOf(0) }
         if (count > 0) {
-            Text("You've had $count glasses.")
+            Text(text = "You've had $count glasses.")
         }
         Button(
-            onClick = { count++ },
+            onClick = onIncrement,
             modifier = Modifier.padding(top = 8.dp),
             enabled = count < 10
         ) {
             Text("Add one")
         }
     }
-
 }
 
 @Preview(showBackground = true)
