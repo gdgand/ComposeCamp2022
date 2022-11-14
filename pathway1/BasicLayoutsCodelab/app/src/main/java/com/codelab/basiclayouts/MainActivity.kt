@@ -51,7 +51,7 @@ import java.util.*
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MySootheApp() }
+        setContent { MySootheTheme { MySootheApp() } }
     }
 }
 
@@ -237,7 +237,11 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
 // Step: MySoothe App - Scaffold
 @Composable
 fun MySootheApp() {
-    // Implement composable here
+    Scaffold(
+        bottomBar = { SootheBottomNavigation() }
+    ) { padding ->
+        HomeScreen(Modifier.padding(padding))
+    }
 }
 
 private val alignYourBodyData = listOf(
@@ -330,5 +334,5 @@ fun BottomNavigationPreview() {
 @Preview(widthDp = 360, heightDp = 640)
 @Composable
 fun MySoothePreview() {
-    MySootheApp()
+    MySootheTheme { MySootheApp() }
 }
