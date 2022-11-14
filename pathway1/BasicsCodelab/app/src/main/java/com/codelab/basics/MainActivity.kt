@@ -101,6 +101,7 @@ private fun Greeting(name: String) {
 
 @Composable
 private fun CardContent(name: String) {
+    // remeber 대신 rememberSaveable로 작성할 수 있음
     // 현재는 스크롤 시, expanded 상태가 유지되지 않음
     var expanded by remember { mutableStateOf(false) }
 
