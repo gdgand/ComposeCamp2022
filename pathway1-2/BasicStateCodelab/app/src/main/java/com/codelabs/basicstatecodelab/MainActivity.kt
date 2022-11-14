@@ -39,22 +39,24 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
-    WaterCounter(modifier) {
-
-    }
+    WaterCounter(modifier)
 }
 
 @Composable
 private fun WaterCounter(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(16.dp)) {
         var count by remember { mutableStateOf(0) }
-        Text(text = "You've had $count glasses.")
+
+        if (count > 0) {
+            Text(text = "You've had $count glasses.")
+        }
+
         Button(
-            onClick = onClick,
-            modifier = modifier.padding(top = 8.dp)
+            onClick = { count++ },
+            modifier = modifier.padding(top = 8.dp),
+            enabled = count < 10
         ) {
             Text(text = "Add one")
         }
