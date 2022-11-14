@@ -12,9 +12,8 @@
   the License.
   -->
 <resources>
-
-    <style name="Theme.MySoothe" parent="Theme.MaterialComponents.DayNight">
+    <style name="Theme.MySoothe" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@color/status_bar_color</item>
-        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="android:windowLightStatusBar">?android:isLightTheme</item>
     </style>
 </resources>
