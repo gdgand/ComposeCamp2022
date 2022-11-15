@@ -4,11 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,23 +50,46 @@ fun MyGreeting(name: String) {
 }
 
 @Composable
-fun MyApp(
+fun MyApp(modifier: Modifier = Modifier) {
+    var shouldShowOnboarding by remember { mutableStateOf(true) }
+    if (shouldShowOnboarding) {
+        OnboardingScreen() { shouldShowOnboarding = false }
+    } else {
+        Greetings()
+    }
+}
+
+@Composable
+fun Greetings(
     modifier: Modifier = Modifier,
-    names: List<String> = listOf("Android", "compose")
+    names: List<String> = List(100) { "${it.plus(1)}" }
 ) {
-    Surface(
-        modifier = modifier.padding(4.dp),
-        color = colors.background
-    ) {
-        Column {
-            names.forEach {
-                MyGreeting(name = it)
-            }
+    LazyColumn(modifier.padding(4.dp)) {
+        items(names) {
+            MyGreeting(name = it)
         }
     }
 }
 
-@Preview(showBackground = true, widthDp = 320)
+@Composable
+fun OnboardingScreen(modifier: Modifier = Modifier, onClickContinue: ()->Unit) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Welcome to the Basics Codelab!")
+        Button(
+            modifier = Modifier.padding(vertical = 24.dp),
+            onClick = onClickContinue
+        ) {
+            Text("Continue")
+        }
+    }
+}
+
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
