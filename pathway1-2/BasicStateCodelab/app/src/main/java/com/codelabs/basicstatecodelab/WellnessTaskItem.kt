@@ -42,7 +42,7 @@ fun WellnessTaskItem(
 }
 
 @Composable
-fun WellnessTaskItem(
+fun WellnessTaskItem( // stateful 에 onClose 추가됨
     taskName: String, onClose: () -> Unit, modifier: Modifier = Modifier
 ) {
     var checkedState by rememberSaveable { mutableStateOf(false) }
