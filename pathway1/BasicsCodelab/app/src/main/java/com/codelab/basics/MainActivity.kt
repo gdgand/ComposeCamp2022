@@ -12,6 +12,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun MyApp(modifier: Modifier = Modifier) {
-    var shouldShowOnbarding by remember {
+    var shouldShowOnbarding by rememberSaveable {
         mutableStateOf(true)
     }
 
@@ -80,7 +81,7 @@ fun Greetings(
 
 @Composable
 fun Greeting(name: String) {
-    val expanded = remember {
+    val expanded = rememberSaveable {
         mutableStateOf(false)
     }
 
