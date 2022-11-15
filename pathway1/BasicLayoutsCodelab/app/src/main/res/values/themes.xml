@@ -13,8 +13,7 @@
   -->
 <resources>
 
-    <style name="Theme.MySoothe" parent="Theme.MaterialComponents.DayNight">
+    <style name="Theme.MySoothe" parent="android:Theme.Material.Light">
         <item name="android:statusBarColor">@color/status_bar_color</item>
-        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
     </style>
 </resources>
