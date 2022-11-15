@@ -19,7 +19,7 @@ fun WellnessScreen(
         WellnessTasksList(
             list = wellnessViewModel.tasks,
             onCheckedTask = { task, checked ->
-                wellnessViewModel.changeTaskChecked(task, checked)
+                wellnessViewModel.changeTaskChecked(task, checked) // bug : Boolean 이기 때문에 재구성이 일어나지 않는다. (MutableState<Boolean> 사용)
             },
             onCloseTask = { task ->
                 wellnessViewModel.remove(task)
