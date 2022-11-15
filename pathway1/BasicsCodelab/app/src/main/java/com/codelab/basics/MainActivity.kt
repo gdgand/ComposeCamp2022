@@ -1,5 +1,6 @@
 package com.codelab.basics
 
+import android.content.res.Configuration.*
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
@@ -51,7 +53,9 @@ fun MyGreeting(name: String) {
                     .weight(1f)
             ) {
                 Text(text = "Hi,")
-                Text(text = name)
+                Text(text = name, style = MaterialTheme.typography.h3.copy(
+                    fontWeight = FontWeight.ExtraBold
+                ))
             }
             Button(onClick = { expanded = !expanded }) {
                 Text(text = if (expanded) "Show Less" else "Show More")
@@ -100,7 +104,7 @@ fun OnboardingScreen(modifier: Modifier = Modifier, onClickContinue: ()->Unit) {
 }
 
 
-@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+@Preview(showBackground = true, widthDp = 320, heightDp = 320, uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
