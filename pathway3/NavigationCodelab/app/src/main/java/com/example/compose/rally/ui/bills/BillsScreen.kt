@@ -16,6 +16,7 @@
 
 package com.example.compose.rally.ui.bills
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -35,6 +36,7 @@ import com.example.compose.rally.ui.components.StatementBody
 fun BillsScreen(
     bills: List<Bill> = remember { UserData.bills }
 ) {
+    Log.d("TEST", "[test] BillsScreen")
     StatementBody(
         modifier = Modifier.clearAndSetSemantics { contentDescription = "Bills" },
         items = bills,
