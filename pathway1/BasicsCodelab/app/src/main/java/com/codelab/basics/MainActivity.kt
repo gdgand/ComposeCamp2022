@@ -41,8 +41,8 @@ fun MyApp(names: List<String>) {
 
 @Composable
 fun Greeting(name: String) {
-    val expanded = remember { mutableStateOf(false) }
-    val extraPadding = if (expanded.value) 48.dp else 0.dp
+    var expanded by remember { mutableStateOf(false) }
+    val extraPadding = if (expanded) 48.dp else 0.dp
 
     Surface(color = MaterialTheme.colors.primary) {
         Row(
@@ -56,8 +56,8 @@ fun Greeting(name: String) {
                 Text(text = "Hello,")
                 Text(text = name)
             }
-            OutlinedButton(onClick = { expanded.value = !expanded.value }) {
-                Text(text = if (expanded.value) "Show less" else "Show more")
+            OutlinedButton(onClick = { expanded = !expanded }) {
+                Text(text = if (expanded) "Show less" else "Show more")
             }
         }
     }
