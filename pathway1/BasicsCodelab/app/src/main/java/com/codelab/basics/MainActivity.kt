@@ -3,8 +3,9 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -61,8 +62,9 @@ fun Greeting(name: String) {
     var expanded by remember { mutableStateOf(false) }
     val extraPadding by animateDpAsState(
         targetValue = if (expanded) 48.dp else 0.dp,
-        animationSpec = tween(
-            durationMillis = 500
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
         )
     )
 
