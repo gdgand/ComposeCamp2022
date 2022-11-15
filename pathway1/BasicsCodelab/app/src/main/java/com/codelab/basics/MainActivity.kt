@@ -3,6 +3,7 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
@@ -10,6 +11,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -60,31 +64,41 @@ fun Greetings(names: List<String>) {
 @Composable
 fun Greeting(name: String) {
     var expanded by remember { mutableStateOf(false) }
-    val extraPadding by animateDpAsState(
-        targetValue = if (expanded) 48.dp else 0.dp,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        )
-    )
 
-    Surface(color = MaterialTheme.colors.primary) {
+    Card(
+        contentColor = MaterialTheme.colors.primary,
+    ) {
         Row(
-            modifier = Modifier.padding(24.dp)
+            modifier = Modifier
+                .padding(12.dp)
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                )
         ) {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(bottom = extraPadding.coerceAtLeast(0.dp))
+                    .padding(12.dp)
             ) {
                 Text(stringResource(id = R.string.gt_hello))
                 Text(name)
+                if (expanded) {
+                    Text(
+                        text = stringResource(R.string.gt_ipsum).repeat(4),
+                    )
+                }
             }
-            OutlinedButton(onClick = { expanded = !expanded }) {
-                Text(if (expanded)
-                    stringResource(id = R.string.gt_show_less)
-                else
-                    stringResource(id = R.string.gt_show_more)
+            IconButton(onClick = { expanded = !expanded }) {
+                Icon(
+                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (expanded) {
+                        stringResource(R.string.gt_show_less)
+                    } else {
+                        stringResource(R.string.gt_show_more)
+                    }
                 )
             }
         }
