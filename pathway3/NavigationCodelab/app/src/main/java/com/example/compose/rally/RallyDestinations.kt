@@ -21,14 +21,10 @@ import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Money
 import androidx.compose.material.icons.filled.MoneyOff
 import androidx.compose.material.icons.filled.PieChart
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.compose.rally.ui.accounts.AccountsScreen
-import com.example.compose.rally.ui.accounts.SingleAccountScreen
-import com.example.compose.rally.ui.bills.BillsScreen
-import com.example.compose.rally.ui.overview.OverviewScreen
+import androidx.navigation.navDeepLink
 
 /**
  * Contract for information needed on every Rally navigation destination
@@ -64,6 +60,11 @@ object SingleAccount : RallyDestination {
     const val accountTypeArg = "account_type"
     val arguments = listOf(
         navArgument(accountTypeArg) { type = NavType.StringType }
+    )
+    val deepLinks = listOf(
+        navDeepLink {
+            uriPattern = "rally://$route/{$accountTypeArg}"
+        }
     )
 }
 
