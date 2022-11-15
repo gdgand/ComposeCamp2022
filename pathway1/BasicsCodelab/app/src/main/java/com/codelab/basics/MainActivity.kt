@@ -3,6 +3,8 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -56,7 +58,12 @@ fun Greetings(names: List<String>) {
 @Composable
 fun Greeting(name: String) {
     var expanded by remember { mutableStateOf(false) }
-    val extraPadding = if (expanded) 48.dp else 0.dp
+    val extraPadding by animateDpAsState(
+        targetValue = if (expanded) 48.dp else 0.dp,
+        animationSpec = tween(
+            durationMillis = 500
+        )
+    )
 
     Surface(color = MaterialTheme.colors.primary) {
         Row(
