@@ -3,6 +3,9 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,8 +32,15 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyGreeting(name: String) {
-    val expanded = remember { mutableStateOf(false) }
-    val extraPadding = if (expanded.value) 48.dp else 0.dp
+    var expanded by rememberSaveable { mutableStateOf(false) }
+//    val extraPadding = if (expanded.value) 48.dp else 0.dp
+    val extraPadding by animateDpAsState(
+        if (expanded) 48.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
     Surface(
         color = colors.primary,
         modifier = Modifier.padding(4.dp, 4.dp)
@@ -43,8 +53,8 @@ fun MyGreeting(name: String) {
                 Text(text = "Hi,")
                 Text(text = name)
             }
-            Button(onClick = { expanded.value = !expanded.value }) {
-                Text(text = if (expanded.value) "Show Less" else "Show More")
+            Button(onClick = { expanded = !expanded }) {
+                Text(text = if (expanded) "Show Less" else "Show More")
             }
         }
     }
