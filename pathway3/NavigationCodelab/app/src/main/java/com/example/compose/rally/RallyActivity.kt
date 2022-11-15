@@ -68,45 +68,10 @@ fun RallyApp() {
                 )
             }
         ) { innerPadding ->
-            NavHost(
+            RallyNavHost(
                 navController = navController,
-                startDestination = Overview.route,
                 modifier = Modifier.padding(innerPadding)
-            ) {
-                composable(Overview.route) {
-                    OverviewScreen(
-                        onClickSeeAllAccounts = {
-                            navController.navigateSingleTopTo(Accounts.route)
-                        },
-                        onClickSeeAllBills = {
-                            navController.navigateSingleTopTo(Bills.route)
-                        }
-                    )
-                }
-                composable(Accounts.route) {
-                    AccountsScreen()
-                }
-                composable(Bills.route) {
-                    BillsScreen()
-                }
-                composable(
-                    route = "${SingleAccount.route}/{${SingleAccount.accountTypeArg}}",
-                    arguments = SingleAccount.arguments,
-                    deepLinks = SingleAccount.deepLinks,
-                ) {
-                    SingleAccountScreen()
-                }
-            }
+            )
         }
-    }
-}
-
-fun NavController.navigateSingleTopTo(route: String) {
-    this.navigate(route) {
-        popUpTo(this@navigateSingleTopTo.graph.findStartDestination().id) {
-            saveState = true
-        }
-        launchSingleTop = true
-        restoreState = true
     }
 }
