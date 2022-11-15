@@ -30,11 +30,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.compose.rally.ui.accounts.AccountsScreen
+import com.example.compose.rally.ui.accounts.SingleAccountScreen
 import com.example.compose.rally.ui.bills.BillsScreen
 import com.example.compose.rally.ui.components.RallyTabRow
 import com.example.compose.rally.ui.overview.OverviewScreen
@@ -91,6 +94,12 @@ fun RallyApp() {
                 }
                 composable(Bills.route) {
                     BillsScreen()
+                }
+                composable(
+                    route = "${SingleAccount.route}/{${SingleAccount.accountTypeArg}}",
+                    arguments = SingleAccount.arguments
+                ) {
+                    SingleAccountScreen()
                 }
             }
         }
