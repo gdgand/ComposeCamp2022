@@ -10,6 +10,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
@@ -66,11 +67,15 @@ fun Greeting(name: String) {
                     .weight(1f)
                     .padding(bottom = extraPadding)
             ) {
-                Text(text = "Hello,")
-                Text(text = name)
+                Text(stringResource(id = R.string.gt_hello))
+                Text(name)
             }
             OutlinedButton(onClick = { expanded = !expanded }) {
-                Text(text = if (expanded) "Show less" else "Show more")
+                Text(if (expanded)
+                    stringResource(id = R.string.gt_show_less)
+                else
+                    stringResource(id = R.string.gt_show_more)
+                )
             }
         }
     }
@@ -86,12 +91,12 @@ fun OnboardingScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Welcome to the Basics Codelab!")
+        Text(stringResource(id = R.string.ob_welcome))
         Button(
             modifier = Modifier.padding(vertical = 24.dp),
             onClick = onContinueClicked
         ) {
-            Text("Continue")
+            Text(stringResource(id = R.string.ob_continue))
         }
     }
 }

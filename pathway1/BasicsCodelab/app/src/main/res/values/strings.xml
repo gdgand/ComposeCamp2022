@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">BasicsCodelab</string>
+
+    <string name="ob_welcome">Welcome to the Basics Codelab!</string>
+    <string name="ob_continue">Continue</string>
+
+    <string name="gt_hello">hello,</string>
+    <string name="gt_show_more">Show more</string>
+    <string name="gt_show_less">Show less</string>
 </resources>
