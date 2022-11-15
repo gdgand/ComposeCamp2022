@@ -3,9 +3,9 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -20,16 +20,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BasicsCodelabTheme {
-                MyApp()
+                MyApp(listOf())
             }
         }
     }
 }
 
 @Composable
-fun MyApp() {
+fun MyApp(names: List<String>) {
     Surface(color = MaterialTheme.colors.background) {
-        Greeting("Android")
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(names) { item ->
+                Greeting(item)
+            }
+        }
     }
 }
 
@@ -47,6 +54,6 @@ fun Greeting(name: String) {
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
-        MyApp()
+        MyApp(listOf("World", "Compose"))
     }
 }
