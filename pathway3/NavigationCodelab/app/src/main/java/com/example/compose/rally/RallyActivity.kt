@@ -84,7 +84,7 @@ fun RallyApp() {
 @Composable
 fun RellyNavHost(
     navController: NavHostController,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ){
     NavHost(
         navController = navController,
