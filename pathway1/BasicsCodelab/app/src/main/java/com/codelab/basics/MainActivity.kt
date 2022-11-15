@@ -4,6 +4,7 @@ import android.content.res.Configuration.*
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
@@ -12,6 +13,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -34,32 +38,12 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyGreeting(name: String) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-//    val extraPadding = if (expanded.value) 48.dp else 0.dp
-    val extraPadding by animateDpAsState(
-        if (expanded) 48.dp else 0.dp,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        )
-    )
     Surface(
         color = colors.primary,
         modifier = Modifier.padding(4.dp, 4.dp)
     ) {
-        Row(Modifier.padding(24.dp, 24.dp, 24.dp, 24.dp + extraPadding)) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-            ) {
-                Text(text = "Hi,")
-                Text(text = name, style = MaterialTheme.typography.h3.copy(
-                    fontWeight = FontWeight.ExtraBold
-                ))
-            }
-            Button(onClick = { expanded = !expanded }) {
-                Text(text = if (expanded) "Show Less" else "Show More")
-            }
+        Card(elevation = 10.dp) {
+            MyCard(name = name)
         }
     }
 }
@@ -87,6 +71,46 @@ fun Greetings(
 }
 
 @Composable
+fun MyCard(name: String) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+//    val extraPadding = if (expanded.value) 48.dp else 0.dp
+//    val extraPadding by animateDpAsState(
+//        if (expanded) 48.dp else 0.dp,
+//        animationSpec = spring(
+//            dampingRatio = Spring.DampingRatioMediumBouncy,
+//            stiffness = Spring.StiffnessLow
+//        )
+//    )
+
+    Column(modifier = Modifier
+        .padding(24.dp)
+        .animateContentSize(
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )) {
+        Row() {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+            ) {
+                Text(text = "Hi,")
+                Text(text = name, style = MaterialTheme.typography.h3.copy(
+                    fontWeight = FontWeight.ExtraBold
+                ))
+            }
+            IconButton(onClick = { expanded = !expanded }) {
+                Icon(imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null)
+            }
+        }
+        if (expanded) {
+            Text(text = "asdfasdfadsf".repeat(10))
+        }
+    }
+}
+
+@Composable
 fun OnboardingScreen(modifier: Modifier = Modifier, onClickContinue: ()->Unit) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -108,6 +132,6 @@ fun OnboardingScreen(modifier: Modifier = Modifier, onClickContinue: ()->Unit) {
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
-        MyApp()
+        MyCard(name = "asdf")
     }
 }
