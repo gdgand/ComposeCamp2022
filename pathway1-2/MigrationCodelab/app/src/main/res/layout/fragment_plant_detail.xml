@@ -111,38 +111,38 @@
 <!--                    app:layout_constraintStart_toStartOf="parent"-->
 <!--                    app:layout_constraintTop_toTopOf="parent"-->
 <!--                    tools:text="Apple" />-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/plant_watering_header"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginStart="@dimen/margin_small"-->
+<!--                    android:layout_marginTop="@dimen/margin_normal"-->
+<!--                    android:layout_marginEnd="@dimen/margin_small"-->
+<!--                    android:gravity="center_horizontal"-->
+<!--                    android:text="@string/watering_needs_prefix"-->
+<!--                    android:textColor="?attr/colorAccent"-->
+<!--                    android:textStyle="bold"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toBottomOf="@id/compose_view" />-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/plant_watering"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginStart="@dimen/margin_small"-->
+<!--                    android:layout_marginEnd="@dimen/margin_small"-->
+<!--                    android:gravity="center_horizontal"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toBottomOf="@id/plant_watering_header"-->
+<!--                    app:wateringText="@{viewModel.plant.wateringInterval}"-->
+<!--                    tools:text="every 7 days" />-->
                 <androidx.compose.ui.platform.ComposeView
                     android:id="@+id/compose_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
-
-                <TextView
-                    android:id="@+id/plant_watering_header"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_small"
-                    android:layout_marginTop="@dimen/margin_normal"
-                    android:layout_marginEnd="@dimen/margin_small"
-                    android:gravity="center_horizontal"
-                    android:text="@string/watering_needs_prefix"
-                    android:textColor="?attr/colorAccent"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/compose_view" />
-
-                <TextView
-                    android:id="@+id/plant_watering"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_small"
-                    android:layout_marginEnd="@dimen/margin_small"
-                    android:gravity="center_horizontal"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/plant_watering_header"
-                    app:wateringText="@{viewModel.plant.wateringInterval}"
-                    tools:text="every 7 days" />
 
                 <TextView
                     android:id="@+id/plant_description"
@@ -155,7 +155,7 @@
                     android:minHeight="@dimen/plant_description_min_height"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/plant_watering"
+                    app:layout_constraintTop_toBottomOf="@id/compose_view"
                     app:renderHtml="@{viewModel.plant.description}"
                     tools:text="Details about the plant" />
 
