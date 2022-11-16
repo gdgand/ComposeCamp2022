@@ -20,7 +20,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
     defaultConfig {
         applicationId 'com.codelab.theming'
         minSdkVersion 21
@@ -42,6 +42,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion composeCompiler_version
     }
+    namespace 'com.codelab.theming'
 }
 
 dependencies {
