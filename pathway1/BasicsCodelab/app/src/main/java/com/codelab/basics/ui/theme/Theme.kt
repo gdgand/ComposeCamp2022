@@ -6,19 +6,24 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple200,
-    secondary = Teal200
+    surface = Blue,
+    onSurface = Navy,
+    primary = Navy,
+    onPrimary = Chartreuse
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple500,
-    secondary = Teal200
+    surface = Blue,
+    onSurface = Color.White,
+    primary = LightBlue,
+    onPrimary = Navy
 )
 
 @Composable
