@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -16,7 +16,7 @@ fun WaterCounter(
     Column(
         modifier = modifier.padding(16.dp)
     ) {
-        var count = 0
+        var count by remember { mutableStateOf(0) }
 
         Text(stringResource(R.string.wc_counter, count))
         Button(
