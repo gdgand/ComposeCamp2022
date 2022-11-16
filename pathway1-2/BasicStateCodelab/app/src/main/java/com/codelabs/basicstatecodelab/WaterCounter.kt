@@ -18,10 +18,13 @@ fun WaterCounter(
     ) {
         var count by remember { mutableStateOf(0) }
 
-        Text(stringResource(R.string.wc_counter, count))
+        if (count > 0) {
+            Text(stringResource(R.string.wc_counter, count))
+        }
         Button(
             onClick = { count++ },
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp),
+            enabled = count < 10
         ) {
             Text(stringResource(R.string.wc_add))
         }
