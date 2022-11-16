@@ -4,18 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
-import kotlin.math.exp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,8 +23,28 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Preview
 @Composable
-private fun MyApp(
+fun MyAppPreview() {
+    BasicsCodelabTheme {
+        MyApp(Modifier.fillMaxSize())
+    }
+}
+
+@Composable
+fun MyApp(modifier: Modifier = Modifier) {
+    var shouldShowOnboarding by remember { mutableStateOf(true) }
+
+    Surface(modifier = modifier) {
+        if (shouldShowOnboarding)
+            OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
+        else
+            Greetings()
+    }
+}
+
+@Composable
+private fun Greetings(
     modifier: Modifier = Modifier,
     names: List<String> = listOf("World", "Compose")
 ) {
@@ -65,6 +80,15 @@ fun Greeting(name: String) {
     }
 }
 
+@Preview(showBackground = true, widthDp = 320)
+@Composable
+fun GreetingsPreview() {
+    BasicsCodelabTheme {
+        Greetings()
+    }
+}
+
+
 @Preview(
     showBackground = true,
     name = "Text Preview",
@@ -74,5 +98,33 @@ fun Greeting(name: String) {
 fun DefaultPreview() {
     BasicsCodelabTheme {
         MyApp()
+    }
+}
+
+@Composable
+fun OnboardingScreen(
+    onContinueClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Welcome to the basic Codelab!")
+        Button(
+            modifier = Modifier.padding(vertical = 24.dp),
+            onClick = onContinueClicked
+        ) {
+            Text(text = "Continue")
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+fun OnboardingPreview() {
+    BasicsCodelabTheme {
+        OnboardingScreen({})
     }
 }
