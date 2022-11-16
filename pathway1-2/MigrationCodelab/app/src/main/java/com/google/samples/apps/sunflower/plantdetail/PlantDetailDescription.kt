@@ -49,7 +49,12 @@ fun PlantDetailDescription(plantDetailViewModel: PlantDetailViewModel) {
 
 @Composable
 fun PlantDetailContent(plant: Plant) {
-  PlantName(plant.name)
+  Surface {
+    Column(Modifier.padding(dimensionResource(R.dimen.margin_normal))) {
+      PlantName(plant.name)
+      PlantWatering(plant.wateringInterval)
+    }
+  }
 }
 
 @Preview
@@ -61,22 +66,59 @@ private fun PlantDetailContentPreview() {
   }
 }
 
+
 @Composable
-private fun PlantName(name : String){
-    Text(
-        text = name,
-        style = MaterialTheme.typography.h5,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = dimensionResource(id = R.dimen.margin_small))
-            .wrapContentWidth(Alignment.CenterHorizontally)
-    )
+private fun PlantName(name: String) {
+  Text(
+    text = name,
+    style = MaterialTheme.typography.h5,
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = dimensionResource(id = R.dimen.margin_small))
+      .wrapContentWidth(Alignment.CenterHorizontally)
+  )
 }
 
 @Preview
 @Composable
-private fun PlaneNamePreview(){
-    MaterialTheme {
-        PlantName("Apple")
-    }
+private fun PlaneNamePreview() {
+  MaterialTheme {
+    PlantName("Apple")
+  }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun PlantWatering(wateringInterval: Int) {
+  Column(Modifier.fillMaxWidth()) {
+    val centerWithPaddingModifier = Modifier
+      .padding(horizontal = dimensionResource(R.dimen.margin_small))
+      .align(Alignment.CenterHorizontally)
+
+    val normalPadding = dimensionResource(id = R.dimen.margin_normal)
+
+    Text(
+      text = stringResource(R.string.watering_needs_prefix),
+      color = MaterialTheme.colors.primaryVariant,
+      fontWeight = FontWeight.Bold,
+      modifier = centerWithPaddingModifier.padding(top = normalPadding)
+    )
+
+    val wateringIntervalText = pluralStringResource(
+      R.plurals.watering_needs_suffix, wateringInterval, wateringInterval
+    )
+
+    Text(
+      text = wateringIntervalText,
+      modifier = centerWithPaddingModifier.padding(bottom = normalPadding)
+    )
+  }
+}
+
+@Preview
+@Composable
+private fun PlantWateringPreview() {
+  MaterialTheme {
+    PlantWatering(7)
+  }
 }
