@@ -103,9 +103,32 @@ fun AlignYourBodyElement(
 // Step: Favorite collection card - Material Surface
 @Composable
 fun FavoriteCollectionCard(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    painter: Painter,
+    title: String
 ) {
-    // Implement composable here
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        modifier = modifier
+    ) {
+        Row(
+            modifier = Modifier.width(192.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painter,
+                modifier = Modifier
+                    .size(56.dp),
+                contentScale = ContentScale.Crop,
+                contentDescription = null
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier.padding(start = 16.dp),
+            )
+        }
+    }
 }
 
 // Step: Align your body row - Arrangements
@@ -196,7 +219,9 @@ fun AlignYourBodyElementPreview() {
 fun FavoriteCollectionCardPreview() {
     MySootheTheme {
         FavoriteCollectionCard(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
+            painter = painterResource(id = R.drawable.ab2_quick_yoga),
+            title = "타이틀"
         )
     }
 }
