@@ -2,14 +2,22 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         google()
-        mavenCentral()
+        jcenter()
+        maven {
+            url = "http://jcenter.bintray.com"
+            allowInsecureProtocol = true
+        }
     }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
-        mavenCentral()
+        jcenter()
+        maven {
+            url = "http://jcenter.bintray.com"
+            allowInsecureProtocol = true
+        }
     }
 }
 rootProject.name = "BasicsCodelab"
