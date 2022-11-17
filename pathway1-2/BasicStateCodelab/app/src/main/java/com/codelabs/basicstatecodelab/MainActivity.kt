@@ -48,13 +48,16 @@ fun WaterCount(
     Column(
         modifier = modifier.padding(16.dp)
     ) {
-        Text(
-            text = "Count : $count",
-            modifier = Modifier.padding(16.dp)
-        )
+        if (count > 0) {
+            Text(
+                text = "Count : $count",
+                modifier = Modifier.padding(16.dp)
+            )
+        }
         Button(
             onClick = { count++ },
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
+            enabled = count < 10
         ) {
             Text(text = "Add One")
         }
