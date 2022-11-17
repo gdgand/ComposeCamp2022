@@ -5,17 +5,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColorScheme(
-    primary = Purple200,
-    primaryContainer = Purple700,
-    secondary = Teal200
+    surface = Blue,
+    onSurface = Navy,
+    primary = Navy,
+    onPrimary = Chartreuse
 )
 
 private val LightColorPalette = lightColorScheme(
-    primary = Purple500,
-    primaryContainer = Purple700,
-    secondary = Teal200
+    surface = Blue,
+    onSurface = Color.White,
+    primary = LightBlue,
+    onPrimary = Navy
 
     /* Other default colors to override
     background = Color.White,
@@ -30,6 +33,7 @@ private val LightColorPalette = lightColorScheme(
 @Composable
 fun BasicsCodelabTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) {
