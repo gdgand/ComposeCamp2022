@@ -11,6 +11,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,7 +44,7 @@ fun WellnessScreen(
 @Composable
 fun WellNessTaskItem(
     modifier: Modifier = Modifier,
-    name : String,
+    name: String,
     onClose: () -> Unit
 ) {
     Row(
@@ -69,40 +70,20 @@ fun WellNessTaskItem(
 fun WaterCount(
     modifier: Modifier = Modifier
 ) {
-    var count by remember { mutableStateOf(0) }
+    var count by rememberSaveable { mutableStateOf(0) }
 
     Column(
         modifier = modifier.padding(16.dp)
     ) {
-        if (count > 0) {
 
-            var isShowTask by remember { mutableStateOf(true) }
+        if (count > 0) Text(text = "Count : $count")
 
-            if (isShowTask) WellNessTaskItem(name = "TASK NAME") { isShowTask = false }
-
-            Text(
-                text = "Count : $count",
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-
-        Row(
-            Modifier.padding(top = 8.dp)
+        Button(
+            onClick = { count++ },
+            enabled = count < 10,
+            modifier = Modifier.padding(top = 8.dp)
         ) {
-
-            Button(
-                onClick = { count++ },
-                enabled = count < 10
-            ) {
-                Text(text = "Add One")
-            }
-
-            Button(
-                onClick = { count = 0 },
-                modifier = Modifier.padding(start = 8.dp)
-            ) {
-                Text(text = "Clear")
-            }
+            Text(text = "Add One")
         }
 
     }
