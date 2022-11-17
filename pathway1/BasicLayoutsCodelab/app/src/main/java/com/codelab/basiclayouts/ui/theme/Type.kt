@@ -16,7 +16,7 @@
 
 package com.codelab.basiclayouts.ui.theme
 
-import androidx.compose.material.Typography
+import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -36,7 +36,7 @@ private val fontFamilyKulim = FontFamily(
     )
 )
 
-private val fontFamilyLato = FontFamily(
+val fontFamilyLato = FontFamily(
     listOf(
         Font(
             resId = R.font.lato_regular
@@ -49,33 +49,36 @@ private val fontFamilyLato = FontFamily(
 )
 
 val typography = Typography(
-    defaultFontFamily = fontFamilyLato,
-    h1 = TextStyle(
+
+    displayLarge = TextStyle(
         fontFamily = fontFamilyKulim,
         fontWeight = FontWeight.Light,
         fontSize = 28.sp,
         letterSpacing = (1.15).sp
     ),
-    h2 = TextStyle(
+    displayMedium = TextStyle(
         fontFamily = fontFamilyKulim,
         fontSize = 15.sp,
         letterSpacing = (1.15).sp
     ),
-    h3 = TextStyle(
+    displaySmall = TextStyle(
+        fontFamily = fontFamilyLato,
         fontWeight = FontWeight.Bold,
         fontSize = 14.sp,
         letterSpacing = 0.sp
     ),
-    body1 = TextStyle(
+    bodyLarge = TextStyle(
+        fontFamily = fontFamilyLato,
         fontSize = 14.sp,
         letterSpacing = 0.sp
     ),
-    button = TextStyle(
+    labelLarge = TextStyle(
+        fontFamily = fontFamilyLato,
         fontWeight = FontWeight.Bold,
         fontSize = 14.sp,
         letterSpacing = (1.15).sp
     ),
-    caption = TextStyle(
+    bodySmall = TextStyle(
         fontFamily = fontFamilyKulim,
         fontSize = 12.sp,
         letterSpacing = (1.15).sp
