@@ -1,27 +1,32 @@
 package com.codelab.basics
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.content.res.Resources.Theme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 
 class MainActivity : ComponentActivity() {
@@ -83,37 +88,42 @@ fun OnboardingPreview() {
 @Composable
 fun Greeting(name: String) {
     var expanded by remember { mutableStateOf(false) }
-    val extraPadding by animateDpAsState(
-        if(expanded) 48.dp else 0.dp,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
-            stiffness = Spring.StiffnessLow
-        )
-    )
 
-    Surface(color = MaterialTheme.colors.primary,
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)) {
-        //Surface 는 일종의 container. 색상 설정하면 텍스트의 배경색처럼 보임
-
-        Row(modifier = Modifier.padding(24.dp)) {
+    Card(
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+        backgroundColor = Color.LightGray   //코드처럼 테마 색깔을 가져올 수 없어 아무 색이나..
+    ) {
+        Row(
+            modifier = Modifier.animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+                .padding(12.dp)
+        ) {
             Column(
-                Modifier
-                    .weight(1f)
-                    .padding(bottom = extraPadding)) {
-                Text(text = "Hello, ") //Surface color 에 따라 적절한 색상으로 처리(테마의 onPrimary 색상)
-                Text(text = name, style = MaterialTheme.typography.h5
+                Modifier.weight(1f)
+            ) {
+                Text(text = "Hello, ")
+                Text(
+                    text = name, style = MaterialTheme.typography.h5
 //                    .copy(fontWeight =  FontWeight.ExtraBold)
                     , fontWeight = FontWeight.ExtraBold
                 )
+                if (expanded) {
+                    Text(stringResource(id = R.string.lorem_ipsum))
+                }
             }
-            ElevatedButton(
-                onClick = { expanded = !expanded }
-            ) {
-
-                Text(if(expanded) "Show less" else "Show more")
+            IconButton(onClick = { expanded = !expanded }) {
+                Icon(
+                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (expanded) stringResource(id = R.string.show_less) else stringResource(
+                        id = R.string.show_more
+                    )
+                )
             }
         }
-
     }
 }
 
