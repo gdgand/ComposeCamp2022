@@ -16,7 +16,12 @@
 
 package com.example.compose.rally.ui.overview
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateValue
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,8 +53,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.compose.rally.R
 import com.example.compose.rally.RallyScreen
@@ -96,22 +103,19 @@ private fun AlertCard() {
     }
 
     var currentTargetElevation by remember { mutableStateOf(1.dp) }
-    LaunchedEffect(Unit) {
-        // Start the animation
-        currentTargetElevation = 8.dp
-    }
-    val animatedElevation = animateDpAsState(
-        targetValue = currentTargetElevation,
-        animationSpec = tween(durationMillis = 500),
-        finishedListener = {
-            currentTargetElevation = if (currentTargetElevation > 4.dp) {
-                1.dp
-            } else {
-                8.dp
-            }
-        }
+
+    val infiniteElevationAnimation = rememberInfiniteTransition()
+    val animatedElevation: Dp by infiniteElevationAnimation.animateValue(
+       initialValue = 1.dp,
+       targetValue = 8.dp,
+       typeConverter = Dp.VectorConverter,
+       animationSpec = infiniteRepeatable(
+           animation = tween(durationMillis = 500),
+           repeatMode = RepeatMode.Reverse
+       )
     )
-    Card(elevation = animatedElevation.value) {
+
+    Card(elevation = animatedElevation) {
         Column {
             AlertHeader {
                 showDialog = true
@@ -179,7 +183,7 @@ private fun AlertItem(message: String) {
             onClick = {},
             modifier = Modifier
                 .align(Alignment.Top)
-                .clearAndSetSemantics {}
+                .clearAndSetSemantics { contentDescription = null.toString() }
         ) {
             Icon(Icons.Filled.Sort, contentDescription = null)
         }
