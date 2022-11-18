@@ -224,7 +224,7 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
 
         BottomNavigationItem(
             selected = false,
-            onClick = {  },
+            onClick = { },
             icon = { Icon(imageVector = Icons.Default.AccountCircle, contentDescription = null) },
             label = {
                 Text(text = stringResource(id = R.string.bottom_navigation_profile))
