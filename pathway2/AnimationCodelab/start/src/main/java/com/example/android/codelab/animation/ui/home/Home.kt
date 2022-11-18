@@ -17,9 +17,7 @@
 package com.example.android.codelab.animation.ui.home
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -454,9 +452,43 @@ private fun HomeTabIndicator(
     tabPage: TabPage
 ) {
     // TODO 4: Animate these value changes.
-    val indicatorLeft = tabPositions[tabPage.ordinal].left
-    val indicatorRight = tabPositions[tabPage.ordinal].right
-    val color = if (tabPage == TabPage.Home) Purple700 else Green800
+    val transition = updateTransition(tabPage, label = "tabIndicator")
+    val indicatorLeft by transition.animateDp(
+        transitionSpec = {
+                         if (TabPage.Home isTransitioningTo TabPage.Work) {
+                             // 오른쪽으로 갈 때의 인디케이터
+                             // 왼쪽 모서리는 오른쪽 보다 느리게 움직인다.
+                             spring(stiffness = Spring.StiffnessLow)
+                         } else {
+                             // 왼쪽으로 갈 때의 인디케이터
+                             // 왼쪽 모서리는 오른쪽 보다 빠르게 움직인다.
+                             spring(stiffness = Spring.StiffnessMedium)
+                         }
+        },
+        label = "Indicator left"
+
+    ) { page ->
+        tabPositions[page.ordinal].left
+    }
+    val indicatorRight by transition.animateDp(
+        transitionSpec = {
+            if (TabPage.Home isTransitioningTo TabPage.Work) {
+                // 오른쪽으로 갈 때의 인디케이터
+                // 오른쪽 모서리는 왼쪽 보다 빠르게 움직인다.
+                spring(stiffness = Spring.StiffnessMedium)
+            } else {
+                // 왼쪽으로 갈 때의 인디케이터
+                // 오른쪽 모서리는 왼쪽 보다 느리게 움직인다.
+                spring(stiffness = Spring.StiffnessVeryLow)
+            }
+        },
+        label = "Indicator right") { page ->
+        tabPositions[page.ordinal].right
+    }
+    val color by transition.animateColor(label = "Border Coler") { page ->
+        if (tabPage == TabPage.Home) Purple700 else Green800
+    }
+
     Box(
         Modifier
             .fillMaxSize()
