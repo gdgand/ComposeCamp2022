@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 
 class MainActivity : ComponentActivity() {
@@ -38,16 +39,16 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WellnessScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    wellnessViewModel: WellnessViewModel = viewModel()
 ) {
-    val list = remember {
-        WellNessTask.getWellNessTasks().toMutableStateList()
-    }
-
     StatefulCount(modifier)
     WellNessTasksList(
-        list = list,
-        onCloseTask = { list.remove(it) }
+        list = wellnessViewModel.tasks,
+        onCloseTask = { wellnessViewModel.remove(it) },
+        onCheckedChange = { task, isCheck ->
+            wellnessViewModel.changeTaskChecked(task, isCheck)
+        }
     )
 }
 
@@ -55,6 +56,7 @@ fun WellnessScreen(
 fun WellNessTasksList(
     modifier: Modifier = Modifier,
     onCloseTask: (WellNessTask) -> Unit,
+    onCheckedChange: (WellNessTask, Boolean) -> Unit,
     list : List<WellNessTask>
 ) {
     LazyColumn(modifier = modifier) {
@@ -62,32 +64,18 @@ fun WellNessTasksList(
             items = list,
             key = { task -> task.id }
         ) { task ->
-            WellnessTaskItem(
-                taskName = task.label,
-                onClose = { onCloseTask(task) }
+            WellNessTaskItem(
+                name = task.label,
+                isCheck = task.isCheck.value,
+                onClose = { onCloseTask(task) },
+                onCheckedChange = { onCheckedChange(task, it) }
             )
         }
     }
 }
 
 @Composable
-fun WellnessTaskItem(
-    modifier: Modifier = Modifier,
-    taskName: String,
-    onClose: () -> Unit
-) {
-    var isCheckState by rememberSaveable { mutableStateOf(false) }
-
-    WellNessTask(
-        name = taskName,
-        onClose = onClose,
-        isCheck = isCheckState,
-        onCheckedChange = { isCheckState = !isCheckState }
-    )
-}
-
-@Composable
-fun WellNessTask(
+fun WellNessTaskItem(
     modifier: Modifier = Modifier,
     name: String,
     onClose: () -> Unit,
@@ -160,16 +148,5 @@ fun Greeting(name: String) {
 fun DefaultPreview() {
     BasicStateCodelabTheme {
         WellnessScreen()
-    }
-}
-
-data class WellNessTask(
-    val id: Int,
-    val label: String
-) {
-    companion object {
-        fun getWellNessTasks() = List(30) {
-            WellNessTask(it,"Task : $it")
-        }
     }
 }
