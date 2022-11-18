@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -39,13 +41,43 @@ fun WellnessScreen(
     modifier: Modifier = Modifier
 ) {
     StatefulCount(modifier)
+    WellNessTasksList()
 }
 
 @Composable
-fun WellNessTaskItem(
+fun WellNessTasksList(
+    modifier: Modifier = Modifier,
+    list: List<WellNessTask> = remember { WellNessTask.getWellNessTasks() }
+) {
+    LazyColumn(modifier = modifier) {
+        items(list) { task ->
+            WellnessTaskItem(taskName = task.label)
+        }
+    }
+}
+
+@Composable
+fun WellnessTaskItem(
+    modifier: Modifier = Modifier,
+    taskName: String
+) {
+    var isCheckState by rememberSaveable { mutableStateOf(false) }
+
+    WellNessTask(
+        name = taskName,
+        onClose = { /*TODO*/ },
+        isCheck = isCheckState,
+        onCheckedChange = { isCheckState = !isCheckState }
+    )
+}
+
+@Composable
+fun WellNessTask(
     modifier: Modifier = Modifier,
     name: String,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    isCheck: Boolean,
+    onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
         modifier = modifier,
@@ -56,6 +88,10 @@ fun WellNessTaskItem(
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 16.dp)
+        )
+        Checkbox(
+            checked = isCheck,
+            onCheckedChange = onCheckedChange
         )
         IconButton(onClick = onClose) {
             Icon(
@@ -109,5 +145,16 @@ fun Greeting(name: String) {
 fun DefaultPreview() {
     BasicStateCodelabTheme {
         WellnessScreen()
+    }
+}
+
+data class WellNessTask(
+    val id: Int,
+    val label: String
+) {
+    companion object {
+        fun getWellNessTasks() = List(30) {
+            WellNessTask(it,"Task : $it")
+        }
     }
 }
