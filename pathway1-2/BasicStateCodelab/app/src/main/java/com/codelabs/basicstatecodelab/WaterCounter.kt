@@ -11,9 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun WaterCounter(modifier: Modifier = Modifier) {
+fun StatelessCounter(
+    count: Int,
+    onIncrement: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(modifier = modifier.padding(16.dp)) {
-        var count by rememberSaveable { mutableStateOf(0) }
         if (count > 0) {
             Text(
                 text = "너는 $count 잔의 물을 마셨다.",
@@ -21,11 +24,19 @@ fun WaterCounter(modifier: Modifier = Modifier) {
             )
         }
         Button(
-            onClick = { ++count },
+            onClick = onIncrement,
             modifier = modifier.padding(top = 8.dp),
             enabled = count < 10
         ) {
             Text("잔 추가")
         }
     }
+}
+
+@Composable
+fun StatefulCounter(modifier: Modifier = Modifier) {
+    var waterCount by rememberSaveable { mutableStateOf(0) }
+    var juiceCount by rememberSaveable { mutableStateOf(0) }
+    StatelessCounter(waterCount, { ++waterCount }, modifier)
+    StatelessCounter(juiceCount, { ++juiceCount }, modifier)
 }
