@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
 fun WellnessScreen(
     modifier: Modifier = Modifier
 ) {
-    WaterCount(modifier)
+    StatefulCount(modifier)
 }
 
 @Composable
@@ -67,11 +67,22 @@ fun WellNessTaskItem(
 }
 
 @Composable
-fun WaterCount(
+fun StatefulCount(
     modifier: Modifier = Modifier
 ) {
-    var count by rememberSaveable { mutableStateOf(0) }
+    var waterCount by rememberSaveable { mutableStateOf(0) }
+    var juiceCount by rememberSaveable { mutableStateOf(0) }
 
+    StatelessCount(count = waterCount) { waterCount++ }
+    StatelessCount(count = juiceCount) { juiceCount++ }
+}
+
+@Composable
+fun StatelessCount(
+    modifier: Modifier = Modifier,
+    count: Int,
+    onIncrement: () -> Unit
+) {
     Column(
         modifier = modifier.padding(16.dp)
     ) {
@@ -79,13 +90,12 @@ fun WaterCount(
         if (count > 0) Text(text = "Count : $count")
 
         Button(
-            onClick = { count++ },
+            onClick = onIncrement,
             enabled = count < 10,
             modifier = Modifier.padding(top = 8.dp)
         ) {
             Text(text = "Add One")
         }
-
     }
 }
 
