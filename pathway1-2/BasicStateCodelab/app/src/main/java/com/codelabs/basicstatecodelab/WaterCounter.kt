@@ -1,6 +1,7 @@
 package com.codelabs.basicstatecodelab
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -28,12 +29,19 @@ fun WaterCounter(
             }
             Text(stringResource(R.string.wc_counter, count))
         }
-        Button(
-            onClick = { count++ },
-            modifier = Modifier.padding(top = 8.dp),
-            enabled = count < 10
-        ) {
-            Text(stringResource(R.string.wc_add))
+        Row(Modifier.padding(top = 8.dp)) {
+            Button(
+                onClick = { count++ },
+                enabled = count < 10
+            ) {
+                Text(stringResource(id = R.string.wc_add))
+            }
+            Button(
+                onClick = { count = 0 },
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Text(stringResource(id = R.string.wc_clear))
+            }
         }
     }
 }
