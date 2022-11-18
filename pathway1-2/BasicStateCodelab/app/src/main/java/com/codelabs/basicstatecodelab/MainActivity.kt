@@ -40,18 +40,32 @@ class MainActivity : ComponentActivity() {
 fun WellnessScreen(
     modifier: Modifier = Modifier
 ) {
+    val list = remember {
+        WellNessTask.getWellNessTasks().toMutableStateList()
+    }
+
     StatefulCount(modifier)
-    WellNessTasksList()
+    WellNessTasksList(
+        list = list,
+        onCloseTask = { list.remove(it) }
+    )
 }
 
 @Composable
 fun WellNessTasksList(
     modifier: Modifier = Modifier,
-    list: List<WellNessTask> = remember { WellNessTask.getWellNessTasks() }
+    onCloseTask: (WellNessTask) -> Unit,
+    list : List<WellNessTask>
 ) {
     LazyColumn(modifier = modifier) {
-        items(list) { task ->
-            WellnessTaskItem(taskName = task.label)
+        items(
+            items = list,
+            key = { task -> task.id }
+        ) { task ->
+            WellnessTaskItem(
+                taskName = task.label,
+                onClose = { onCloseTask(task) }
+            )
         }
     }
 }
@@ -59,13 +73,14 @@ fun WellNessTasksList(
 @Composable
 fun WellnessTaskItem(
     modifier: Modifier = Modifier,
-    taskName: String
+    taskName: String,
+    onClose: () -> Unit
 ) {
     var isCheckState by rememberSaveable { mutableStateOf(false) }
 
     WellNessTask(
         name = taskName,
-        onClose = { /*TODO*/ },
+        onClose = onClose,
         isCheck = isCheckState,
         onCheckedChange = { isCheckState = !isCheckState }
     )
