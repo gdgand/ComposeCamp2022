@@ -1,4 +1,4 @@
-package com.codelabs.basicstatecodelab
+package com.codelab.basicstate
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.codelabs.basicstatecodelab", appContext.packageName)
+        assertEquals("com.codelab.basicstate", appContext.packageName)
     }
 }
