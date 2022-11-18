@@ -1,5 +1,6 @@
 package com.codelabs.basicstatecodelab
 
+import WellnessScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    WellnessScreen()
                 }
             }
         }
