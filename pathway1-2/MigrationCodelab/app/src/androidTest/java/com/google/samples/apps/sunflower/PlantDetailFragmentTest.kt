@@ -20,6 +20,7 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.navigation.Navigation.findNavController
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -47,6 +48,10 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class PlantDetailFragmentTest {
+
+    @Rule
+    @JvmField
+    val composeTestRule = createAndroidComposeRule<GardenActivity>()
 
     @Rule
     @JvmField
