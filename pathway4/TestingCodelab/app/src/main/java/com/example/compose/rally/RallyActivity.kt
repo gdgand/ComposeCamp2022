@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.compose.rally.ui.components.RallyTopAppBar
 import com.example.compose.rally.ui.theme.RallyTheme
 
@@ -63,4 +64,10 @@ fun RallyApp() {
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun preview() {
+    RallyApp()
 }
