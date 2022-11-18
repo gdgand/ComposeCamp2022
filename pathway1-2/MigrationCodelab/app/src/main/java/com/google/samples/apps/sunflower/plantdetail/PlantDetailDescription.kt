@@ -16,6 +16,8 @@
 
 package com.google.samples.apps.sunflower.plantdetail
 
+import android.text.method.LinkMovementMethod
+import android.widget.TextView
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,6 +28,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -34,6 +37,8 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.text.HtmlCompat
 import com.google.samples.apps.sunflower.R
 import com.google.samples.apps.sunflower.data.Plant
 import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
@@ -42,13 +47,28 @@ import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
 fun PlantDetailDescription(plantDetailViewModel: PlantDetailViewModel) {
     val plant by plantDetailViewModel.plant.observeAsState()
     plant?.let {
-        PlainDetailContent(it)
+        PlantDetailContent(it)
     }
 }
 
 @Composable
-fun PlainDetailContent(plant: Plant) {
-    PlantName(plant.name)
+fun PlantDetailContent(plant: Plant) {
+    Surface {
+        Column(Modifier.padding(dimensionResource(R.dimen.margin_normal))) {
+            PlantName(plant.name)
+            PlantWatering(plant.wateringInterval)
+            PlantDescription(plant.description)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PlantDetailContentPreview() {
+    val plant = Plant("id", "Apple", "HTML<br><br>description", 3, 30, "")
+    MaterialTheme {
+        PlantDetailContent(plant)
+    }
 }
 
 @Composable
@@ -99,30 +119,36 @@ private fun PlantWatering(wateringInterval: Int) {
     }
 }
 
+@Composable
+private fun PlantDescription(description: String) {
+    val htmlDescription = remember(description) {
+        HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_COMPACT)
+    }
+
+    AndroidView(
+        factory = { context ->
+            TextView(context).apply {
+                movementMethod = LinkMovementMethod.getInstance()
+            }
+        },
+        update = { textView ->
+            textView.text = htmlDescription
+        }
+    )
+}
+
+@Preview
+@Composable
+private fun PlantDescriptionPreview() {
+    MaterialTheme {
+        PlantDescription("HTML<br><br>description")
+    }
+}
+
 @Preview
 @Composable
 private fun PlantWateringPreview() {
     MaterialTheme {
         PlantWatering(7)
-    }
-}
-
-@Composable
-fun PlantDetailContent(plant: Plant) {
-    Surface {
-        Column(Modifier.padding(dimensionResource(R.dimen.margin_normal))) {
-            PlantName(plant.name)
-            PlantWatering(plant.wateringInterval)
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PlantDetailContentPreview() {
-    MaterialTheme {
-        PlantDetailContent(
-            Plant("1", "Apple", "A red fruit", 1),
-        )
     }
 }
