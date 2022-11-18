@@ -12,13 +12,16 @@ import androidx.compose.ui.unit.dp
 fun WaterCounter(modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(16.dp)) {
         var count by remember { mutableStateOf(0) }
-        Text(
-            text = "너는 ${count} 잔의 물을 마셨다.",
-            modifier = modifier.padding(16.dp)
-        )
+        if (count > 0) {
+            Text(
+                text = "너는 ${count} 잔의 물을 마셨다.",
+                modifier = modifier.padding(16.dp)
+            )
+        }
         Button(
             onClick =  { ++count },
-            modifier = modifier.padding(top = 8.dp)
+            modifier = modifier.padding(top = 8.dp),
+            enabled = count < 10
         ) {
             Text("잔 추가")
         }
