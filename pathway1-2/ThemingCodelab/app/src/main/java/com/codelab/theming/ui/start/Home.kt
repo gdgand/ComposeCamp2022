@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalConsumer
@@ -198,6 +199,7 @@ fun PostItem(
         icon = {
             Image(
                 painter = painterResource(post.imageThumbId),
+                modifier = Modifier.clip(shape = MaterialTheme.shapes.small),
                 contentDescription = null
             )
         },
