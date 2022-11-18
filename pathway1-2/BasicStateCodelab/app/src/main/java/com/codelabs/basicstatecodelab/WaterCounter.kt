@@ -19,6 +19,13 @@ fun WaterCounter(
         var count by remember { mutableStateOf(0) }
 
         if (count > 0) {
+            var showTask by remember { mutableStateOf(true) }
+            if (showTask) {
+                WellnessTaskItem(
+                    onClose = { showTask = false },
+                    taskName = stringResource(id = R.string.wc_task)
+                )
+            }
             Text(stringResource(R.string.wc_counter, count))
         }
         Button(

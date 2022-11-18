@@ -3,4 +3,5 @@
 
     <string name="wc_counter">You\'ve had %d glasses.</string>
     <string name="wc_add">Add one</string>
+    <string name="wc_task">Have you taken your 15 minute walk today?</string>
 </resources>
