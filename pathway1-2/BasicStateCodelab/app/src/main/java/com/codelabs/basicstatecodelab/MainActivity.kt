@@ -46,6 +46,6 @@ fun Greeting(name: String) {
 @Composable
 fun DefaultPreview() {
     BasicStateCodelabTheme {
-        Greeting(name = "Android")
+        MyApp()
     }
 }
