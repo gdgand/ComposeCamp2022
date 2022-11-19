@@ -24,7 +24,13 @@ fun WaterCounter(modifier: Modifier = Modifier) {
         // Changes to count are now tracked by Compose
         var count by remember { mutableStateOf(0) }
 
-        Text(text = "You've had $count glasses.")
+        /**
+         * 상태 기반 UI
+         * count가 0보다 크면 Text를 표시합니다.
+         */
+        if (count > 0) {
+            Text(text = "You've had $count glasses.")
+        }
 
         /**
          * count 변수에 다른 값을 설정해도 Compose에서 이 값을 상태 변경으로 감지하지 않으므로 아무 일도 일어나지 않습니다.
@@ -35,10 +41,16 @@ fun WaterCounter(modifier: Modifier = Modifier) {
          *
          * count가 변경되면 count의 value를 자동으로 읽는 Composable 함수의 리컴포지션이 예약됩니다.
          * 이 경우 WaterCounter는 버튼을 클릭할 때마다 재구성됩니다.
+         *
+         * 앱에서 Add one 버튼을 누르면 다음 작업이 실행됩니다.
+         * - 개수가 1로 증가하고 상태가 변경됩니다.
+         * - 리컴포지션이 호출됩니다.
+         * - 화면이 새 요소로 재구성됩니다.
          */
         Button(
             onClick = { count++ },
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp),
+            enabled = count < 10
         ) {
             Text(text = "Add one")
         }
