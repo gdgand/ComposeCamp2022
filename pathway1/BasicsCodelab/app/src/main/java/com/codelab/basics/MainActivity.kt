@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -54,7 +56,7 @@ fun Greeting(name: String) {
                     .padding(bottom = extraPending)
             ) {
                 Text(text = "Hello, ", color = Color.White)
-                Text(text = "$name!", color = Color.White)
+                Text(text = name, color = Color.White)
             }
 
             ElevatedButton(
@@ -81,13 +83,15 @@ private fun MyApp(modifier: Modifier = Modifier) {
 @Composable
 private fun Greetings(
     modifier: Modifier = Modifier,
-    names: List<String> = listOf("World", "Compose")
+    names: List<String> = List(1000) { "$it" }
 ) {
-    Column(modifier = modifier.padding(vertical = 4.dp)) {
-        for (name in names) {
-            Greeting(name = name)
+    LazyColumn(
+        content = {
+            items(items = names) {
+                Greeting(name = it)
+            }
         }
-    }
+    )
 }
 
 // Surface 란 무엇일까 ? -> https://stackoverflow.com/questions/65918835/when-should-i-use-android-jetpack-compose-surface-composable
