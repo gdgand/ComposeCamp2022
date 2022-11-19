@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 
 
-
 @Composable
 fun WellnessTaskList(
     modifier: Modifier = Modifier,
@@ -17,7 +16,10 @@ fun WellnessTaskList(
     LazyColumn(
         modifier = modifier
     ) {
-        items(list) { task ->
+        items(
+            items = list,
+            key = { task -> task.id }
+        ) { task ->
             WellnessTaskItem(taskName = task.label, onClose = { onCloseTask(task) })
         }
     }
