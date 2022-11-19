@@ -85,3 +85,34 @@ fun WaterCounter(modifier: Modifier = Modifier) {
         }
     }
 }
+
+/**
+ * StatelessCounter의 역할은 count를 표시하고 count를 늘릴 때 함수를 호출하는 것입니다.
+ * 이렇게 하려면 위에 설명된 패턴을 따르고 count 상태(구성 가능한 함수에 매개변수로)와
+ * onIncrement 람다(상태가 증가해야 할 때 호출됨)를 전달합니다.
+ */
+@Composable
+fun StatelessCounter(
+    count: Int,
+    onIncrement: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.padding(16.dp)) {
+        if (count > 0) {
+            Text("You've had $count glasses.")
+        }
+        Button(onClick = onIncrement, Modifier.padding(top = 8.dp), enabled = count < 10) {
+            Text("Add one")
+        }
+    }
+}
+
+/**
+ * StatefulCounter는 상태를 소유합니다.
+ * 즉, count 상태를 보유하고 StatelessCounter 함수를 호출할 때 이 상태를 수정합니다.
+ */
+@Composable
+fun StatefulCounter(modifier: Modifier = Modifier) {
+    var count by rememberSaveable { mutableStateOf(0) }
+    StatelessCounter(count, { count++ }, modifier)
+}
