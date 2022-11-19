@@ -9,22 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
-@Composable
-fun OriginWaterCounter(modifier: Modifier = Modifier) {
-    Column(modifier = modifier.padding(16.dp)) {
-        var count by remember { mutableStateOf(0) }
-        if (count > 0) {
-            Text("You've had $count glasses.")
-        }
-        Button(onClick = { count++ }, Modifier.padding(top = 8.dp), enabled = count < 10) {
-            Text("Add one")
-        }
-    }
-}
 
 @Composable
 fun WaterCounter(modifier: Modifier = Modifier) {
@@ -35,8 +23,18 @@ fun WaterCounter(modifier: Modifier = Modifier) {
      * 상태 수정을 야기하는 작업을 '이벤트'라고 합니다.
      */
     Column(modifier = modifier.padding(16.dp)) {
-        // Changes to count are now tracked by Compose
-        var count by remember { mutableStateOf(0) }
+
+        /**
+         * remember - 컴포지션간 상태를 유지
+         */
+//        var count by remember { mutableStateOf(0) }
+
+        /**
+         * rememberSaveable - 구성 변경 간에도 유지
+         * rememberSaveable은 Bundle에 저장할 수 있는 모든 값을 자동으로 저장합니다.
+         * 다른 값의 경우에는 맞춤 Saver 객체를 전달할 수 있습니다.
+         */
+        var count by rememberSaveable { mutableStateOf(0) }
 
         /**
          * 상태 기반 UI
