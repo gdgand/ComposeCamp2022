@@ -32,7 +32,6 @@ class MainActivity : ComponentActivity() {
          */
         setContent {
             BasicsCodelabTheme {
-                // A surface container using the 'background' color from the theme
                 MyApp(modifier = Modifier.fillMaxSize())
             }
         }
@@ -43,7 +42,7 @@ class MainActivity : ComponentActivity() {
 fun MyApp(modifier: Modifier = Modifier) {
     var shouldShowOnboarding by remember { mutableStateOf(true) }
 
-    Surface(modifier) {
+    Surface(modifier, color = MaterialTheme.colorScheme.background) {
         if (shouldShowOnboarding) {
             OnboardingScreen { shouldShowOnboarding = false }
         } else {
@@ -86,8 +85,10 @@ fun Greetings(
 
 @Composable
 fun Greeting(name: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.primary,
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+        ),
         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
     ) {
         var expanded by rememberSaveable { mutableStateOf(false) }
