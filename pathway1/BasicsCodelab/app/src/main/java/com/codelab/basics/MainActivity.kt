@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import kotlin.math.exp
 
@@ -101,7 +102,7 @@ fun DefaultPreview() {
 
 @Composable
 fun MyApp(modifier: Modifier = Modifier) {
-    var shouldShownOnboarding by remember { mutableStateOf(true) }
+    var shouldShownOnboarding by rememberSaveable { mutableStateOf(true) }
 
     androidx.compose.material.Surface(modifier) {
         if (shouldShownOnboarding) {
