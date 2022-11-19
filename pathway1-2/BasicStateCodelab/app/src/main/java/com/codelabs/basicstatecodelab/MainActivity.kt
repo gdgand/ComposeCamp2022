@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    WellnessScreen()
                 }
             }
         }
@@ -39,5 +39,18 @@ fun Greeting(name: String) {
 fun DefaultPreview() {
     BasicStateCodelabTheme {
         Greeting("Android")
+    }
+}
+
+@Preview(showBackground = true, name = "WellnessScreen Preview")
+@Composable
+fun WellnessPreview() {
+    BasicStateCodelabTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colors.background
+        ) {
+            WellnessScreen()
+        }
     }
 }
