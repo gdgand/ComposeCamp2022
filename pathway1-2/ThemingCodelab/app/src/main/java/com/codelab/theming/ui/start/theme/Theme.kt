@@ -19,7 +19,8 @@ private val LightColors = lightColors(
 
 private val DarkColors = darkColors(
     primary = Red300,
-    primaryVariant = Red700,
+//    primaryVariant = Red700,
+    primaryVariant = Color.Cyan,
     onPrimary = Color.Black,
     secondary = Red300,
     onSecondary = Color.Black,
@@ -36,7 +37,6 @@ fun JetnewsTheme(
         typography = JetnewsTypography,
         shapes = JetnewsShapes,
         content = content,
-
     )
 }
 
