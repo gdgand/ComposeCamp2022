@@ -65,9 +65,32 @@ fun SearchBar(
 // Step: Align your body - Alignment
 @Composable
 fun AlignYourBodyElement(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    painter: Painter,
+    text: String
 ) {
     // Implement composable here
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painter,
+            contentDescription = "Inversions",
+            modifier = Modifier
+                .size(88.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.h3,
+            modifier = Modifier.paddingFromBaseline(
+                top = 24.dp,
+                bottom = 8.dp
+            )
+        )
+    }
 }
 
 // Step: Favorite collection card - Material Surface
