@@ -167,9 +167,21 @@ fun FavoriteCollectionsGrid(
 // Step: Home section - Slot APIs
 @Composable
 fun HomeSection(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    title: String,
+    slot: @Composable () -> Unit,
 ) {
     // Implement composable here
+    Column(modifier = modifier) {
+        Text(
+            text = title.uppercase(),
+            style = MaterialTheme.typography.h2,
+            modifier = Modifier
+                .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
+                .padding(horizontal = 16.dp)
+        )
+        slot()
+    }
 }
 
 // Step: Home screen - Scrolling
