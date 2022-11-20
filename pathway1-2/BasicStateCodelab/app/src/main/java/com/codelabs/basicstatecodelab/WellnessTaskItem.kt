@@ -1,6 +1,5 @@
 package com.codelabs.basicstatecodelab
 
-import android.widget.CompoundButton.OnCheckedChangeListener
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Checkbox
@@ -48,7 +47,8 @@ fun WellnessTaskItem(
 @Composable
 fun WellnessTaskItem(
     taskName: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClose: () -> Unit
 ) {
     var checkedState by rememberSaveable {
         mutableStateOf(false)
@@ -61,7 +61,7 @@ fun WellnessTaskItem(
         onCheckedChangeListener = {
           checkedState = it
         },
-        onClose = { /*TODO*/ }
+        onClose = onClose
     )
 }
 
@@ -71,6 +71,7 @@ fun WellnessTaskItemPreview() {
     BasicStateCodelabTheme {
         WellnessTaskItem(
             taskName = "This is task",
+            onClose = {}
         )
     }
 }
