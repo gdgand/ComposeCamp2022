@@ -16,6 +16,8 @@
 
 package com.google.samples.apps.sunflower.plantdetail
 
+import android.text.method.LinkMovementMethod
+import android.widget.TextView
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -23,6 +25,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -31,6 +35,8 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.text.HtmlCompat
 import com.google.samples.apps.sunflower.R
 import com.google.samples.apps.sunflower.data.Plant
 import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
@@ -45,6 +51,26 @@ fun PlantDetailDescription(
 }
 
 @Composable
+fun PlantDescription(
+    description: String
+) {
+    val htmlDescription = remember(description) {
+        HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_COMPACT)
+    }
+
+    AndroidView(
+        factory = { context ->
+            TextView(context).apply {
+                movementMethod = LinkMovementMethod.getInstance()
+            }
+        },
+        update = {
+            it.text = htmlDescription
+        }
+    )
+}
+
+@Composable
 fun PlantDetailContent(plant: Plant) {
     Surface {
         Column(
@@ -52,6 +78,7 @@ fun PlantDetailContent(plant: Plant) {
         ) {
             PlantName(plant.name)
             PlantWatering(wateringInterval = plant.wateringInterval)
+            PlantDescription(plant.description)
         }
     }
 
@@ -113,5 +140,13 @@ private fun PlantDetailPreview() {
 private fun PlantWateringPreView() {
     MaterialTheme {
         PlantWatering(wateringInterval = 7)
+    }
+}
+
+@Composable
+@Preview
+private fun PlantDescriptionPewView() {
+    MaterialTheme {
+        PlantDescription("HTML<br><br>Description")
     }
 }
