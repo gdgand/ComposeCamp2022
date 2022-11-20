@@ -127,6 +127,18 @@ fun AlignYourBodyRow(
     modifier: Modifier = Modifier
 ) {
     // Implement composable here
+    LazyRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        items(alignYourBodyData) { data ->
+            AlignYourBodyElement(
+                painter = painterResource(id = data.drawable),
+                text = stringResource(id = data.text)
+            )
+        }
+    }
 }
 
 // Step: Favorite collections grid - LazyGrid
