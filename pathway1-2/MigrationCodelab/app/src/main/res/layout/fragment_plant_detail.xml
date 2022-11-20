@@ -95,8 +95,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="@dimen/margin_normal">
+                android:layout_height="match_parent">
 
                 <androidx.compose.ui.platform.ComposeView
                     android:id="@+id/compose_view"
