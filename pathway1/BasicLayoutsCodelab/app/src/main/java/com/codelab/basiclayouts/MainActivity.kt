@@ -41,6 +41,25 @@ fun SearchBar(
     modifier: Modifier = Modifier
 ) {
     // Implement composable here
+    TextField (
+        value = "",
+        onValueChange = {},
+        leadingIcon = {
+          Icon(
+              imageVector = Icons.Default.Search,
+              contentDescription = null
+          )
+        },
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = MaterialTheme.colors.surface
+        ),
+        placeholder = {
+            Text(text = stringResource(id = R.string.placeholder_search))
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+    )
 }
 
 // Step: Align your body - Alignment
