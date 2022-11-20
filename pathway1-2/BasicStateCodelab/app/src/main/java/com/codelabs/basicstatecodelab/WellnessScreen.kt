@@ -6,24 +6,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun WellnessScreen(modifier: Modifier = Modifier) {
-    StatefulCounter(modifier)
+fun WellnessScreen(
+    modifier: Modifier = Modifier,
+    wellnessViewModel: WellnessViewModel = viewModel()
+) {
+    Column {
+        StatefulCounter(modifier)
 
-    val list = remember { getWellnessTasks().toMutableStateList() }
-    WellnessTaskList(list = list, onCloseTask = { task -> list.remove(task) })
+        WellnessTaskList(
+            list = wellnessViewModel.tasks,
+            onCheckedTask = { task, checked -> wellnessViewModel.changeTaskChecked(task, checked)},
+            onCloseTask = { task -> wellnessViewModel.remove(task) })
+    }
 }
 
-private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i")}
+
 
 @Preview(showBackground = true)
 @Composable
-fun WellnessScreenPreview(modifier: Modifier = Modifier) {
+fun WellnessScreenPreview(
+    modifier: Modifier = Modifier,
+    wellnessViewModel: WellnessViewModel = viewModel()
+) {
     Column {
-        StatefulCounter()
+        StatefulCounter(modifier)
 
-        val list = remember { getWellnessTasks().toMutableStateList() }
-        WellnessTaskList(list = list, onCloseTask = { task -> list.remove(task) })
+        WellnessTaskList(
+            list = wellnessViewModel.tasks,
+            onCheckedTask = { task, checked -> wellnessViewModel.changeTaskChecked(task, checked)},
+            onCloseTask = { task -> wellnessViewModel.remove(task) })
     }
 }
