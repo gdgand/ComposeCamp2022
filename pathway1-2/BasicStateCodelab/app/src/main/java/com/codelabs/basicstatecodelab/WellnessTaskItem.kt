@@ -1,13 +1,16 @@
 package com.codelabs.basicstatecodelab
 
+import android.widget.CompoundButton.OnCheckedChangeListener
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Checkbox
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,6 +20,8 @@ import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 @Composable
 fun WellnessTaskItem(
     taskName: String,
+    checked: Boolean,
+    onCheckedChangeListener: (Boolean) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -30,6 +35,7 @@ fun WellnessTaskItem(
                 .weight(1f)
                 .padding(start = 16.dp)
         )
+        Checkbox(checked = checked, onCheckedChange = onCheckedChangeListener)
         IconButton(onClick = onClose) {
             Icon(
                 imageVector = Icons.Default.Close,
@@ -39,13 +45,32 @@ fun WellnessTaskItem(
     }
 }
 
+@Composable
+fun WellnessTaskItem(
+    taskName: String,
+    modifier: Modifier = Modifier
+) {
+    var checkedState by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    WellnessTaskItem(
+        modifier = modifier,
+        taskName = taskName,
+        checked = checkedState,
+        onCheckedChangeListener = {
+          checkedState = it
+        },
+        onClose = { /*TODO*/ }
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun WellnessTaskItemPreview() {
     BasicStateCodelabTheme {
         WellnessTaskItem(
             taskName = "This is task",
-            {}
         )
     }
 }
