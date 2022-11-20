@@ -96,9 +96,29 @@ fun AlignYourBodyElement(
 // Step: Favorite collection card - Material Surface
 @Composable
 fun FavoriteCollectionCard(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    painter: Painter,
+    text: String
 ) {
     // Implement composable here
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        modifier = modifier.width(192.dp)
+    ) {
+        Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                painter = painter,
+                contentDescription = null,
+                modifier = Modifier.size(56.dp),
+                contentScale = ContentScale.Crop
+            )
+            Text(
+                text = text,
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+        }
+    }
 }
 
 // Step: Align your body row - Arrangements
