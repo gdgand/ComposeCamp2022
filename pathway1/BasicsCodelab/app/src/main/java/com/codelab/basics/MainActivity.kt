@@ -2,6 +2,7 @@ package com.codelab.basics
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
@@ -64,12 +65,13 @@ fun Greeting(name: String) {
             .padding(top = 5.dp)
     ) {
         Row(
-            modifier = Modifier.animateContentSize(
+            /*modifier = Modifier.animateContentSize(
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
                     stiffness = Spring.StiffnessVeryLow
                 )
-            )
+            )*/
+            modifier = Modifier.padding(extraPadding)
         ) {
             Column(
                 modifier = Modifier
