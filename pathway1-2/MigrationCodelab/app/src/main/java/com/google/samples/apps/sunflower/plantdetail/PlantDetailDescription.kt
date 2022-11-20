@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,7 +51,12 @@ fun PlantDetailDescription(plantDetailViewModel: PlantDetailViewModel) {
 
 @Composable
 fun PlantDetailContent(plant: Plant) {
-    PlantName(plant.name)
+    Surface {
+        Column(Modifier.padding(dimensionResource(R.dimen.margin_normal))) {
+            PlantName(plant.name)
+            PlantWatering(plant.wateringInterval)
+        }
+    }
 }
 
 @Composable
