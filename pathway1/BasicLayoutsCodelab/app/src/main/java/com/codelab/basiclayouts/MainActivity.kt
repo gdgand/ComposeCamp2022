@@ -280,6 +280,8 @@ fun SearchBarPreview() {
 fun AlignYourBodyElementPreview() {
     MySootheTheme {
         AlignYourBodyElement(
+            painter = painterResource(id = R.drawable.ab1_inversions),
+            text = stringResource(id = R.string.ab1_inversions),
             modifier = Modifier.padding(8.dp)
         )
     }
@@ -290,7 +292,9 @@ fun AlignYourBodyElementPreview() {
 fun FavoriteCollectionCardPreview() {
     MySootheTheme {
         FavoriteCollectionCard(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
+            painter = painterResource(id = R.drawable.fc2_nature_meditations),
+            text = stringResource(id = R.string.fc2_nature_meditations)
         )
     }
 }
@@ -310,7 +314,13 @@ fun AlignYourBodyRowPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
 fun HomeSectionPreview() {
-    MySootheTheme { HomeSection() }
+    MySootheTheme {
+        HomeSection(
+            title = stringResource(id = R.string.align_your_body)
+        ) {
+            AlignYourBodyRow()
+        }
+    }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
