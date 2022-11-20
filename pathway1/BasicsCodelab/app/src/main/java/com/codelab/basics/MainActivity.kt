@@ -3,6 +3,9 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,7 +47,13 @@ fun Greeting(name: String) {
     // var isExpanded = false // 절대 이렇게 해서는 안된다. -> 그 이유 해당 컴포즈가 추적을 하지 못하기 때문
     val isExpanded = remember { mutableStateOf(false) }
 
-    val extraPending = if (isExpanded.value) 48.dp else 0.dp
+    val extraPending by animateDpAsState(
+        targetValue = if (isExpanded.value) 48.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
 
     Surface(
         color = MaterialTheme.colorScheme.primary,
@@ -53,7 +63,7 @@ fun Greeting(name: String) {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(bottom = extraPending)
+                    .padding(bottom = extraPending.coerceAtLeast(0.dp))
             ) {
                 Text(text = "Hello, ", color = Color.White)
                 Text(text = name, color = Color.White)
@@ -71,9 +81,9 @@ fun Greeting(name: String) {
 // 기본적으로 함수는 빈 수정자 ( Modifier ) 를 가지고 있는것이 좋다.
 @Composable
 private fun MyApp(modifier: Modifier = Modifier) {
-    var shouldShowOnBoarding by remember { mutableStateOf(true) }
+    var shouldShowOnBoarding by rememberSaveable { mutableStateOf(true) }
 
-    if(shouldShowOnBoarding) {
+    if (shouldShowOnBoarding) {
         OnBoarding { shouldShowOnBoarding = false }
     } else {
         Greetings()
