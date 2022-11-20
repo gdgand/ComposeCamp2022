@@ -194,7 +194,7 @@ fun HomeSection(
             modifier = Modifier
                 .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
                 .padding(horizontal = 16.dp)
-            )
+        )
         content()
     }
 }
@@ -220,7 +220,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
     BottomNavigation(
         backgroundColor = MaterialTheme.colors.background,
-        modifier = modifier) {
+        modifier = modifier
+    ) {
         BottomNavigationItem(
             icon = {
                 Icon(
@@ -253,7 +254,13 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
 // Step: MySoothe App - Scaffold
 @Composable
 fun MySootheApp() {
-    // Implement composable here
+    MySootheTheme {
+        Scaffold(
+            bottomBar = { SootheBottomNavigation() }
+        ) { padding ->
+            HomeScreen(Modifier.padding(padding))
+        }
+    }
 }
 
 private val alignYourBodyData = listOf(
