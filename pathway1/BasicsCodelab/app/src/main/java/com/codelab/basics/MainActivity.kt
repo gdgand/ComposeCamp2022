@@ -1,5 +1,6 @@
 package com.codelab.basics
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basics.onboarding.OnBoarding
@@ -66,7 +68,9 @@ fun Greeting(name: String) {
                     .padding(bottom = extraPending.coerceAtLeast(0.dp))
             ) {
                 Text(text = "Hello, ", color = Color.White)
-                Text(text = name, color = Color.White)
+                Text(text = name, color = Color.White, style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ))
             }
 
             ElevatedButton(
@@ -106,7 +110,7 @@ private fun Greetings(
 
 // Surface 란 무엇일까 ? -> https://stackoverflow.com/questions/65918835/when-should-i-use-android-jetpack-compose-surface-composable
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Dark", uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
