@@ -147,6 +147,21 @@ fun FavoriteCollectionsGrid(
     modifier: Modifier = Modifier
 ) {
     // Implement composable here
+    LazyHorizontalGrid(
+        rows = GridCells.Fixed(2),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.height(120.dp)
+    ) {
+        items(items = favoriteCollectionsData) { data ->
+            FavoriteCollectionCard(
+                modifier = Modifier.height(56.dp),
+                painter = painterResource(id = data.drawable),
+                text = stringResource(id = data.text)
+            )
+        }    
+    }
 }
 
 // Step: Home section - Slot APIs
