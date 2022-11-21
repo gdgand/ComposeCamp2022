@@ -260,7 +260,13 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
 // Step: MySoothe App - Scaffold
 @Composable
 fun MySootheApp() {
-    // Implement composable here
+    MySootheTheme {
+        Scaffold (  //최상위 수준 컴포저블
+            bottomBar = { SootheBottomNavigation() }    //하단 메뉴 설정
+        ) { padding ->
+            HomeScreen(Modifier.padding(padding))
+        }
+    }
 }
 
 private val alignYourBodyData = listOf(
@@ -355,8 +361,8 @@ fun BottomNavigationPreview() {
     MySootheTheme { SootheBottomNavigation(Modifier.padding(top = 24.dp)) }
 }
 
-//@Preview(widthDp = 360, heightDp = 640)
-//@Composable
-//fun MySoothePreview() {
-//    MySootheApp()
-//}
+@Preview(widthDp = 360, heightDp = 640)
+@Composable
+fun MySoothePreview() {
+    MySootheApp()
+}
