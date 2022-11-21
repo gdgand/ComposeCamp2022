@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.sunflower.plantdetail
 
+import android.content.res.Configuration
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.samples.apps.sunflower.R
 import com.google.samples.apps.sunflower.data.Plant
 import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
@@ -53,14 +55,6 @@ private fun PlantName(name: String){
         .wrapContentWidth(Alignment.CenterHorizontally)
     )
 }
-@Preview
-@Composable
-private fun PlantNamePreview(){
-    MaterialTheme {
-        PlantName(name = "Apple")
-    }
-}
-
 @Composable
 fun PlantDetailDescription(plantDetailViewModel: PlantDetailViewModel) {
     val plant by plantDetailViewModel.plant.observeAsState()
@@ -78,15 +72,6 @@ fun PlantDetailContent(plant: Plant){
         }
     }
 }
-@Preview
-@Composable
-private fun PlantDetailContentPreview(){
-    val plant = Plant("id", "Apple", "HTML<br><br>description", 3, 30, "")
-    MaterialTheme {
-        PlantDetailContent(plant = plant)
-    }
-}
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun PlantWatering(wateringInterval: Int) {
@@ -112,14 +97,6 @@ private fun PlantWatering(wateringInterval: Int) {
         )
     }
 }
-@Preview
-@Composable
-private fun PlantWateringPreview(){
-    MaterialTheme{
-        PlantWatering(wateringInterval = 7)
-    }
-}
-
 @Composable
 private fun PlantDescription(description: String) {
     val htmlDescription = remember(description){
@@ -137,12 +114,42 @@ private fun PlantDescription(description: String) {
         }
     )
 }
+
+//===============================================================================================
+@Preview
+@Composable
+private fun PlantDetailContentPreview(){
+    val plant = Plant("id", "Apple", "HTML<br><br>description", 3, 30, "")
+    MdcTheme {
+        PlantDetailContent(plant = plant)
+    }
+}
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PlantDetailContentDarkPreview(){
+    val plant = Plant("id", "Apple", "HTML<br><br>description", 3, 30, "")
+    MdcTheme{
+        PlantDetailContent(plant = plant)
+    }
+}
+@Preview
+@Composable
+private fun PlantNamePreview(){
+    MdcTheme {
+        PlantName(name = "Apple")
+    }
+}
+@Preview
+@Composable
+private fun PlantWateringPreview(){
+    MdcTheme{
+        PlantWatering(wateringInterval = 7)
+    }
+}
 @Preview
 @Composable
 private fun PlantDescriptionPreview(){
-    MaterialTheme {
+    MdcTheme {
         PlantDescription("HTML<br><br>description")
     }
 }
-
-
