@@ -3,6 +3,9 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,7 +34,7 @@ class MainActivity : ComponentActivity() {
 private fun MyApp(modifier: Modifier = Modifier) {
 
     //rememberSaveable로 화면 회전 시 상태 저장
-    var shouldShowOnboarding by rememberSaveable  { mutableStateOf(true) }
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
 
     Surface(modifier) {
         if (shouldShowOnboarding) {
@@ -44,8 +47,15 @@ private fun MyApp(modifier: Modifier = Modifier) {
 
 @Composable
 private fun Greeting(name: String) {
-    val expanded = remember { mutableStateOf(false) }
-    val extraPadding = if (expanded.value) 48.dp else 0.dp
+    var expanded by remember { mutableStateOf(false) }
+
+    val extraPadding by animateDpAsState(
+        if (expanded) 48.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
 
     Surface(
         color = MaterialTheme.colorScheme.primary, // Surface로 text의 백그라운드 색상 전환
@@ -56,16 +66,16 @@ private fun Greeting(name: String) {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(bottom = extraPadding)
+                    .padding(bottom = extraPadding.coerceAtLeast(0.dp))
             ) {
                 Text(text = "Hello, ")
                 Text(text = name)
             }
             //버튼 생성
             ElevatedButton(
-                onClick = { expanded.value = !expanded.value }
+                onClick = { expanded = !expanded }
             ) {
-                Text(if (expanded.value) "Show Iess" else "Show more")
+                Text(if (expanded) "Show Iess" else "Show more")
             }
         }
     }
