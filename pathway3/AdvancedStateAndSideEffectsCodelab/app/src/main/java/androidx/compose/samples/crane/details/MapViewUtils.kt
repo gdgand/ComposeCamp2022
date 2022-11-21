@@ -38,7 +38,7 @@ private fun getMapLifecycleObserver(mapView: MapView): LifecycleObserver =
             Lifecycle.Event.ON_RESUME -> mapView.onResume()
             Lifecycle.Event.ON_STOP -> mapView.onPause()
             Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
-            else -> throw IllegalStateException()
+            else -> Unit
         }
     }
 
