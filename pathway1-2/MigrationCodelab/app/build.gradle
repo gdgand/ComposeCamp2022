@@ -81,7 +81,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$rootProject.kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutinesVersion"
-
+    implementation "com.google.android.material:compose-theme-adapter:1.1.16"
     // Compose
     implementation "androidx.compose.runtime:runtime:$rootProject.composeVersion"
     implementation "androidx.compose.ui:ui:$rootProject.composeVersion"
@@ -92,9 +92,6 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling-preview:$rootProject.composeVersion"
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
 
-    implementation "com.google.android.material:compose-theme-adapter:$rootProject.materialComposeAdapterVersion"
-
-    // Testing dependencies
     androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$rootProject.espressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.espressoVersion"
