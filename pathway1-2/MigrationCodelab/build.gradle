@@ -55,7 +55,11 @@ buildscript {
 
     repositories {
         google()
-        mavenCentral()
+        jcenter()
+        maven {
+            url = "http://jcenter.bintray.com"
+            allowInsecureProtocol = true
+        }
     }
 
     dependencies {
@@ -72,7 +76,11 @@ plugins {
 allprojects {
     repositories {
         google()
-        mavenCentral()
+        jcenter()
+        maven {
+            url = "http://jcenter.bintray.com"
+            allowInsecureProtocol = true
+        }
     }
 }
 
