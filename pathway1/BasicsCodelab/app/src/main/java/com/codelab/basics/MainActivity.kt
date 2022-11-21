@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
@@ -67,6 +68,43 @@ private fun Greeting(name: String) {
             }
         }
     }
+}
+
+@Composable
+private fun CardContent(name: String) {
+
+    val expended by rememberSaveable { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .padding(12.dp)
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(12.dp)
+        ) {
+            Text(text = "Hello, ")
+            Text(
+                text = name,
+                style = MaterialTheme.typography.h4.copy(
+                    fontWeight = FontWeight.ExtraBold
+                )
+            )
+            if (expended) {
+                Text()
+            }
+        }
+
+    }
+
 }
 
 @Composable
