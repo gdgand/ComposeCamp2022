@@ -98,19 +98,6 @@
                 android:layout_height="match_parent"
                 android:layout_margin="@dimen/margin_normal">
 
-<!--                <TextView-->
-<!--                    android:id="@+id/plant_detail_name"-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_marginStart="@dimen/margin_small"-->
-<!--                    android:layout_marginEnd="@dimen/margin_small"-->
-<!--                    android:gravity="center_horizontal"-->
-<!--                    android:text="@{viewModel.plant.name}"-->
-<!--                    android:textAppearance="?attr/textAppearanceHeadline5"-->
-<!--                    app:layout_constraintEnd_toEndOf="parent"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    app:layout_constraintTop_toTopOf="parent"-->
-<!--                    tools:text="Apple" />-->
 
 <!--                <TextView-->
 <!--                    android:id="@+id/plant_watering_header"-->
@@ -155,10 +142,26 @@
 <!--                    app:renderHtml="@{viewModel.plant.description}"-->
 <!--                    tools:text="Details about the plant" />-->
 
+
                 <androidx.compose.ui.platform.ComposeView
                     android:id="@+id/compose_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <TextView
+                    android:id="@+id/plant_detail_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:gravity="center_horizontal"
+                    android:text="@{viewModel.plant.name}"
+                    android:textAppearance="?attr/textAppearanceHeadline5"
+                    app:layout_constraintTop_toBottomOf="@id/compose_view"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    tools:text="Apple" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
