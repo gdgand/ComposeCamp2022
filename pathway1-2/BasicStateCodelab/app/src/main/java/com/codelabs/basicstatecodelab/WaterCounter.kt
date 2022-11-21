@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -15,12 +16,12 @@ fun WaterCounter(modifier: Modifier = Modifier) {
 //        val count: MutableState<Int> = remember {
 //            mutableStateOf(0)
 //        }
-        var count by remember {
+        var count by rememberSaveable {
             mutableStateOf(0)
         }
 
         if (count > 0) {
-            var showTask by remember {
+            var showTask by rememberSaveable {
                 mutableStateOf(true)
             }
             if (showTask) {
