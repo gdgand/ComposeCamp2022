@@ -249,7 +249,8 @@ private fun Greeting(name: String) {
     }
 }
 ```
-![image](https://im.ezgif.com/tmp/ezgif-1-6da22a5a58.gif)
+![ezgif com-gif-maker](https://user-images.githubusercontent.com/101886039/203070311-40531ea2-e6bc-4a57-9f50-03a152f5b31a.gif)
+
 
 <br>
 
@@ -322,7 +323,7 @@ private fun Greetings(
     }
 }
 ```
-![image](https://im4.ezgif.com/tmp/ezgif-4-3d3a565184.gif)
+![ezgif com-gif-maker (1)](https://user-images.githubusercontent.com/101886039/203070914-482468ca-cfa3-4592-9d8b-701677b72bab.gif)
 
 <br>
 
@@ -345,7 +346,7 @@ private fun Greetings(
 ```
 - __`LazyColumn`은 `RecyclerView`와 같은 하위요소를 재활용하지 않음__
 - Composable을 방출하는 것이 View를 인스턴스화하는 것보다 상대적으로 비용이 적게 들기 때문에 `LazyColumn`은 스크롤 할 때 새 컴포저블을 방출해 성능을 유지함
-![image](https://im4.ezgif.com/tmp/ezgif-4-a606126bb4.gif)
+![ezgif com-gif-maker (2)](https://user-images.githubusercontent.com/101886039/203071298-51ad1d57-5ec6-4224-a5b0-19cfb55c2ac6.gif)
 
 <br>
 
@@ -608,7 +609,7 @@ fun MyAppPreview() {
     }
 }
 ```
-![image](https://im2.ezgif.com/tmp/ezgif-2-6d3fbe73a8.gif)
+![ezgif com-gif-maker (3)](https://user-images.githubusercontent.com/101886039/203071714-39b9eee7-67a4-4b70-affe-6922fd23ade1.gif)
 
 <br>
 
