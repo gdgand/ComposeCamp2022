@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -37,7 +39,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(
     modifier: Modifier = Modifier,
-    names: List<String> = listOf("World", "Compose")
+    names: List<String> = listOf("World", "Compose", "")
 ) {
     var shouldShowOnboarding by remember { mutableStateOf(true) }
 
@@ -56,14 +58,9 @@ fun Greetings(
     modifier: Modifier = Modifier,
     names: List<String> = listOf("World", "Compose")
 ) {
-    Surface(
-        modifier = modifier,
-        color = MaterialTheme.colors.background
-    ) {
-        Column(modifier.padding(vertical = 4.dp)) {
-            for (name in names) {
-                Greeting(name)
-            }
+    LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
+        items(items = names) { name ->
+            Greeting(name = name)
         }
     }
 }
@@ -108,6 +105,14 @@ fun OnboardingScreen(
         ) {
             Text("Continue")
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    BasicsCodelabTheme {
+        Greetings(names = List(1000) { "$it" })
     }
 }
 
