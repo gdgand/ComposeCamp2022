@@ -46,3 +46,26 @@ fun WaterCounter(
         }
     }
 }
+
+@Composable
+fun StatelessCounter(
+    count: Int,
+    onIncrement: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.padding(16.dp)
+    ) {
+        if (count == 0) {
+            Text(stringResource(R.string.wc_counter, count))
+        }
+
+        Button(
+            onClick = onIncrement,
+            enabled = count < 10,
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
+            Text(stringResource(id = R.string.wc_add))
+        }
+    }
+}
