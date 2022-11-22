@@ -22,19 +22,19 @@ import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -96,37 +96,95 @@ fun SearchBar(
 - 이미지의 높이 88dp, 텍스트 기준선과 이미지 기준선의 간격은 24dp, 기준선과 요소 하단 사이의 간격은 8dp
 - 서체 스타일은 H3, 텍스트의 기준선 -> 문자가 놓여 있는 선을 가리킴.
 해당 Composable 구현을 위해서는 Image와 text Composable이 필요한데 두 Composable을 세로 방향으로 배치.
+
+- size와 clip, contentScale을 통해 Image Composable을 수정.
+1. size : fillMaxWidth와 heightIn과 마찬가지로 특정 크기에 맞게 Composable을 조정.
+2. clip : Composable의 모양을 조정.
+3. 이미지의 크기를 올바르게 조절하기 위해서 Image의 contentScale을 사용.
+ex) Fit, FillBounds, Crop 등이 있음.
  */
 @Composable
 fun AlignYourBodyElement(
+    @DrawableRes drawable: Int,
+    @StringRes text: Int,
     modifier: Modifier = Modifier
 ) {
     // 세로 방향으로 배치하기 위해 Column Scope로 작성.
     // 설명이 필요없는 장식용 이미지일경우 contentDescription 옵션을 null로 처리해줌.
     // 추가 설명이 필요할 경우에만 사용
-    Column{
-        Image(painter = painterResource(id = R.drawable.ab1_inversions),
-              contentDescription = null)
-        Text(text = stringResource(id = R.string.ab1_inversions)
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally     // 글자 정렬
+    ) {
+        Image(
+              painter = painterResource(drawable),
+              contentDescription = null,
+              contentScale = ContentScale.Crop,
+              modifier = Modifier
+                  .size(88.dp)          // 사이즈 88dp
+                  .clip(CircleShape)    // 원 모양으로
+        )
+        Text(
+            text = stringResource(text),
+            style = MaterialTheme.typography.h3,        // 서체를 h3로
+            modifier = Modifier.paddingFromBaseline(    // 텍스트 요소의 기준선 간격을 업데이트
+                top = 24.dp, bottom = 8.dp          // top : 24dp, bottom: 8dp
+            )
+
         )
     }
-
 }
 
 // Step: Favorite collection card - Material Surface
 @Composable
 fun FavoriteCollectionCard(
+    @DrawableRes drawable: Int,
+    @StringRes text: Int,
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        modifier = modifier
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,      // 수직 정렬
+            modifier = Modifier.width(192.dp)
+        ) {
+            Image(
+                painter = painterResource(drawable) ,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(56.dp)
+            )
+            Text(
+                text = stringResource(text),
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+
+    }
 }
 
 // Step: Align your body row - Arrangements
+/*
+LazyRow의 하위 요소는 Composable이 아님.
+대신 Composable을 목록 항목으로 내보내는 item 및 items와 같은 메서드를 제공하는 Lazy 목록 DSL을 사용.
+alignment
+ */
 @Composable
 fun AlignYourBodyRow(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+   LazyRow(
+       horizontalArrangement = Arrangement.spacedBy(8.dp),
+       contentPadding = PaddingValues(horizontal = 16.dp) ,
+       modifier = modifier
+   ) {
+       items(alignYourBodyData) { item ->
+           AlignYourBodyElement(item.drawable, item.text)
+       }
+   }
 }
 
 // Step: Favorite collections grid - LazyGrid
@@ -197,6 +255,8 @@ fun SearchBarPreview() {
 fun AlignYourBodyElementPreview() {
     MySootheTheme {
         AlignYourBodyElement(
+            text = R.string.ab1_inversions,
+            drawable = R.drawable.ab1_inversions,
             modifier = Modifier.padding(8.dp)
         )
     }
@@ -207,6 +267,8 @@ fun AlignYourBodyElementPreview() {
 fun FavoriteCollectionCardPreview() {
     MySootheTheme {
         FavoriteCollectionCard(
+            text = R.string.fc2_nature_meditations,
+            drawable = R.drawable.fc2_nature_meditations,
             modifier = Modifier.padding(8.dp)
         )
     }
