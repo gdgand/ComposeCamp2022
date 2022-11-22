@@ -657,7 +657,10 @@ private fun Modifier.swipeToDismiss(
         coroutineScope {
             while (true) {
                 // Wait for a touch down event.
+                // Wait for a touch down event. Track the pointerId based on the touch
                 val pointerId = awaitPointerEventScope { awaitFirstDown().id }
+                offsetX.stop() // Add this line to cancel any on-going animations
+                // Prepare for drag events and record velocity of a fling gesture
                 // TODO 6-2: Touch detected; the animation should be stopped.
                 // Prepare for drag events and record velocity of a fling.
                 val velocityTracker = VelocityTracker()
