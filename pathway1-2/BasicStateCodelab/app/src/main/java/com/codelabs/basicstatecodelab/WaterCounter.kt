@@ -12,25 +12,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun WaterCounter(
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.padding(16.dp)
-    ) {
-        var count by rememberSaveable { mutableStateOf(0) }
+fun StatefulCounter(modifier: Modifier = Modifier) {
+    var count by rememberSaveable { mutableStateOf(0) }
 
-        if (count > 0) {
-            Text(stringResource(R.string.wc_counter, count))
-        }
-        Button(
-            onClick = { count++ },
-            enabled = count < 10,
-            modifier = Modifier.padding(top = 8.dp)
-        ) {
-            Text(stringResource(id = R.string.wc_add))
-        }
-    }
+    StatelessCounter(
+        count,
+        { count++ },
+        modifier
+    )
 }
 
 @Composable
@@ -42,7 +31,7 @@ fun StatelessCounter(
     Column(
         modifier = modifier.padding(16.dp)
     ) {
-        if (count == 0) {
+        if (count > 0) {
             Text(stringResource(R.string.wc_counter, count))
         }
 
