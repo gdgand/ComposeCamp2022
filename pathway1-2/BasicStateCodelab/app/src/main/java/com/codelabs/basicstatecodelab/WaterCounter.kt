@@ -21,28 +21,14 @@ fun WaterCounter(
         var count by rememberSaveable { mutableStateOf(0) }
 
         if (count > 0) {
-            var showTask by rememberSaveable { mutableStateOf(true) }
-            if (showTask) {
-                WellnessTaskItem(
-                    onClose = { showTask = false },
-                    taskName = stringResource(id = R.string.wc_task)
-                )
-            }
             Text(stringResource(R.string.wc_counter, count))
         }
-        Row(Modifier.padding(top = 8.dp)) {
-            Button(
-                onClick = { count++ },
-                enabled = count < 10
-            ) {
-                Text(stringResource(id = R.string.wc_add))
-            }
-            Button(
-                onClick = { count = 0 },
-                modifier = Modifier.padding(start = 8.dp)
-            ) {
-                Text(stringResource(id = R.string.wc_clear))
-            }
+        Button(
+            onClick = { count++ },
+            enabled = count < 10,
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
+            Text(stringResource(id = R.string.wc_add))
         }
     }
 }
