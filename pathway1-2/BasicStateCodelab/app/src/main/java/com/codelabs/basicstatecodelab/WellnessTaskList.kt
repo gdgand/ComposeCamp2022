@@ -7,15 +7,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.codelabs.basicstatecodelab.data.WellnessTask
 
-fun getWellnessTasks() = List(30) { i ->
-    WellnessTask(i, "Task # $i")
-}
-
 @Composable
 fun WellnessTasksList(
-    modifier: Modifier = Modifier,
+    list: List<WellnessTask>,
+    onCheckedTask: (WellnessTask, Boolean) -> Unit,
     onCloseTask: (WellnessTask) -> Unit,
-    list: List<WellnessTask> = remember { getWellnessTasks() }
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
         modifier = modifier
@@ -26,6 +23,8 @@ fun WellnessTasksList(
         ) { task ->
             WellnessTaskItem(
                 taskName = task.label,
+                checked = task.checked,
+                onCheckedChange = { checked -> onCheckedTask(task, checked) },
                 onClose = { onCloseTask(task) }
             )
         }

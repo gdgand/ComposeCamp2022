@@ -19,23 +19,6 @@ import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 @Composable
 fun WellnessTaskItem(
     taskName: String,
-    onClose: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var checkedState by rememberSaveable { mutableStateOf(false) }
-
-    WellnessTaskItem(
-        taskName = taskName,
-        checked = checkedState,
-        onCheckedChange = { newValue -> checkedState = newValue },
-        onClose = onClose, // we will implement this later!
-        modifier = modifier,
-    )
-}
-
-@Composable
-fun WellnessTaskItem(
-    taskName: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onClose: () -> Unit,
@@ -58,16 +41,5 @@ fun WellnessTaskItem(
         IconButton(onClick = onClose) {
             Icon(Icons.Filled.Close, contentDescription = "Close")
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun TaskItemPreview() {
-    BasicStateCodelabTheme {
-        WellnessTaskItem(
-            "This is a task",
-            onClose = {}
-        )
     }
 }
