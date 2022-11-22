@@ -1,27 +1,30 @@
-package com.codelabs.basicstatecodelab.data
+package com.codelabs.basicstatecodelab
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.codelabs.basicstatecodelab.WellnessTaskItem
+import com.codelabs.basicstatecodelab.data.WellnessTask
 import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 
 @Composable
 fun WellnessTasksList(
     modifier: Modifier = Modifier,
-    list: List<WellnessTask> = remember { getWellnessTasks() }
+    list: List<WellnessTask>,
+    onCloseTask: (WellnessTask) -> Unit
 ) {
     LazyColumn(modifier = modifier) {
-        items(list) { task ->
-            WellnessTaskItem(taskName = task.label)
+        items(
+            items = list,
+            key = { task -> task.id }
+        ) { task ->
+            WellnessTaskItem(taskName = task.label, onClose = {onCloseTask(task)})
         }
     }
 }
 
-private fun getWellnessTasks() = List(30)  {
+fun getWellnessTasks() = List(30)  {
     i -> WellnessTask(i, "Task # $i")
 }
 
@@ -29,6 +32,6 @@ private fun getWellnessTasks() = List(30)  {
 @Composable
 fun WellnessTasksListPreview() {
     BasicStateCodelabTheme {
-        WellnessTasksList()
+        WellnessTasksList(list = getWellnessTasks(), onCloseTask = {  })
     }
 }
