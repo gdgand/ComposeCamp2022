@@ -102,6 +102,7 @@ import com.example.android.codelab.animation.ui.Purple700
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
 private enum class TabPage {
     Home, Work
@@ -691,8 +692,17 @@ private fun Modifier.swipeToDismiss(
                     upperBound = size.width.toFloat()
                 )
                 launch {
-                    // TODO 6-6: Slide back the element if the settling position does not go beyond
-                    //           the size of the element. Remove the element if it does.
+                    if (targetOffsetX.absoluteValue <= size.width) {
+                        // 충분히 빠르게 스와이프 하지 않은 경우 다시 0으로 돌려보낸다.
+                        // Not enough velocity; Slide back.
+                        offsetX.animateTo(targetValue = 0f, initialVelocity = velocity)
+                    } else {
+                        // 충분히 쓸어 날려준 경우 삭제해버리자
+                        // Enough velocity to slide away the element to the edge.
+                        offsetX.animateDecay(velocity, decay)
+                        // The element was swiped away.
+                        onDismissed()
+                    }
                 }
             }
         }
