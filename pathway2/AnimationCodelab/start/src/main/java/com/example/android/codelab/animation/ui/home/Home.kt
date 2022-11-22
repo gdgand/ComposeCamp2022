@@ -709,7 +709,6 @@ private fun Modifier.swipeToDismiss(
         }
     }
         .offset {
-            // TODO 6-7: Use the animating offset value here.
             IntOffset(offsetX.value.roundToInt(), 0)
         }
 }
