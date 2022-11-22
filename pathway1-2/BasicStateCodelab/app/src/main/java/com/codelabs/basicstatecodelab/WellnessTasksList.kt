@@ -12,14 +12,20 @@ import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 fun WellnessTasksList(
     modifier: Modifier = Modifier,
     list: List<WellnessTask>,
-    onCloseTask: (WellnessTask) -> Unit
+    onCloseTask: (WellnessTask) -> Unit,
+    onCheckedTask: (WellnessTask, Boolean) -> Unit
 ) {
     LazyColumn(modifier = modifier) {
         items(
             items = list,
             key = { task -> task.id }
         ) { task ->
-            WellnessTaskItem(taskName = task.label, onClose = {onCloseTask(task)})
+            WellnessTaskItem(
+                taskName = task.label,
+                onClose = {onCloseTask(task)},
+                checked = task.checked,
+                onCheckedChange = { checked -> onCheckedTask(task, checked) }
+            )
         }
     }
 }
@@ -32,6 +38,6 @@ fun getWellnessTasks() = List(30)  {
 @Composable
 fun WellnessTasksListPreview() {
     BasicStateCodelabTheme {
-        WellnessTasksList(list = getWellnessTasks(), onCloseTask = {  })
+        WellnessTasksList(list = getWellnessTasks(), onCloseTask = {  }, onCheckedTask = { _, _ -> })
     }
 }
