@@ -157,7 +157,7 @@ private fun TopicItem(itemTitle: String, selected: Boolean, onToggle: () -> Unit
         modifier = Modifier
             .semantics {
                 stateDescription = if (selected) stateNotSubscribed
-                else stateSubscribedi
+                else stateSubscribed
             }
             .toggleable(value = selected, onValueChange = { onToggle() }, role = Role.Checkbox)
             .padding(horizontal = 16.dp, vertical = 8.dp)
