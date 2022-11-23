@@ -43,8 +43,10 @@ import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
 fun PlantDetailDescription(
     plantDetailViewModel: PlantDetailViewModel
 ) {
-    Surface {
-        Text("Hello Compose")
+    val plant by plantDetailViewModel.plant.observeAsState()
+
+    plant?.let {
+        PlantDetailContent(plant = it)
     }
 }
 
