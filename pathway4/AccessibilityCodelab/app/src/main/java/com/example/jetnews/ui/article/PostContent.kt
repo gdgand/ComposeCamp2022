@@ -52,6 +52,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -132,7 +134,7 @@ private fun PostHeaderImage(post: Post) {
 @Composable
 private fun PostMetadata(metadata: Metadata) {
     val typography = MaterialTheme.typography
-    Row {
+    Row(Modifier.semantics(mergeDescendants = true) {}) {
         Image(
             imageVector = Icons.Filled.AccountCircle,
             contentDescription = null,
@@ -174,18 +176,23 @@ private fun Paragraph(paragraph: Paragraph) {
                 textStyle = textStyle,
                 paragraphStyle = paragraphStyle
             )
+
             ParagraphType.CodeBlock -> CodeBlockParagraph(
                 text = annotatedString,
                 textStyle = textStyle,
                 paragraphStyle = paragraphStyle
             )
+
             ParagraphType.Header -> {
                 Text(
-                    modifier = Modifier.padding(4.dp),
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .semantics { heading() },
                     text = annotatedString,
                     style = textStyle.merge(paragraphStyle)
                 )
             }
+
             else -> Text(
                 modifier = Modifier.padding(4.dp),
                 text = annotatedString,
@@ -263,17 +270,21 @@ private fun ParagraphType.getTextAndParagraphStyle(): ParagraphStyling {
             textStyle = typography.h6
             trailingPadding = 16.dp
         }
+
         ParagraphType.Text -> {
             textStyle = typography.body1.copy(lineHeight = 28.sp)
             paragraphStyle = paragraphStyle.copy(lineHeight = 28.sp)
         }
+
         ParagraphType.Header -> {
             textStyle = typography.h5
             trailingPadding = 16.dp
         }
+
         ParagraphType.CodeBlock -> textStyle = typography.body1.copy(
             fontFamily = FontFamily.Monospace
         )
+
         ParagraphType.Quote -> textStyle = typography.body1
         ParagraphType.Bullet -> {
             paragraphStyle = ParagraphStyle(textIndent = TextIndent(firstLine = 8.sp))
@@ -308,6 +319,7 @@ fun Markup.toAnnotatedStringItem(
                 end
             )
         }
+
         MarkupType.Link -> {
             AnnotatedString.Range(
                 typography.body1.copy(textDecoration = TextDecoration.Underline).toSpanStyle(),
@@ -315,6 +327,7 @@ fun Markup.toAnnotatedStringItem(
                 end
             )
         }
+
         MarkupType.Bold -> {
             AnnotatedString.Range(
                 typography.body1.copy(fontWeight = FontWeight.Bold).toSpanStyle(),
@@ -322,6 +335,7 @@ fun Markup.toAnnotatedStringItem(
                 end
             )
         }
+
         MarkupType.Code -> {
             AnnotatedString.Range(
                 typography.body1
