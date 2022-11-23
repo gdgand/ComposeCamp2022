@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.sunflower.plantdetail
 
+import android.content.res.Configuration
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.samples.apps.sunflower.R
 import com.google.samples.apps.sunflower.data.Plant
 import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
@@ -127,7 +129,7 @@ private fun PlantDescription(description: String) {
 @Preview
 @Composable
 private fun PlantWateringPreview() {
-    MaterialTheme {
+    MdcTheme {
         PlantWatering(wateringInterval = 7)
     }
 }
@@ -143,7 +145,7 @@ private fun PlantNamePreview() {
         wateringInterval = 30,
         imageUrl = ""
     )
-    MaterialTheme {
+    MdcTheme {
         PlantDetailContent(plant = plant)
     }
 }
@@ -151,7 +153,7 @@ private fun PlantNamePreview() {
 @Preview
 @Composable
 private fun PlantDescriptionPreview() {
-    MaterialTheme {
+    MdcTheme {
         PlantDescription(description = "HTML<br><br>description")
     }
 }
@@ -167,7 +169,23 @@ private fun PlantDetailContentPreview() {
         wateringInterval = 30,
         imageUrl = ""
     )
-    MaterialTheme {
+    MdcTheme {
+        PlantDetailContent(plant = plant)
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PlantDetailContentDarkPreview() {
+    val plant = Plant(
+        plantId = "id",
+        name = "Apple",
+        description = "HTML<br><br>description",
+        growZoneNumber = 3,
+        wateringInterval = 30,
+        imageUrl = ""
+    )
+    MdcTheme {
         PlantDetailContent(plant = plant)
     }
 }
