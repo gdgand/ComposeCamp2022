@@ -17,6 +17,7 @@
 package com.codelab.basiclayouts
 
 import android.os.Bundle
+import android.widget.Space
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
@@ -24,11 +25,18 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -188,37 +197,140 @@ fun AlignYourBodyRow(
 }
 
 // Step: Favorite collections grid - LazyGrid
+/*
+- 항목-그리드 요소 매핑을 더 효과적으로 지원하는 LazyHorizontalGrid를 사용.
+ */
 @Composable
 fun FavoriteCollectionsGrid(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    // 두 개의 고정 행이 있는 그리드 구현
+    LazyHorizontalGrid(
+        rows = GridCells.Fixed(2) ,
+        contentPadding = PaddingValues(horizontal = 16.dp),      // 가로 16dp padding을 줌
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.height(120.dp)
+    ) {
+        items(favoriteCollectionsData) { item ->
+            FavoriteCollectionCard(
+                drawable = item.drawable,
+                text = item.text,
+                modifier = Modifier.height(56.dp)
+            )
+
+        }
+    }
+
 }
 
 // Step: Home section - Slot APIs
+/*
+- 제목과 슬롯 콘텐츠를 받도록 HomeSection Composable을 조정.
+- 이 HomeSection을 '신체의 조화' 제목 및 콘텐츠와 함께 호출하도록 연결된 미리보기도 조정.
+- container 함수 생성을 위해 content을 Unit으로 반환하는 고차함수를 선언하고
+- 해당 파라미터를 선언했기때문에 HomeSection 호출해서 원하는 형태로 view를 그릴수 있게 함.
+-> 정리하면 내부적으로 Container 내에 내가 원하는 컴포넌트를 넣어주기 위함.
+ */
 @Composable
 fun HomeSection(
-    modifier: Modifier = Modifier
+    @StringRes title: Int,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
 ) {
-    // Implement composable here
+    /*
+    디자인 적용 -> 모두 대문자로 표시, H2 서체, 레드라인 디자인과 같은 Padding값을 줄 것
+     */
+    Column(modifier) {
+        Text(
+            // uppercase -> deprecated,
+            text = stringResource(title).uppercase(Locale.getDefault()),
+            style = MaterialTheme.typography.h2,
+            modifier = Modifier
+                .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
+                .padding(horizontal = 16.dp)
+        )
+        content()
+    }
 }
 
 // Step: Home screen - Scrolling
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    // Implement composable here
+    Column(
+        modifier
+            // 수동으로 스크롤 효과를 반영
+            // 수직간의 Padding을 16dp만큼 주었기 때문에 Spacer 옵션을 삭제.
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 16.dp)
+    ) {
+        SearchBar(Modifier.padding(horizontal = 16.dp))
+        HomeSection(title = R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+        HomeSection(title = R.string.favorite_collections) {
+            FavoriteCollectionsGrid()
+        }
+    }
 }
 
 // Step: Bottom navigation - Material
+/*
+- 기존의 BottomNavigation을 통해 화면을 전환 할수 있었는데 해당 BottomNavigation을 구현하기 위해
+Compose Material 라이브러리의 일부인 BottomNavigation Composable을 사용.
+해당 Composable 내부에서 BottomNavigationItem 을 추가해준다.
+ */
 @Composable
 private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
-    // Implement composable here
+    BottomNavigation(
+        // 배경 색상을 추가해주면 아이콘과 텍스트의 색상이 테마의 onBackGround 색상으로 자동 조정 된다.
+        backgroundColor = MaterialTheme.colors.background,
+        modifier = modifier
+    ) {
+        BottomNavigationItem(
+            // 아이콘 추가
+            icon = {
+                Icon(imageVector = Icons.Default.Spa ,
+                     contentDescription = null
+                )
+            },
+            label = {
+                Text(stringResource(R.string.bottom_navigation_home))
+            },
+            // 기본 클릭되어 있는지 여부(true)
+            selected = true ,
+            onClick = {}
+        )
+
+        BottomNavigationItem(
+            // 아이콘 추가
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = null
+                )
+            },
+            label = {
+                Text(stringResource(R.string.bottom_navigation_profile))
+            },
+            // 기본 클릭되어 있는지 여부(false)
+            selected = false,
+            onClick = {}
+        )
+    }
 }
 
 // Step: MySoothe App - Scaffold
 @Composable
 fun MySootheApp() {
-    // Implement composable here
+    MySootheTheme {
+        Scaffold(
+            bottomBar = { SootheBottomNavigation()}
+        ) { padding ->
+            HomeScreen(Modifier.padding(padding))
+
+        }
+    }
 }
 
 private val alignYourBodyData = listOf(
@@ -289,10 +401,15 @@ fun AlignYourBodyRowPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
 fun HomeSectionPreview() {
-    MySootheTheme { HomeSection() }
+    MySootheTheme {
+        HomeSection(R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+    }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
+// 높이 제한을 주고 대화형 모드로 실행하면 스크롤 동작 확인이 가능.
+@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2, heightDp = 180)
 @Composable
 fun ScreenContentPreview() {
     MySootheTheme { HomeScreen() }
