@@ -17,6 +17,9 @@
 package com.example.android.codelab.animation.ui.home
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -286,8 +289,16 @@ private fun HomeFloatingActionButton(
 private fun EditMessage(shown: Boolean) {
     AnimatedVisibility(
         visible = shown,
-        enter = slideInVertically(),
-        exit = slideOutVertically()
+        enter = slideInVertically(
+            // Enters by sliding down from offset -fullHeight to 0.
+            initialOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 250, easing = LinearOutSlowInEasing)
+        ),
+        exit = slideOutVertically(
+            // Exits by sliding up from offset 0 to -fullHeight.
+            targetOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 100, easing = FastOutLinearInEasing)
+        )
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
