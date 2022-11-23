@@ -8,7 +8,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -41,15 +40,6 @@ fun WaterCounter(modifier: Modifier = Modifier) {
          * count가 0보다 크면 Text를 표시합니다.
          */
         if (count > 0) {
-
-            var showTask by remember { mutableStateOf(true) }
-            if (showTask) {
-                WellnessTaskItem(
-                    taskName = "Have you taken your 15 minute walk today?",
-                    onClose = { showTask = false }
-                )
-            }
-
             Text(text = "You've had $count glasses.")
         }
 

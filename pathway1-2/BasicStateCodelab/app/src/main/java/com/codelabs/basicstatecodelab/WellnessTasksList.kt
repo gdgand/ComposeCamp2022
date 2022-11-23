@@ -13,9 +13,10 @@ private fun getWellnessTasks() = List(30) { i ->
 
 @Composable
 fun WellnessTasksList(
-    modifier: Modifier = Modifier,
     list: List<WellnessTask> = remember { getWellnessTasks() },
-    onCloseTask: (WellnessTask) -> Unit
+    onCheckedTask: (WellnessTask, Boolean) -> Unit,
+    onCloseTask: (WellnessTask) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
         state = rememberLazyListState(),
@@ -27,6 +28,8 @@ fun WellnessTasksList(
         ) { task ->
             WellnessTaskItem(
                 taskName = task.label,
+                checked = task.checked,
+                onCheckedChange = { checked -> onCheckedTask(task, checked) },
                 onClose = { onCloseTask(task) }
             )
         }
