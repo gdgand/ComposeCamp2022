@@ -25,6 +25,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.contentColorFor
 import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
@@ -59,4 +60,7 @@ fun InsetAwareTopAppBar(
             modifier = Modifier.statusBarsPadding()
         )
     }
+    LaunchedEffect(key1 =Unit , block ={
+
+    } )
 }
