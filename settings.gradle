@@ -1,0 +1,28 @@
+import java.util.stream.Stream
+
+camps.each { camp ->
+	includeBuild camp
+}
+
+String[] getCamps() {
+	return pathways.stream()
+			.flatMap { File pathway ->
+				String[] fileNames = pathway
+						.list()
+						.stream()
+						.map { pathway.name + File.separator + it }
+						.toList()
+				Stream.of(fileNames)
+			}
+			.toList()
+}
+
+File[] getPathways() {
+	File root = new File(rootProject.projectDir.getAbsolutePath())
+	return root.listFiles(new FilenameFilter() {
+		@Override
+		boolean accept(File dir, String name) {
+			return name.contains("pathway")
+		}
+	})
+}
