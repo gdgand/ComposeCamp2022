@@ -50,6 +50,7 @@ import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -272,9 +273,16 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
 
 
 // Step: MySoothe App - Scaffold
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MySootheApp() {
-    // Implement composable here
+    MySootheTheme {
+        Scaffold(
+            bottomBar = { SootheBottomNavigation() }
+        ) { padding ->
+            HomeScreen(Modifier.padding(padding))
+        }
+    }
 }
 
 private val alignYourBodyData = listOf(
