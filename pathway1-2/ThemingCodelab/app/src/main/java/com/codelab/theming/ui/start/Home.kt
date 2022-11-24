@@ -37,6 +37,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -102,10 +104,11 @@ fun Header(
     Surface(
         color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
         contentColor = MaterialTheme.colors.primary,
-        modifier = modifier
+        modifier = modifier.semantics { heading() }
     ) {
         Text(
             text = text,
+            style = MaterialTheme.typography.subtitle2,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -137,13 +140,16 @@ fun FeaturedPost(
             val padding = Modifier.padding(horizontal = 16.dp)
             Text(
                 text = post.title,
+                style = MaterialTheme.typography.h6,
                 modifier = padding
             )
             Text(
                 text = post.metadata.author.name,
+                style = MaterialTheme.typography.body2,
                 modifier = padding
             )
             PostMetadata(post, padding)
+
             Spacer(Modifier.height(16.dp))
         }
     }
@@ -176,6 +182,7 @@ private fun PostMetadata(
     CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
         Text(
             text = text,
+            style = MaterialTheme.typography.body2,
             modifier = modifier
         )
     }
