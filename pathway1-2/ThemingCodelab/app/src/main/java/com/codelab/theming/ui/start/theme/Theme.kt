@@ -10,6 +10,7 @@ fun JetnewsTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colors = LightColors,
         typography = JetnewsTypography,
+        shapes = JetnewsShapes,
         content = content
     )
 }
