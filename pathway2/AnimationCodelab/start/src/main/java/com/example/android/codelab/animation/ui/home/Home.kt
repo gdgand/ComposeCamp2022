@@ -294,8 +294,12 @@ private fun EditMessage(shown: Boolean) {
     //           disappearance.
     AnimatedVisibility(
         visible = shown,
-        enter = slideInVertically(),
-        exit = slideOutVertically()
+        enter = slideInVertically(
+            initialOffsetY = { fullHeight -> -fullHeight }
+        ),
+        exit = slideOutVertically(
+            targetOffsetY = { fullHeight -> -fullHeight }
+        )
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
