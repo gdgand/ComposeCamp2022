@@ -53,7 +53,7 @@ import java.util.Locale
 fun Home() {
     val featured = remember { PostRepo.getFeaturedPost() }
     val posts = remember { PostRepo.getPosts() }
-    JetnewsTheme (darkTheme = true){
+    JetnewsTheme{
         Scaffold(
             topBar = { AppBar() }
         ) { innerPadding ->
@@ -107,14 +107,13 @@ fun Header(
     Surface(
         color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
         contentColor = MaterialTheme.colors.primary,
-        modifier = modifier
+        modifier = modifier.semantics { heading() }
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.subtitle2,
             modifier = modifier
                 .fillMaxWidth()
-                .semantics { heading() }
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }
@@ -232,7 +231,7 @@ private fun PostItemPreview() {
 @Composable
 private fun FeaturedPostPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    JetnewsTheme  (darkTheme = false){
+    JetnewsTheme{
         FeaturedPost(post = post)
     }
 }
