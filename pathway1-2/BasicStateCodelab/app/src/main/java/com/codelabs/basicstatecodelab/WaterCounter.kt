@@ -24,14 +24,13 @@ fun StatelessCounter(count: Int, onIncrement: () -> Unit, modifier: Modifier = M
 @Composable
 fun StatefulCounter() {
     var count by remember { mutableStateOf(0) }
-
-    Row {
-        StatelessCounter(count, { count++ })
-        StatelessCounter(count, { count *= 2 })
-    }
+    StatelessCounter(count, { count++ })
 }
 
 @Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
-    StatefulCounter()
+    Column(modifier = modifier) {
+        StatefulCounter()
+        WellnessTasksList()
+    }
 }
