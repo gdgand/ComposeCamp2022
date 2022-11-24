@@ -75,6 +75,7 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
 
+    implementation "androidx.compose.material:material:$compose_version"
     implementation 'androidx.compose.material3:material3:1.1.0-alpha02'
     implementation 'androidx.compose.material3:material3-window-size-class:1.1.0-alpha02'
     implementation "androidx.compose.material:material-icons-extended:1.4.0-alpha02"
