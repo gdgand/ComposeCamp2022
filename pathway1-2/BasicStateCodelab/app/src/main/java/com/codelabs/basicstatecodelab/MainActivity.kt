@@ -89,7 +89,7 @@ fun StatefulCounter(modifier: Modifier = Modifier) {
     StatelessCounter(count, { count++ }, modifier)
 }
 
-@Composable
+/*@Composable
 fun WellnessTaskItem(
     taskName: String,
     checked: Boolean,
@@ -114,7 +114,7 @@ fun WellnessTaskItem(
             Icon(Icons.Filled.Close, contentDescription = "Close")
         }
     }
-}
+}*/
 
 /*@Composable
 fun WellnessTaskItem(
@@ -134,15 +134,23 @@ fun WellnessTaskItem(
 @Composable
 fun WellnessTasksList(
     list: List<WellnessTask>,
+    onCheckedTask: (WellnessTask, Boolean) -> Unit,
     onCloseTask: (WellnessTask) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier) {
+    LazyColumn(
+        modifier = modifier
+    ) {
         items(
             items = list,
             key = { task -> task.id }
         ) { task ->
-            WellnessTaskItem(taskName = task.label, onClose = { onCloseTask(task) })
+            WellnessTaskItem(
+                taskName = task.label,
+                checked = task.checked,
+                onCheckedChange = { checked -> onCheckedTask(task, checked) },
+                onClose = { onCloseTask(task) }
+            )
         }
     }
 }
