@@ -92,6 +92,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling-preview:$rootProject.composeVersion"
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
 
+    // 상호 운용성 테마 설정
     implementation "com.google.android.material:compose-theme-adapter:$rootProject.materialComposeAdapterVersion"
 
     // Testing dependencies
@@ -105,4 +106,5 @@ dependencies {
     androidTestImplementation "com.google.truth:truth:$rootProject.truthVersion"
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$rootProject.composeVersion"
     testImplementation "junit:junit:$rootProject.junitVersion"
+
 }
