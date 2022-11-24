@@ -1,5 +1,6 @@
 package com.codelab.basics
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
@@ -36,13 +38,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BasicsCodelabTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
+                MyApp(modifier = Modifier.fillMaxSize())
             }
         }
     }
@@ -51,7 +47,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun MyApp(modifier: Modifier = Modifier) {
     var shouldShowOnBoarding by rememberSaveable { mutableStateOf(true) }
-    Column(modifier = modifier) {
+    Surface(modifier = modifier, color = MaterialTheme.colorScheme.background) {
         if (shouldShowOnBoarding) {
             OnboardingScreen(onContinueClicked = { shouldShowOnBoarding = false })
         } else {
@@ -67,7 +63,7 @@ private fun OnboardingScreen(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -103,7 +99,9 @@ private fun Greeting(name: String) {
                     .padding(bottom = extraPadding.coerceAtLeast(0.dp))
             ) {
                 Text(text = "Hello, ")
-                Text(text = name)
+                Text(text = name, style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.ExtraBold
+                ))
             }
             ElevatedButton(
                 onClick = {
@@ -130,7 +128,12 @@ private fun Greetings(
     }
 }
 
-@Preview(showBackground = true, name = "Text preview", widthDp = 320)
+@Preview(
+    showBackground = true,
+    name = "Text preview",
+    widthDp = 320,
+    uiMode = UI_MODE_NIGHT_YES
+)
 @Composable
 private fun DefaultPreview() {
     BasicsCodelabTheme {
