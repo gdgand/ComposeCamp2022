@@ -467,9 +467,9 @@ private fun HomeTabIndicator(
     }
     val indicatorRight by transition.animateDp(
         transitionSpec = {
-            if(TabPage.Home isTransitioningTo TabPage.Work){
+            if (TabPage.Home isTransitioningTo TabPage.Work) {
                 spring(stiffness = Spring.StiffnessMedium)
-            }else{
+            } else {
                 spring(stiffness = Spring.StiffnessVeryLow)
             }
         },
@@ -567,7 +567,20 @@ private fun WeatherRow(
 @Composable
 private fun LoadingRow() {
     // TODO 5: Animate this value between 0f and 1f, then back to 0f repeatedly.
-    val alpha = 1f
+    val infiniteTransition = rememberInfiniteTransition()
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = 1000
+                0.7f at 500
+                0.9f at 800
+            },
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
     Row(
         modifier = Modifier
             .heightIn(min = 64.dp)
