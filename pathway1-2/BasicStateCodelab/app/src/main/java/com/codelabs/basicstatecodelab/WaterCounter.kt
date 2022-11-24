@@ -1,7 +1,6 @@
 package com.codelabs.basicstatecodelab
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -31,6 +30,8 @@ fun StatefulCounter() {
 fun WellnessScreen(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         StatefulCounter()
-        WellnessTasksList()
+
+        val list = remember { getWellnessTasks().toMutableStateList() }
+        WellnessTasksList(list = list, onCloseTask = { task -> list.remove(task)})
     }
 }
