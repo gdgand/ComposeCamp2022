@@ -43,5 +43,6 @@ fun StatefulCounter(modifier: Modifier = Modifier) {
 
 @Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
-    StatefulCounter(modifier)
+    StatefulCounter()
+    WellnessTasksList()
 }
