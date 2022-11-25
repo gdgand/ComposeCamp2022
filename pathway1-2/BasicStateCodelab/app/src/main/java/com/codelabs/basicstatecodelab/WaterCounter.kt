@@ -43,6 +43,12 @@ fun StatefulCounter(modifier: Modifier = Modifier) {
 
 @Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
-    StatefulCounter()
-    WellnessTasksList()
+    Column(modifier = modifier) {
+        StatefulCounter()
+
+        val list = remember { getWellnessTasks().toMutableStateList() }
+        WellnessTasksList(list = list, onCloseTask = { task -> list.remove(task) })
+    }
 }
+
+private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i") }
