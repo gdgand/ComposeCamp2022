@@ -28,9 +28,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
 import com.example.compose.rally.data.Bill
 import com.example.compose.rally.ui.components.RallyTabRow
 import com.example.compose.rally.ui.theme.RallyTheme
@@ -51,13 +55,19 @@ class RallyActivity : ComponentActivity() {
 @Composable
 fun RallyApp() {
     RallyTheme {
-        var currentScreen: RallyDestination by remember { mutableStateOf(Overview) }
+//        var currentScreen: RallyDestination by remember { mutableStateOf(Overview) }
         val navController = rememberNavController()
+        val currentBackStack by navController.currentBackStackEntryAsState()
+        val currentDestination = currentBackStack?.destination
+        val currentScreen = rallyTabRowScreens.find { it.route == currentDestination?.route } ?: Overview
+
         Scaffold(
             topBar = {
                 RallyTabRow(
                     allScreens = rallyTabRowScreens,
-                    onTabSelected = { screen -> currentScreen = screen },
+                    onTabSelected = { newScreen ->
+                        navController.navigateSingleTopTo(newScreen.route)
+                    },
                     currentScreen = currentScreen
                 )
             }
@@ -83,3 +93,15 @@ fun RallyApp() {
         }
     }
 }
+
+// 확장함수
+fun NavHostController.navigateSingleTopTo(route: String) =
+    this.navigate(route) {
+        popUpTo(
+            this@navigateSingleTopTo.graph.findStartDestination().id
+        ) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
+    }
