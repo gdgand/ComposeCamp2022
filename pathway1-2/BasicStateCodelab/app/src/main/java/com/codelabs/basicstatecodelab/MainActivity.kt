@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelabs.basicstatecodelab.ui.WellnessTaskItem
 import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 
@@ -49,21 +50,23 @@ fun WaterCounter(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun WellnessScreen(modifier: Modifier = Modifier) {
+fun WellnessScreen(
+    modifier: Modifier = Modifier,
+    wellnessViewModel: WellnessViewModel = viewModel()
+) {
 //    WaterCounter(modifier)
     Column(modifier = modifier) {
         StatefulCounter()
 
-        val list = remember { getWellnessTasks().toMutableStateList() }
         WellnessTasksList(
-            list = list,
-            onCloseTask = { task -> list.remove(task)}
+            list = wellnessViewModel.tasks,
+            onCloseTask = { task -> wellnessViewModel.remove(task)},
+            onCheckedTask = { task, checked ->
+                wellnessViewModel.changeTaskChecked(task, checked)
+            }
         )
     }
 }
-
-private fun getWellnessTasks() = List(30) {i -> WellnessTask(i, "Task # $i")}
-
 
 @Composable
 fun StatefulCounter(modifier: Modifier= Modifier) {
