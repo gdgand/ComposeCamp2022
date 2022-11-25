@@ -59,9 +59,9 @@ object Libs {
         const val appcompat = "androidx.appcompat:appcompat:1.4.2"
 
         object Compose {
-            const val compilerVersion = "1.3.0"
+            const val compilerVersion = "1.3.1"
             const val snapshot = ""
-            const val version = "1.2.1"
+            const val version = "1.3.1"
 
             const val runtime = "androidx.compose.runtime:runtime:$version"
             const val material = "androidx.compose.material:material:$version"
@@ -94,7 +94,7 @@ object Libs {
     }
 
     object Hilt {
-        private const val version = "2.43"
+        private const val version = "2.44"
 
         const val gradlePlugin = "com.google.dagger:hilt-android-gradle-plugin:$version"
         const val android = "com.google.dagger:hilt-android:$version"
