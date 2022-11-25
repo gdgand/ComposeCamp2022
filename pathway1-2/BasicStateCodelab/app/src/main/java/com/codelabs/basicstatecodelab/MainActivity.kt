@@ -51,7 +51,10 @@ fun WaterCounter(modifier: Modifier = Modifier) {
 @Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
 //    WaterCounter(modifier)
-    StatefulCounter(modifier)
+    Column(modifier = modifier) {
+        StatefulCounter()
+        WellnessTasksList()
+    }
 }
 
 @Composable
