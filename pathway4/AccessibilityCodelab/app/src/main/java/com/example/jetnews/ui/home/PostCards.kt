@@ -61,7 +61,12 @@ import com.example.jetnews.ui.theme.JetnewsTheme
 fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
     var openDialog by remember { mutableStateOf(false) }
     Row(
-        Modifier.clickable { navigateToArticle(post.id) }
+        Modifier.clickable(
+            // R.string.action_read_article = "read article"
+            onClickLabel = stringResource(R.string.action_read_article)
+        ) {
+            navigateToArticle(post.id)
+        }
     ) {
         Image(
             painter = painterResource(post.imageThumbId),
@@ -140,7 +145,8 @@ fun PostCardPopular(
     Card(
         shape = MaterialTheme.shapes.medium,
         modifier = modifier.size(280.dp, 240.dp),
-        onClick = { navigateToArticle(post.id) }
+        onClick = { navigateToArticle(post.id) },
+        onClickLabel = stringResource(id = R.string.action_read_article)
     ) {
         Column {
 
