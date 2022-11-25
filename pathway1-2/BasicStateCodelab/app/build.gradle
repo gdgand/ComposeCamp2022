@@ -63,5 +63,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
-
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
 }
