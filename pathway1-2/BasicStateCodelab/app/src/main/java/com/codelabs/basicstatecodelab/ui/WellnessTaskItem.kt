@@ -49,7 +49,7 @@ fun WellnessTaskItem(
         taskName = taskName,
         checked = checkedState,
         onCheckedChange = { newValue -> checkedState = newValue },
-        onClose = { },
+        onClose = onClose,
         modifier = modifier
     )
 }
