@@ -17,7 +17,6 @@
 package com.example.jetnews.ui.components
 
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
