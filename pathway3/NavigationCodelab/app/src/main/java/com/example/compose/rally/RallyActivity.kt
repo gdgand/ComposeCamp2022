@@ -88,12 +88,12 @@ fun RallyApp() {
                         onAccountClick = { accountType ->
                             navController.navigateToSingleAccount(accountType)
                         },
-                        onClickSeeAllAccounts = {
-                            navController.navigateSingleTopTo(Accounts.route)
-                        },
-                        onClickSeeAllBills = {
-                            navController.navigateSingleTopTo(Bills.route)
-                        }
+//                        onClickSeeAllAccounts = {
+//                            navController.navigateSingleTopTo(Accounts.route)
+//                        },
+//                        onClickSeeAllBills = {
+//                            navController.navigateSingleTopTo(Bills.route)
+//                        }
                     )
                 }
                 composable(route = Accounts.route) {
@@ -108,8 +108,7 @@ fun RallyApp() {
                 }
                 composable(
                     route = SingleAccount.routeWithArgs,
-                    arguments = SingleAccount.arguments,
-                    deepLinks = SingleAccount.deepLinks
+                    arguments = SingleAccount.arguments
                 ){ navBackStackEntry ->
                     val accountType = navBackStackEntry.arguments?.getString(SingleAccount.accountTypeArg)
                     SingleAccountScreen(accountType = accountType)
