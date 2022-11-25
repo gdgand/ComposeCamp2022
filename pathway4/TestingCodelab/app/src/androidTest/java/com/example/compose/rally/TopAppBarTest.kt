@@ -42,6 +42,7 @@ class TopAppBarTest {
             .assertIsSelected()
     }
 
+    @Test
     fun rallyTopAppBarTest_currentLabelExists() {
         val allScreens = RallyScreen.values().toList()
         composeTestRule.setContent {
@@ -56,6 +57,6 @@ class TopAppBarTest {
 
         composeTestRule
             .onNodeWithText(RallyScreen.Accounts.name.toUpperCase())
-            .assertExists() // Still fails
+            .assertExists()
     }
 }
