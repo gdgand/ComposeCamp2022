@@ -18,6 +18,12 @@ package com.example.android.codelab.animation.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -274,7 +280,7 @@ private fun HomeFloatingActionButton(
             )
             // Toggle the visibility of the content with animation.
             // TODO 2-1: Animate this visibility change.
-            if (extended) {
+            AnimatedVisibility(extended) {
                 Text(
                     text = stringResource(R.string.edit),
                     modifier = Modifier
@@ -290,10 +296,19 @@ private fun HomeFloatingActionButton(
  */
 @Composable
 private fun EditMessage(shown: Boolean) {
-    // TODO 2-2: The message should slide down from the top on appearance and slide up on
-    //           disappearance.
+    // TODO 2-2: The message should slide down from the top on appearance and slide up on disappearance.
     AnimatedVisibility(
-        visible = shown
+        visible = shown,
+        enter = slideInVertically(
+            // Enters by sliding down from offset -fullHeight to 0.
+            initialOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
+        ),
+        exit = slideOutVertically(
+            // Exits by sliding up from offset 0 to -fullHeight.
+            targetOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 280, easing = FastOutLinearInEasing)
+        )
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
