@@ -40,7 +40,10 @@ class MainActivity : ComponentActivity() {
 fun SearchBar(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    TextField(
+        modifier = modifier,
+
+    )
 }
 
 // Step: Align your body - Alignment
