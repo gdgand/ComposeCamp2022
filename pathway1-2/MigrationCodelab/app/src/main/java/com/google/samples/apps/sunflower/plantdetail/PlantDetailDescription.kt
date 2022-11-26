@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.sunflower.plantdetail
 
+import android.content.res.Configuration
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.compose.foundation.layout.Column
@@ -143,5 +144,14 @@ private fun PlantDescription(description: String) {
 private fun PlantDescriptionPreview() {
     MdcTheme {
         PlantDescription("HTML<br><br>description")
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PlantDetailContentDarkPreview() {
+    val plant = Plant("id", "Apple", "HTML<br><br>description", 3, 30, "")
+    MdcTheme {
+        PlantDetailContent(plant)
     }
 }
