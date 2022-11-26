@@ -112,7 +112,7 @@ class PlantDetailFragment : Fragment() {
 
         binding.composeView.setContent {
             MaterialTheme {
-                PlantDetailDescription()
+                PlantDetailDescription(plantDetailViewModel)
             }
         }
 
