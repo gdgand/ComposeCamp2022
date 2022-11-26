@@ -22,15 +22,11 @@ import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -112,8 +108,30 @@ fun AlignYourBodyElement(
 @Composable
 fun FavoriteCollectionCard(
     modifier: Modifier = Modifier,
+    @DrawableRes drawable: Int,
+    @StringRes text: Int
 ) {
-    // Implement composable here
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.small
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.width(192.dp)
+        ) {
+            Image(
+                modifier = Modifier.size(56.dp),
+                painter = painterResource(id = drawable),
+                contentScale = ContentScale.Crop,
+                contentDescription = null
+            )
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                text = stringResource(id = text),
+                style = MaterialTheme.typography.h3
+            )
+        }
+    }
 }
 
 // Step: Align your body row - Arrangements
@@ -204,7 +222,9 @@ fun AlignYourBodyElementPreview() {
 fun FavoriteCollectionCardPreview() {
     MySootheTheme {
         FavoriteCollectionCard(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
+            drawable = R.drawable.fc2_nature_meditations,
+            text = R.string.fc2_nature_meditations
         )
     }
 }
