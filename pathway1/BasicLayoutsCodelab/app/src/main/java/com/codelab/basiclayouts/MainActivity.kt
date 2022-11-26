@@ -160,8 +160,7 @@ fun AlignYourBodyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         modifier = modifier
     ) {
-        items(alignYourBodyData) {
-            item ->
+        items(alignYourBodyData) { item ->
             AlignYourBodyElement(item.drawable, item.text)
         }
     }
@@ -179,8 +178,7 @@ fun FavoriteCollectionsGrid(
         contentPadding = PaddingValues(horizontal = 16.dp),
         modifier = modifier.height(120.dp)
     ) {
-        items(favoriteCollectionsData) {
-            item ->
+        items(favoriteCollectionsData) { item ->
             FavoriteCollectionCard(
                 item.drawable,
                 item.text,
@@ -193,9 +191,19 @@ fun FavoriteCollectionsGrid(
 // Step: Home section - Slot APIs
 @Composable
 fun HomeSection(
-    modifier: Modifier = Modifier
+    @StringRes title: Int,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
 ) {
-    // Implement composable here
+    Column(modifier) {
+        Text(
+            stringResource(title).uppercase(),
+            style = MaterialTheme.typography.h2,
+            modifier = Modifier.paddingFromBaseline(top = 40.dp, bottom = 8.dp)
+                .padding(horizontal = 8.dp)
+        )
+        content()
+    }
 }
 
 // Step: Home screen - Scrolling
@@ -284,7 +292,11 @@ fun AlignYourBodyRowPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
 fun HomeSectionPreview() {
-    MySootheTheme { HomeSection() }
+    MySootheTheme {
+        HomeSection(R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+    }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
