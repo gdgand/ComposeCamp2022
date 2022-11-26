@@ -13,4 +13,4 @@ class WellnessViewModel:ViewModel() {
             task.checked=checked
         }
 }
-private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $1") }
+private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i") }
