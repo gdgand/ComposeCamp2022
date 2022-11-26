@@ -49,9 +49,6 @@ fun PlantDetailDescription(plantDetailViewModel: PlantDetailViewModel) {
     plant?.let {
         PlantDetailContent(it)
     }
-    Surface {
-        Text("Hello Compose")
-    }
 }
 
 @Composable
