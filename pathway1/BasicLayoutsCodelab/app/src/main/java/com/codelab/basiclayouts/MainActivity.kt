@@ -100,9 +100,28 @@ fun AlignYourBodyElement(
 // Step: Favorite collection card - Material Surface
 @Composable
 fun FavoriteCollectionCard(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    @DrawableRes drawable: Int,
+    @StringRes text: Int
 ) {
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        modifier = modifier
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.width(192.dp).height(56.dp)
+        ) {
+            Image(
+                painter = painterResource(id = drawable),
+                contentDescription = null,
+                modifier = Modifier.fillMaxHeight().aspectRatio(1f),
+                contentScale = ContentScale.Crop
+            )
+            Text(text = stringResource(id = text), style = MaterialTheme.typography.h3, modifier = Modifier.padding(horizontal = 8.dp))
 
+        }
+    }
 }
 
 // Step: Align your body row - Arrangements
@@ -188,16 +207,17 @@ fun AlignYourBodyElementPreview() {
     }
 }
 
-//@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
-//@Composable
-//fun FavoriteCollectionCardPreview() {
-//    MySootheTheme {
-//        FavoriteCollectionCard(
-//            text =
-//            modifier = Modifier.padding(8.dp)
-//        )
-//    }
-//}
+@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
+@Composable
+fun FavoriteCollectionCardPreview() {
+    MySootheTheme {
+        FavoriteCollectionCard(
+            text = R.string.ab1_inversions,
+            drawable = R.drawable.ab1_inversions,
+            modifier = Modifier.padding(8.dp)
+        )
+    }
+}
 
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
