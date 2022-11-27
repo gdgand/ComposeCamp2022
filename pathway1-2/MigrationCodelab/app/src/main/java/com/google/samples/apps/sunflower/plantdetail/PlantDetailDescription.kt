@@ -23,11 +23,15 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.samples.apps.sunflower.R
+import com.google.samples.apps.sunflower.data.Plant
+import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
 
 @Composable
 private fun PlantName(name: String) {
@@ -42,16 +46,25 @@ private fun PlantName(name: String) {
 }
 
 @Composable
-fun PlantDetailDescription() {
-    Surface {
-        Text("Hello Compose")
+fun PlantDetailDescription(plantDetailViewModel: PlantDetailViewModel) {
+    val plant by plantDetailViewModel.plant.observeAsState()
+
+    plant?.let {
+        PlantDetailContent(it)
     }
+}
+
+@Composable
+fun PlantDetailContent(plant: Plant) {
+    PlantName(plant.name)
 }
 
 @Preview
 @Composable
 private fun PlantNamePreview() {
+    val plant = Plant("id", "Apple", "description", 3, 30, "")
+
     MaterialTheme {
-        PlantName("Apple")
+        PlantDetailContent(plant)
     }
 }
