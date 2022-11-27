@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.codelabs.basicstatecodelab.ui.theme
+package com.codelabs.basicstatecodelab
 
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
+class WellnessTask(
+    val id: Int,
+    val label: String,
+    initialChecked: Boolean = false
+) {
+    var checked: Boolean by mutableStateOf(initialChecked)
+}
