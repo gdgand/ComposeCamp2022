@@ -20,12 +20,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
+    namespace 'com.example.compose.rally'
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "com.example.compose.rally"
         minSdkVersion 21
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode 1
         versionName '1.0'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -68,7 +69,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion rootProject.composeCompilerVersion
+        kotlinCompilerExtensionVersion "1.4.0-alpha02"
     }
 
     packagingOptions {
@@ -80,28 +81,32 @@ android {
 
 dependencies {
 
-    implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
-    implementation "androidx.core:core-ktx:$rootProject.ktxVersion"
-    implementation "com.google.android.material:material:$rootProject.materialVersion"
+    implementation "androidx.appcompat:appcompat:1.5.1"
+    implementation "androidx.core:core-ktx:1.9.0"
+    implementation "com.google.android.material:material:1.7.0"
 
     // Compose
-    implementation "androidx.compose.runtime:runtime:$rootProject.composeVersion"
-    implementation "androidx.compose.ui:ui:$rootProject.composeVersion"
-    implementation "androidx.compose.foundation:foundation:$rootProject.composeVersion"
-    implementation "androidx.compose.material:material:$rootProject.composeVersion"
-    implementation "androidx.compose.material:material-icons-extended:$rootProject.composeVersion"
-    implementation "androidx.activity:activity-compose:$rootProject.activityComposeVersion"
-    implementation "androidx.navigation:navigation-compose:$rootProject.navigationComposeVersion"
-    debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
+    def composeBom = platform('androidx.compose:compose-bom:2022.11.00')
+    implementation(composeBom)
+    androidTestImplementation composeBom
+
+    implementation "androidx.compose.runtime:runtime"
+    implementation "androidx.compose.ui:ui"
+    implementation "androidx.compose.foundation:foundation"
+    implementation "androidx.compose.material:material"
+    implementation "androidx.compose.material:material-icons-extended"
+    implementation "androidx.activity:activity-compose:1.6.1"
+    implementation "androidx.navigation:navigation-compose:2.5.3"
+    debugImplementation "androidx.compose.ui:ui-tooling"
 
     // Testing dependencies
-    androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-contrib:$rootProject.espressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.espressoVersion"
+    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
+    androidTestImplementation "androidx.test.espresso:espresso-contrib:3.5.0"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.0"
 
     // Compose testing dependencies
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$rootProject.composeVersion"
-    debugImplementation "androidx.compose.ui:ui-test-manifest:$rootProject.composeVersion"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4"
+    debugImplementation "androidx.compose.ui:ui-test-manifest"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
