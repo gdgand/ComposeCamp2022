@@ -18,6 +18,11 @@ package com.example.android.codelab.animation.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -158,8 +163,6 @@ fun Home() {
     val lazyListState = rememberLazyListState()
 
     // The background color. The value is changed by the current tab.
-    // TODO 1: Animate this color change.
-    // val backgroundColor = if (tabPage == TabPage.Home) Purple100 else Green300
     val backgroundColor by animateColorAsState(targetValue = if (tabPage == TabPage.Home) Purple100 else Green300)
 
     // The coroutine scope for event handlers calling suspend functions.
@@ -259,7 +262,7 @@ fun Home() {
 @Composable
 private fun HomeFloatingActionButton(
     extended: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     // Use `FloatingActionButton` rather than `ExtendedFloatingActionButton` for full control on
     // how it should animate.
@@ -272,8 +275,7 @@ private fun HomeFloatingActionButton(
                 contentDescription = null
             )
             // Toggle the visibility of the content with animation.
-            // TODO 2-1: Animate this visibility change.
-            if (extended) {
+            AnimatedVisibility(extended) {
                 Text(
                     text = stringResource(R.string.edit),
                     modifier = Modifier
@@ -289,10 +291,14 @@ private fun HomeFloatingActionButton(
  */
 @Composable
 private fun EditMessage(shown: Boolean) {
-    // TODO 2-2: The message should slide down from the top on appearance and slide up on
-    //           disappearance.
     AnimatedVisibility(
-        visible = shown
+        visible = shown,
+        enter = slideInVertically(
+            animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
+        ) { offsetY -> -offsetY },
+        exit = slideOutVertically(
+            animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
+        ) { offsetY -> -offsetY },
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -335,7 +341,7 @@ private fun LazyListState.isScrollingUp(): Boolean {
  */
 @Composable
 private fun Header(
-    title: String
+    title: String,
 ) {
     Text(
         text = title,
@@ -411,7 +417,7 @@ fun TopicRowSpacer(visible: Boolean) {
 private fun HomeTabBar(
     backgroundColor: Color,
     tabPage: TabPage,
-    onTabSelected: (tabPage: TabPage) -> Unit
+    onTabSelected: (tabPage: TabPage) -> Unit,
 ) {
     TabRow(
         selectedTabIndex = tabPage.ordinal,
@@ -442,7 +448,7 @@ private fun HomeTabBar(
 @Composable
 private fun HomeTabIndicator(
     tabPositions: List<TabPosition>,
-    tabPage: TabPage
+    tabPage: TabPage,
 ) {
     // TODO 4: Animate these value changes.
     val indicatorLeft = tabPositions[tabPage.ordinal].left
@@ -476,7 +482,7 @@ private fun HomeTab(
     icon: ImageVector,
     title: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
@@ -501,7 +507,7 @@ private fun HomeTab(
  */
 @Composable
 private fun WeatherRow(
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -594,7 +600,7 @@ private fun TaskRow(task: String, onRemove: () -> Unit) {
  * @param onDismissed Called when the element is swiped to the edge of the screen.
  */
 private fun Modifier.swipeToDismiss(
-    onDismissed: () -> Unit
+    onDismissed: () -> Unit,
 ): Modifier = composed {
     // TODO 6-1: Create an Animatable instance for the offset of the swiped element.
     pointerInput(Unit) {
