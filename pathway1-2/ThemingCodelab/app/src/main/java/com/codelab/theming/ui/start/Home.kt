@@ -7,7 +7,17 @@
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in wJetpack Compose에서 테마 설정을 구현하는 핵심 요소는 MaterialTheme 컴포저블입니다. 이 컴포저블을 Compose 계층 구조에 배치하면 그 안의 모든 구성요소의 색상과 유형, 도형 맞춤설정을 지정할 수 있습니다. 라이브러리에서 이 컴포저블이 정의되는 방법은 다음과 같습니다.
+
+
+@Composable
+fun MaterialTheme(
+    colors: Colors,
+    typography: Typography,
+    shapes: Shapes,
+    content: @Composable () -> Unit
+) { ...
+나중에 colors, typography, shapes 속성을 노출하는 MaterialTheme object를 사용하여 이 컴포저블에 전달된 매개변수를 검색할 수 있습니다. 각각에 관해서는 뒷부분에서 자세히 살펴봅니다.riting, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -60,7 +70,7 @@ import java.util.Locale
 fun Home() {
     val featured = remember { PostRepo.getFeaturedPost() }
     val posts = remember { PostRepo.getPosts() }
-    MaterialTheme {
+    JetNewsTheme {
         Scaffold(
             topBar = { AppBar() }
         ) { innerPadding ->
@@ -217,7 +227,9 @@ private fun PostItemPreview() {
 @Composable
 private fun FeaturedPostPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    FeaturedPost(post = post)
+    JetNewsTheme(darkTheme = true) {
+        FeaturedPost(post = post)
+    }
 }
 
 @Preview("Home")
