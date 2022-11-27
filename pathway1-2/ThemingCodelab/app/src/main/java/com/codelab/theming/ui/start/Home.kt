@@ -117,6 +117,17 @@ fun Header(
     }
 }
 
+//@Composable
+//fun AcmeButton(
+//    // expose Button params consumers should be able to change
+//) {
+//    val acmeButtonShape: Shape = ...
+//    Button(
+//        shape = acmeButtonShape,
+//        // other params
+//    )
+//}
+
 @Composable
 fun FeaturedPost(
     post: Post,
