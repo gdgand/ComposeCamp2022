@@ -62,8 +62,10 @@ fun StateFulWaterCounter(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun WellnessTaskIem(
+fun WellnessTaskItem(
     taskName: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -77,6 +79,10 @@ fun WellnessTaskIem(
                 .weight(1f)
                 .padding(start = 16.dp)
         )
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
         IconButton(onClick = onClose) {
             Icon(
                 imageVector = Icons.Filled.Close,
@@ -88,8 +94,23 @@ fun WellnessTaskIem(
 }
 
 @Composable
+fun WellnessTaskItem(taskName: String, modifier: Modifier = Modifier) {
+    var checkedState by rememberSaveable { mutableStateOf(false) }
+
+    WellnessTaskItem(
+        taskName = taskName,
+        checked = checkedState,
+        onCheckedChange = { checkedState = it },
+        onClose = { }, modifier = modifier
+    )
+}
+
+@Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
-    StateFulWaterCounter(modifier)
+    Column(modifier = modifier) {
+        StateFulWaterCounter()
+        WellnessTasksList()
+    }
 }
 
 @Preview(showBackground = true)
