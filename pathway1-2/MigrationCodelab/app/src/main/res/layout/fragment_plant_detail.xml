@@ -92,11 +92,12 @@
             android:clipToPadding="false"
             android:paddingBottom="@dimen/fab_bottom_padding"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
+            <!--
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="@dimen/margin_normal">
+
 
                 <TextView
                     android:id="@+id/plant_detail_name"
@@ -155,7 +156,13 @@
                     app:renderHtml="@{viewModel.plant.description}"
                     tools:text="Details about the plant" />
 
+
             </androidx.constraintlayout.widget.ConstraintLayout>
+            -->
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/compose_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
         </androidx.core.widget.NestedScrollView>
 
