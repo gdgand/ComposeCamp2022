@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
+import androidx.compose.material.Checkbox
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -64,7 +67,10 @@ fun WaterCounter(modifier: Modifier = Modifier) {
 
 @Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
-    StatefulCounter(modifier)
+    Column(modifier = modifier) {
+        StatefulCounter()
+        WellnessTasksList()
+    }
 }
 
 @Composable
@@ -104,6 +110,57 @@ fun StatefulCounter(modifier: Modifier = Modifier) {
     StatelessCounter(count, { count++ }, modifier)
 }
 
+@Composable
+fun WellnessTaskItemCheckBox(
+    taskName: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier, verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier.weight(1f).padding(start = 16.dp),
+            text = taskName
+        )
+        Checkbox(checked, onCheckedChange = onCheckedChange)
+        IconButton(onClick = onClose) {
+            Icon(Icons.Filled.Close, contentDescription = "Close")
+        }
+    }
+}
+
+@Composable
+fun WellnessTaskItemCheckBox(taskName: String, modifier: Modifier = Modifier) {
+    var checkedState by rememberSaveable { mutableStateOf(false) }
+
+    WellnessTaskItemCheckBox(
+        taskName = taskName,
+        checked = checkedState,
+        onCheckedChange = { newValue -> checkedState = newValue },
+        onClose = {},
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun WellnessTasksList(
+    modifier: Modifier = Modifier,
+    list: List<WellnessTask> = remember { getWellnessTasks() }
+) {
+    LazyColumn(
+        modifier = modifier
+    ) {
+        items(list) { task ->
+            WellnessTaskItemCheckBox(taskName = task.label)
+        }
+    }
+}
+
+data class WellnessTask(val id: Int, val label: String)
+private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i") }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -121,5 +178,23 @@ fun WellnessTaskItemPreview() {
             "name",
             {}
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WellnessTaskCheckBoxPreview() {
+    BasicStateCodelabTheme {
+        WellnessTaskItemCheckBox(
+            "name",
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WellnessTaskListPreview() {
+    BasicStateCodelabTheme {
+        WellnessTasksList()
     }
 }
