@@ -3,8 +3,10 @@ package com.codelabs.basicstatecodelab
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -33,11 +35,20 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WaterCount(modifier: Modifier = Modifier) {
-    var count = 0
-    Text(
-        text = "you've had $count glasses",
-        modifier = modifier.padding(16.dp)
-    )
+    Column(modifier = modifier.padding(16.dp)) {
+        var count = 0
+
+        Text(
+            text = "you've had $count glasses"
+        )
+
+        Button(
+            onClick = { count++ },
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
+            Text(text = "Add one.")
+        }
+    }
 }
 
 @Composable
