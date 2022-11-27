@@ -24,11 +24,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.codelabs.basicstatecodelab.ui.WellnessTask
 import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 
 class MainActivity : ComponentActivity() {
@@ -67,11 +68,23 @@ fun WaterCounter(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun WellnessScreen(modifier: Modifier = Modifier) {
+fun WellnessScreen(
+    modifier: Modifier = Modifier,
+    wellnessViewModel: WellnessViewModel = viewModel()
+) {
     Column(modifier = modifier) {
         StatefulCounter()
-        val list = remember { getWellnessTasks().toMutableStateList() }
-        WellnessTasksList(list = list, onClose = { task -> list.remove(task) })
+        val list = wellnessViewModel.tasks
+        WellnessTasksList(
+            list = list,
+            onCheckedChange = { task, checked ->
+                wellnessViewModel.changeTaskChecked(
+                    task,
+                    checked
+                )
+            },
+            onClose = { task -> wellnessViewModel.remove(task) }
+        )
     }
 }
 
@@ -135,13 +148,18 @@ fun WellnessTaskItemCheckBox(
 }
 
 @Composable
-fun WellnessTaskItemCheckBox(taskName: String, onClose: () -> Unit, modifier: Modifier = Modifier) {
+fun WellnessTaskItemCheckBox(
+    taskName: String,
+    onClose: () -> Unit,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var checkedState by rememberSaveable { mutableStateOf(false) }
 
     WellnessTaskItemCheckBox(
         taskName = taskName,
         checked = checkedState,
-        onCheckedChange = { newValue -> checkedState = newValue },
+        onCheckedChange = onCheckedChange,
         onClose = onClose,
         modifier = modifier,
     )
@@ -151,6 +169,7 @@ fun WellnessTaskItemCheckBox(taskName: String, onClose: () -> Unit, modifier: Mo
 fun WellnessTasksList(
     list: List<WellnessTask> = remember { getWellnessTasks() },
     onClose: (WellnessTask) -> Unit,
+    onCheckedChange: (WellnessTask, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -160,12 +179,16 @@ fun WellnessTasksList(
             items = list,
             key = { task -> task.id }
         ) { task ->
-            WellnessTaskItemCheckBox(taskName = task.label, onClose = { onClose(task) })
+            WellnessTaskItemCheckBox(
+                taskName = task.label,
+                onClose = { onClose(task) },
+                onCheckedChange = {
+                    onCheckedChange(task, it)
+                })
         }
     }
 }
 
-data class WellnessTask(val id: Int, val label: String)
 
 private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i") }
 
@@ -194,7 +217,8 @@ fun WellnessTaskCheckBoxPreview() {
     BasicStateCodelabTheme {
         WellnessTaskItemCheckBox(
             "name",
-            {}
+            onCheckedChange = {},
+            onClose = {}
         )
     }
 }
@@ -203,6 +227,6 @@ fun WellnessTaskCheckBoxPreview() {
 @Composable
 fun WellnessTaskListPreview() {
     BasicStateCodelabTheme {
-        WellnessTasksList(onClose = {})
+        WellnessTasksList(onClose = {}, onCheckedChange = { _, _ -> })
     }
 }
