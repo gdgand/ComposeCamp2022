@@ -17,6 +17,7 @@
 package com.example.android.codelab.animation.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -157,8 +158,8 @@ fun Home() {
     val lazyListState = rememberLazyListState()
 
     // The background color. The value is changed by the current tab.
-    // TODO 1: Animate this color change.
-    val backgroundColor = if (tabPage == TabPage.Home) Purple100 else Green300
+    val backgroundColor by animateColorAsState(if (tabPage == TabPage.Home) Purple100 else Green300)
+//    val backgroundColor = if (tabPage == TabPage.Home) Purple100 else Green300
 
     // The coroutine scope for event handlers calling suspend functions.
     val coroutineScope = rememberCoroutineScope()
@@ -257,7 +258,7 @@ fun Home() {
 @Composable
 private fun HomeFloatingActionButton(
     extended: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     // Use `FloatingActionButton` rather than `ExtendedFloatingActionButton` for full control on
     // how it should animate.
@@ -333,7 +334,7 @@ private fun LazyListState.isScrollingUp(): Boolean {
  */
 @Composable
 private fun Header(
-    title: String
+    title: String,
 ) {
     Text(
         text = title,
@@ -409,7 +410,7 @@ fun TopicRowSpacer(visible: Boolean) {
 private fun HomeTabBar(
     backgroundColor: Color,
     tabPage: TabPage,
-    onTabSelected: (tabPage: TabPage) -> Unit
+    onTabSelected: (tabPage: TabPage) -> Unit,
 ) {
     TabRow(
         selectedTabIndex = tabPage.ordinal,
@@ -440,7 +441,7 @@ private fun HomeTabBar(
 @Composable
 private fun HomeTabIndicator(
     tabPositions: List<TabPosition>,
-    tabPage: TabPage
+    tabPage: TabPage,
 ) {
     // TODO 4: Animate these value changes.
     val indicatorLeft = tabPositions[tabPage.ordinal].left
@@ -474,7 +475,7 @@ private fun HomeTab(
     icon: ImageVector,
     title: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
@@ -499,7 +500,7 @@ private fun HomeTab(
  */
 @Composable
 private fun WeatherRow(
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -592,7 +593,7 @@ private fun TaskRow(task: String, onRemove: () -> Unit) {
  * @param onDismissed Called when the element is swiped to the edge of the screen.
  */
 private fun Modifier.swipeToDismiss(
-    onDismissed: () -> Unit
+    onDismissed: () -> Unit,
 ): Modifier = composed {
     // TODO 6-1: Create an Animatable instance for the offset of the swiped element.
     pointerInput(Unit) {
