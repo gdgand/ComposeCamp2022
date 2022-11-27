@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 
 class MainActivity : ComponentActivity() {
@@ -46,7 +47,7 @@ fun StatelessWaterCounter(
             Text("You've had $count glasses.")
         }
         Button(
-            onClick = { onIncrement },
+            onClick = onIncrement,
             modifier = Modifier.padding(top = 8.dp),
             enabled = count < 10
         ) {
@@ -58,7 +59,11 @@ fun StatelessWaterCounter(
 @Composable
 fun StateFulWaterCounter(modifier: Modifier = Modifier) {
     var count by rememberSaveable { mutableStateOf(0) }
-    StatelessWaterCounter(count = count, onIncrement = { count++ })
+    StatelessWaterCounter(
+        count = count,
+        onIncrement = { count++ },
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -94,29 +99,21 @@ fun WellnessTaskItem(
 }
 
 @Composable
-fun WellnessTaskItem(taskName: String, onClose: () -> Unit, modifier: Modifier = Modifier) {
-    var checkedState by rememberSaveable { mutableStateOf(false) }
-
-    WellnessTaskItem(
-        taskName = taskName,
-        checked = checkedState,
-        onCheckedChange = { checkedState = it },
-        onClose = onClose,
-        modifier = modifier
-    )
-}
-
-@Composable
-fun WellnessScreen(modifier: Modifier = Modifier) {
+fun WellnessScreen(
+    modifier: Modifier = Modifier,
+    mainViewModel: MainViewModel = viewModel()
+) {
     Column(modifier = modifier) {
         StateFulWaterCounter()
-
-        val list = remember { getWellnessTasks().toMutableStateList() }
-        WellnessTasksList(list = list, onCloseTask = { task -> list.remove(task) })
+        WellnessTasksList(
+            list = mainViewModel.tasks,
+            onCheckedTask = { task, checked ->
+                mainViewModel.changeTaskChecked(task, checked)
+            },
+            onCloseTask = { task -> mainViewModel.remove(task) }
+        )
     }
 }
-
-private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i") }
 
 @Preview(showBackground = true)
 @Composable
