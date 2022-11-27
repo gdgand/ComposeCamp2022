@@ -8,18 +8,6 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-@Composable
-fun JetnewsTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
-    MaterialTheme(
-        colors = if (darkTheme) DarkColors else LightColors,
-        typography = JetnewsTypography,
-        shapes = JetnewsShapes,
-        content = content
-    )
-}
 private val LightColors = lightColors(
     primary = Red700,
     primaryVariant = Red900,
@@ -38,3 +26,16 @@ private val DarkColors = darkColors(
     onSecondary = Color.Black,
     error = Red200
 )
+
+@Composable
+fun JetnewsTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    MaterialTheme(
+        colors = if (darkTheme) DarkColors else LightColors,
+        typography = JetnewsTypography,
+        shapes = JetnewsShapes,
+        content = content
+    )
+}
