@@ -10,10 +10,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,12 +36,15 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun WaterCount(modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(16.dp)) {
-        val count: MutableState<Int> = remember { mutableStateOf(0) }
+        var count by remember { mutableStateOf(0) }
 
-        Text(text = "you've had ${count.value} glasses")
+        if (count > 0) {
+            Text(text = "you've had $count glasses")
+        }
         Button(
-            onClick = { count.value++ },
-            modifier = Modifier.padding(top = 8.dp)
+            onClick = { count++ },
+            modifier = Modifier.padding(top = 8.dp),
+            enabled = count < 10
         ) {
             Text(text = "Add one.")
         }
