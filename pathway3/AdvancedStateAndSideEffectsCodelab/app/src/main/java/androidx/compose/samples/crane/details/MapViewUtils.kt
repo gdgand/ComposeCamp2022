@@ -19,11 +19,17 @@ package androidx.compose.samples.crane.details
 import android.os.Bundle
 import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.samples.crane.R
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Lifecycle.Event.*
+import androidx.lifecycle.LifecycleEventObserver
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
+import java.lang.IllegalStateException
 
 /**
  * Remembers a MapView and gives it the lifecycle of the current LifecycleOwner
@@ -31,13 +37,20 @@ import com.google.android.libraries.maps.MapView
 @Composable
 fun rememberMapViewWithLifecycle(): MapView {
     val context = LocalContext.current
-    // TODO Codelab: DisposableEffect step. Make MapView follow the lifecycle
-    return remember {
+    val mapView = remember {
         MapView(context).apply {
             id = R.id.map
-            onCreate(Bundle())
         }
     }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(key1 = lifecycle, key2 = mapView) {
+        val lifecycleObserver = getMapLifecycleObserver(mapView)
+        lifecycle.addObserver(lifecycleObserver)
+        onDispose {
+            lifecycle.removeObserver(lifecycleObserver)
+        }
+    }
+    return mapView
 }
 
 fun GoogleMap.setZoom(
@@ -47,3 +60,16 @@ fun GoogleMap.setZoom(
     setMinZoomPreference(zoom)
     setMaxZoomPreference(zoom)
 }
+
+private fun getMapLifecycleObserver(mapView: MapView): LifecycleEventObserver =
+    LifecycleEventObserver { _, event ->
+        when (event) {
+            ON_CREATE -> mapView.onCreate(Bundle())
+            ON_START -> mapView.onStart()
+            ON_RESUME -> mapView.onResume()
+            ON_PAUSE -> mapView.onPause()
+            ON_STOP -> mapView.onStop()
+            ON_DESTROY -> mapView.onDestroy()
+            else -> throw IllegalStateException()
+        }
+    }
