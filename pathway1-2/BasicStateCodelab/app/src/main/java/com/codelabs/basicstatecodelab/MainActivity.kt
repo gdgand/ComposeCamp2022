@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -69,7 +70,8 @@ fun WaterCounter(modifier: Modifier = Modifier) {
 fun WellnessScreen(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         StatefulCounter()
-        WellnessTasksList()
+        val list = remember { getWellnessTasks().toMutableStateList() }
+        WellnessTasksList(list = list, onClose = { task -> list.remove(task) })
     }
 }
 
@@ -133,33 +135,38 @@ fun WellnessTaskItemCheckBox(
 }
 
 @Composable
-fun WellnessTaskItemCheckBox(taskName: String, modifier: Modifier = Modifier) {
+fun WellnessTaskItemCheckBox(taskName: String, onClose: () -> Unit, modifier: Modifier = Modifier) {
     var checkedState by rememberSaveable { mutableStateOf(false) }
 
     WellnessTaskItemCheckBox(
         taskName = taskName,
         checked = checkedState,
         onCheckedChange = { newValue -> checkedState = newValue },
-        onClose = {},
+        onClose = onClose,
         modifier = modifier,
     )
 }
 
 @Composable
 fun WellnessTasksList(
+    list: List<WellnessTask> = remember { getWellnessTasks() },
+    onClose: (WellnessTask) -> Unit,
     modifier: Modifier = Modifier,
-    list: List<WellnessTask> = remember { getWellnessTasks() }
 ) {
     LazyColumn(
         modifier = modifier
     ) {
-        items(list) { task ->
-            WellnessTaskItemCheckBox(taskName = task.label)
+        items(
+            items = list,
+            key = { task -> task.id }
+        ) { task ->
+            WellnessTaskItemCheckBox(taskName = task.label, onClose = { onClose(task) })
         }
     }
 }
 
 data class WellnessTask(val id: Int, val label: String)
+
 private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i") }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -187,6 +194,7 @@ fun WellnessTaskCheckBoxPreview() {
     BasicStateCodelabTheme {
         WellnessTaskItemCheckBox(
             "name",
+            {}
         )
     }
 }
@@ -195,6 +203,6 @@ fun WellnessTaskCheckBoxPreview() {
 @Composable
 fun WellnessTaskListPreview() {
     BasicStateCodelabTheme {
-        WellnessTasksList()
+        WellnessTasksList(onClose = {})
     }
 }
