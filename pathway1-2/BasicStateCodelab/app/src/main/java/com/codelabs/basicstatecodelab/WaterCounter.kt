@@ -1,7 +1,6 @@
 package com.codelabs.basicstatecodelab
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -11,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun WaterCounter(modifier: Modifier = Modifier) {
+fun StatefulCounter(modifier: Modifier = Modifier) {
     var count by rememberSaveable {
         mutableStateOf(0)
     }
