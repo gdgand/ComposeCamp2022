@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package com.codelab.theming.ui.start
+package com.codelab.theming.ui.theme
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.material.Surface
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Shapes
+import androidx.compose.ui.unit.dp
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            Surface {
-                Home()
-            }
-        }
-    }
-}
+val JetnewsShapes = Shapes(
+    small = CutCornerShape(topStart = 8.dp),
+    medium = CutCornerShape(topStart = 24.dp),
+    large = RoundedCornerShape(8.dp)
+)
