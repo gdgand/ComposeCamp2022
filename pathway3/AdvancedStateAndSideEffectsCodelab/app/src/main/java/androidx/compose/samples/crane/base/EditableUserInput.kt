@@ -23,6 +23,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.samples.crane.ui.captionTextStyle
 import androidx.compose.ui.graphics.SolidColor
 
@@ -47,7 +48,7 @@ class EditableUserInputState(private val hint: String, initialText: String) {
 
 @Composable
 fun rememberEditableUserInputState(hint: String): EditableUserInputState =
-    remember(hint) {
+    rememberSaveable(hint, saver = EditableUserInputState.Saver) {
         EditableUserInputState(hint, hint)
     }
 
