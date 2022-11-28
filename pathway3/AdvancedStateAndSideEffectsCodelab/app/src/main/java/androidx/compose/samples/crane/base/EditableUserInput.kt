@@ -20,24 +20,29 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.samples.crane.ui.captionTextStyle
 import androidx.compose.ui.graphics.SolidColor
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-
 class EditableUserInputState(private val hint: String, initialText: String) {
-
     var text by mutableStateOf(initialText)
 
     val isHint: Boolean
         get() = text == hint
+
+    companion object {
+        val Saver: Saver<EditableUserInputState, *> = listSaver(
+            save = { listOf(it.hint, it.text) },
+            restore = {
+                EditableUserInputState(
+                    hint = it[0],
+                    initialText = it[1],
+                )
+            }
+        )
+    }
 }
 
 @Composable
