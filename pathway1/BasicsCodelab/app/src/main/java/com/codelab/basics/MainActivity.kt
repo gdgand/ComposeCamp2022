@@ -3,10 +3,16 @@ package com.codelab.basics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,7 +49,7 @@ class MainActivity : ComponentActivity() {
 private fun MyApp(
     modifier: Modifier = Modifier
 ) {
-    var shouldShowOnboarding by remember { mutableStateOf(true) }
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
 
     Surface(modifier) {
         if (shouldShowOnboarding) {
@@ -76,10 +82,20 @@ fun MyAppPreview() {
 @Composable
 private fun Greetings(
     modifier: Modifier = Modifier,
-    names: List<String> = listOf("World", "Compose")
+    //names: List<String> = listOf("World", "Compose")
+    names: List<String> = List(1000) { "$it" }
 ) {
-    Column(modifier = modifier.padding(vertical = 4.dp)) {
+    /*Column(modifier = modifier.padding(vertical = 4.dp)) {
         for (name in names) {
+            Greeting(name = name)
+        }
+    }*/
+    //recyclerview
+    //스크롤할 때 새 컴포저블을 방출하고 계속 성능 유지
+    //재활용은 하지 않지만 방출하는 것이 view의 인스턴스화보다
+    //비용이 더 적음
+    LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
+        items(items = names) {name ->
             Greeting(name = name)
         }
     }
@@ -100,11 +116,20 @@ private fun Greeting(name: String) {
     //var expanded = false
 
     //상태를 유지하기 위해 remember사용
-    val expanded = remember {
+    var expanded by remember {
         mutableStateOf(false)
     }
     //간단한 계산
-    val extraPadding = if (expanded.value) 48.dp else 0.dp
+    //val extraPadding = if (expanded.value) 48.dp else 0.dp
+
+
+    val extraPadding by animateDpAsState(
+        if (expanded) 48.dp else 0.dp,
+        animationSpec = spring( //애니메이션 맞춤설정
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
 
     Surface(
         color = MaterialTheme.colors.primary,
@@ -115,16 +140,16 @@ private fun Greeting(name: String) {
             //세로배치, weight를 통해 가중치가 없는 다른 요소를 효과적으로 밀어내어 모든 공간을 채워줌
             Column(modifier = Modifier
                 .weight(1f)
-                .padding(bottom = extraPadding) //바텀 크기 계산
+                .padding(bottom = extraPadding.coerceAtLeast(0.dp)) //바텀 크기 계산
             ) {
                 Text(text = "Hello, ")
                 Text(text = name)
             }
             OutlinedButton(
-                onClick = { expanded.value = !expanded.value }
+                onClick = { expanded = !expanded }
             ) {
                 //true일 때(펴져 있을 때, 클릭 했을 때)
-                Text(if (expanded.value) " Show less" else "Show more")
+                Text(if (expanded) " Show less" else "Show more")
             }
         }
 
@@ -173,3 +198,6 @@ private fun DefaultPreview() {
         Greetings()
     }
 }
+
+
+
