@@ -23,12 +23,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.R
 import androidx.compose.samples.crane.base.CraneEditableUserInput
 import androidx.compose.samples.crane.base.CraneUserInput
@@ -38,6 +33,7 @@ import androidx.compose.samples.crane.home.PeopleUserInputAnimationState.Valid
 import androidx.compose.samples.crane.ui.CraneTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.flow.filter
 
 enum class PeopleUserInputAnimationState { Valid, Invalid }
 
@@ -104,6 +100,15 @@ fun ToDestinationUserInput(onToDestinationChanged: (String) -> Unit) {
         caption = "To",
         vectorImageId = R.drawable.ic_plane,
     )
+
+    val currentOnDestinationChanged by rememberUpdatedState(onToDestinationChanged)
+    LaunchedEffect(editableUserInputState) {
+        snapshotFlow { editableUserInputState.text }
+            .filter { !editableUserInputState.isHint }
+            .collect {
+                currentOnDestinationChanged(editableUserInputState.text)
+            }
+    }
 }
 
 @Composable
