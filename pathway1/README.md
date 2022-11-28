@@ -1,4 +1,4 @@
-# Jetpack Compose Basic
+# BasicCodeLab
 
 ## Composable 함수
 - @Composable Annotation
@@ -337,4 +337,62 @@ private val LightColorScheme = lightColorScheme(
 -  ui/theme 폴더에 Color 파일 또는 Theme 파일 존재
 - MaterialTheme3 사용, API 31버전 이상에서 테마 변경 UI 확인 가능
 
+<br><br><br>
 
+# BasicLayoutCodeLab
+
+## Search Bar
+- modifier는 매개변수로 받아서 TextField에 전달하는 것이 Compose 권장 사항
+- 컴포저블 호출자가 디자인과 분위기 수정할 수 있어 유연성 높아지고 재사용 가능
+```kotlin
+@Composable
+fun SearchBar(
+    modifier: Modifier = Modifier
+) {
+    TextField(
+        value = "",
+        onValueChange = {},
+        leadingIcon = {
+            Icon(
+               imageVector = Icons.Default.Search,
+               contentDescription = null
+            )
+        },
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = MaterialTheme.colors.surface
+        ),
+        placeholder = {
+            Text(stringResource(id = R.string.placeholder_search))
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp),
+    )
+}
+```
+- TextField에 다른 컴포저블을 받을 수 있는 leadingIcon 존재
+
+<br>
+
+## Alignment
+- Column
+    - Start, CenterHorizontally, End
+- Row
+    - Top, CenterVertically, Bottom
+- Box
+    - TopStart, TopCenter, TopEnd, CenterStart, Center, CenterEnd, BottomStart, BottomCenter, BottomEnd
+
+<br>
+
+## Slot API
+- 개발자가 원하는 대로 채울 수 있도록 UI에 빈 공간 남겨둠.
+- 유연한 UI 개발 가능
+- Scaffold : Material Design을 구현하는 앱을 위한 구성 가능한 최상위 수준 컴포저블 제공
+
+<br>
+
+## Scroll
+- 일반적으로 LazyRow, LazyHorizontalGrid와 같은 Lazy 레이아웃은 자동 스크롤 동작 추가
+- 하지만, Lazy 레이아웃은 데이터가 많거나 로드할 데이터가 많아서 동시에 보여질 경우 성능 이슈 시에 사용
+- 데이터가 많지 않을 경우는 Column, Row 사용하고 스크롤 동작 추가
+- verticalScroll 또는 horizontalScroll 수정자 사용, 스크롤 현재 상태를 포함하며 외부에서 스크롤 상태 수정하는 데 사용되는 ScrollState 필요
