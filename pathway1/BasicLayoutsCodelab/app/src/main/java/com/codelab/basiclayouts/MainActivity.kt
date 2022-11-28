@@ -24,6 +24,8 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,27 +86,39 @@ fun FavoriteCollectionsGrid(
 // Step: Home section - Slot APIs
 @Composable
 fun HomeSection(
-    modifier: Modifier = Modifier
-) {
-    // Implement composable here
-}
-
-// Step: Home screen - Scrolling
-@Composable
-fun HomeScreen(
     @StringRes title: Int,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     Column(modifier) {
         Text(
-            text = stringResource(title),
+            text = stringResource(title).uppercase(Locale.getDefault()),
             style = MaterialTheme.typography.h2,
             modifier = Modifier
                 .paddingFromBaseline(top = 40.dp, bottom = 0.dp)
                 .padding(horizontal = 16.dp)
         )
         content()
+    }
+}
+
+// Step: Home screen - Scrolling
+@Composable
+fun HomeScreen(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        SearchBar(Modifier.padding(horizontal = 16.dp))
+        HomeSection(title = R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+        HomeSection(title = R.string.favorite_collections) {
+            FavoriteCollectionsGrid()
+        }
     }
 }
 
@@ -183,16 +198,18 @@ fun AlignYourBodyRowPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
 fun HomeSectionPreview() {
-    MySootheTheme { HomeSection() }
+    MySootheTheme {
+        HomeSection(R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+    }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
+@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2, heightDp = 180)
 @Composable
 fun ScreenContentPreview() {
     MySootheTheme {
-        HomeScreen(R.string.align_your_body) {
-            AlignYourBodyRow()
-        }
+        HomeScreen()
     }
 }
 
