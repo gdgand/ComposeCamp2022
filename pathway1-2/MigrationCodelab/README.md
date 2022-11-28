@@ -45,3 +45,33 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 License for the specific language governing permissions and limitations under
 the License.
 ```
+## NOTES
+
+- xml
+    
+    ```xml
+    <androidx.compose.ui.platform.ComposeView
+                    android:id="@+id/compose_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+    ```
+    
+- PlantDetailFragment.kt
+    
+    ```kotlin
+    binding.apply {
+    		composeView.setContent {
+    				MaterialTheme {
+    						PlantDetailDescription()
+    				}
+    		}
+    }
+    ```
+    
+- ViewModel, LiveData
+    - `PlantDetailDescription(plantDetailViewModel)`
+- HTML을 지원하지 않음
+    - AndroidView를 이용해서 우회
+- ViewCompositionStrategy
+    - Compose는 ComposeView가 창에서 분리될 때마다 Composition을 삭제한다.
+    - 여러가지 이유로 Fragment에서 ComposeView가 사용될 때에는 바람직하지 않다.
