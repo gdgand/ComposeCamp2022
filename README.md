@@ -27,7 +27,7 @@
 
 ## 준비물
 - [Android Studio Dolphin](https://developer.android.com/studio)
-- [오픈 카톡방 참여 (https://open.kakao.com/o/gQSlqyEd)
+- [오픈 카톡방 참여](https://open.kakao.com/o/gQSlqyEd)
 <br/>
 
 ## Repo fork 하기
