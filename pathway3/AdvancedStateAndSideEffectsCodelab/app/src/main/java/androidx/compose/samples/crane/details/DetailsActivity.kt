@@ -64,6 +64,13 @@ import com.google.maps.android.ktx.awaitMap
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+
+data class DetailsUiState(
+    val cityDetails: ExploreModel? = null,
+    val isLoading: Boolean = false,
+    val throwError: Boolean = false
+)
+
 internal const val KEY_ARG_DETAILS_CITY_NAME = "KEY_ARG_DETAILS_CITY_NAME"
 
 fun launchDetailsActivity(context: Context, item: ExploreModel) {
