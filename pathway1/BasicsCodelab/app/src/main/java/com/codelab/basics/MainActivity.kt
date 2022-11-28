@@ -19,14 +19,19 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BasicsCodelabTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
+                MyApp(modifier = Modifier.fillMaxSize())
             }
         }
+    }
+}
+
+@Composable
+private fun MyApp(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Greeting("Android")
     }
 }
 
@@ -37,13 +42,12 @@ private fun Greeting(name: String) {
             modifier = Modifier.padding(24.dp)
         )
     }
-
 }
 
 @Preview(showBackground = true, name = "Text preview")
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
-        Greeting(name = "Android")
+        MyApp()
     }
 }
