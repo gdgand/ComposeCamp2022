@@ -22,19 +22,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.samples.crane.base.Result
@@ -103,16 +92,14 @@ class DetailsActivity : ComponentActivity() {
     }
 }
 
+
 @Composable
 fun DetailsScreen(
     onErrorLoading: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DetailsViewModel = viewModel()
 ) {
-
     val uiState by produceState(initialValue = DetailsUiState(isLoading = true)) {
-        // In a coroutine, this can call suspend functions or move
-        // the computation to different Dispatchers
         val cityDetailsResult = viewModel.cityDetails
         value = if (cityDetailsResult is Result.Success<ExploreModel>) {
             DetailsUiState(cityDetailsResult.data)
@@ -121,7 +108,20 @@ fun DetailsScreen(
         }
     }
 
-    // TODO: ...
+    when {
+        uiState.cityDetails != null -> {
+            DetailsContent(uiState.cityDetails!!, modifier.fillMaxSize())
+        }
+        uiState.isLoading -> {
+            Box(modifier.fillMaxSize()) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colors.onSurface,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+        else -> { onErrorLoading() }
+    }
 }
 
 @Composable
