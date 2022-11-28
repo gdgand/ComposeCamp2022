@@ -41,6 +41,12 @@ class EditableUserInputState(private val hint: String, initialText: String) {
 }
 
 @Composable
+fun rememberEditableUserInputState(hint: String): EditableUserInputState =
+    remember(hint) {
+        EditableUserInputState(hint, hint)
+    }
+
+@Composable
 fun CraneEditableUserInput(
     hint: String,
     caption: String? = null,
