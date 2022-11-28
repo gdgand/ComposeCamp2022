@@ -9,14 +9,16 @@
 
 - Compose Phases
     
-    ![스크린샷 2022-11-14 오후 9.01.41.png](Pathway%201-2%208e10744a36f744ce942ea5119ce94d60/%25E1%2584%2589%25E1%2585%25B3%25E1%2584%258F%25E1%2585%25B3%25E1%2584%2585%25E1%2585%25B5%25E1%2586%25AB%25E1%2584%2589%25E1%2585%25A3%25E1%2586%25BA_2022-11-14_%25E1%2584%258B%25E1%2585%25A9%25E1%2584%2592%25E1%2585%25AE_9.01.41.png)
+<img width="811" alt="1" src="https://user-images.githubusercontent.com/87517193/204217531-0c88f0ca-bb2d-4b0b-ad2a-219ee129b4a5.png">
+
     
 - Recomposition
     - 이미 작업이 끝난 Composable 함수에 대해서 Composition 단계부터 새로 수행하는 것
     - Smart Recomposition
         - Recomposition이 필요 없는 부분은 갱신되지 않는다.
     
-    ![스크린샷 2022-11-14 오후 9.02.03.png](Pathway%201-2%208e10744a36f744ce942ea5119ce94d60/%25E1%2584%2589%25E1%2585%25B3%25E1%2584%258F%25E1%2585%25B3%25E1%2584%2585%25E1%2585%25B5%25E1%2586%25AB%25E1%2584%2589%25E1%2585%25A3%25E1%2586%25BA_2022-11-14_%25E1%2584%258B%25E1%2585%25A9%25E1%2584%2592%25E1%2585%25AE_9.02.03.png)
+<img width="789" alt="2" src="https://user-images.githubusercontent.com/87517193/204217563-db7b4dd6-fdfc-49df-877f-a84ffbfe83bb.png">
+
     
 - State in Composition
     - State, MutableState
