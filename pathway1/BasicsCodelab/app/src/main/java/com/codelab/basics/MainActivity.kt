@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.Button
+import androidx.compose.runtime.saveable.rememberSaveable
 import com.codelab.basics.ui.theme.BasicsCodelabTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
 fun MyApp(
     modifier: Modifier = Modifier
 ) {
-    var shouldShowOnboarding = remember { mutableStateOf(true) }
+    var shouldShowOnboarding = rememberSaveable { mutableStateOf(true) }
 
     Surface(modifier) {
         if (shouldShowOnboarding.value) {
