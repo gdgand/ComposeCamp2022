@@ -23,6 +23,11 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -129,15 +134,37 @@ fun FavoriteCollectionCard(
 fun AlignYourBodyRow(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        modifier = modifier
+    ){
+        items(alignYourBodyData) { item ->
+            AlignYourBodyElement(item.text,item.drawable)
+        }
+    }
 }
 
 // Step: Favorite collections grid - LazyGrid
 @Composable
 fun FavoriteCollectionsGrid(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    // Implement composable here
+    LazyHorizontalGrid(
+        rows = GridCells.Fixed(2),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.height(120.dp)
+    ) {
+        items(favoriteCollectionsData) { item ->
+            FavoriteCollectionCard(
+                item.text,
+                item.drawable,
+                modifier = Modifier.height(56.dp)
+            )
+        }
+    }
 }
 
 // Step: Home section - Slot APIs
@@ -222,7 +249,9 @@ fun FavoriteCollectionCardPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
 @Composable
 fun FavoriteCollectionsGridPreview() {
-    MySootheTheme { FavoriteCollectionsGrid() }
+    MySootheTheme {
+        FavoriteCollectionsGrid()
+    }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
