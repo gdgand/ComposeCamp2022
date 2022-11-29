@@ -17,6 +17,9 @@
 package com.example.android.codelab.animation.ui.home
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -290,10 +293,12 @@ private fun EditMessage(shown: Boolean) {
     AnimatedVisibility(
         visible = shown,
         enter = slideInVertically(
-            initialOffsetY = { fullHeight -> -fullHeight }
+            initialOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
         ),
         exit = slideOutVertically(
-            targetOffsetY = { fullHeight -> -fullHeight }
+            targetOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
         )
     ) {
         Surface(
