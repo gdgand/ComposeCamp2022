@@ -85,3 +85,104 @@ val list = remember{
 - 이전에 remember은 Bundle 객체에 저장할 수 있는 데이터만 가능하다고 하였습니다. 다른 데이터 형식을 저장하기 위해서는 맞춤 Saver를 제공해야 합니다.
 - 하지만 직렬화, 역직렬화가 필요한 데이터 구조를 저장하는데서는 rememberX를 사용해서는 안됩니다. Activity의 onSavedInstanceState를 사용할 때도 유사한 규칙으로 정말 필요한 간단한 형식의 데이터만 저장해야 합니다.
 - ViewModel은 UI 상태와 앱의 다른 레이어에 있는 비즈니스 로직에 대한 액세스 권한을 제공합니다. 또한 ViewModel은 구성 변경 후에도 유지되므로 컴포지션보다 전체 기간이 더 깁니다.
+
+<br><br><br>
+
+# ThemingCodelab
+
+## Material Theming
+- Jetpack Compose는 디지털 인터페이스를 ㅁ나들기 위한 Material Design을 제공
+- Material Design 컴포넌트(버튼, 카드, 스위치 등)은 Material Theming 기반으로 빌드되어 설정
+- Material Theming은 색상, 서체, 도형 속성으로 구성
+
+<br>
+
+## MaterialTheme
+- Jetpack Compose에서 테마 설정을 구현하는 핵심 여소는 MaterialTheme 컴포저블
+- 이 컴포저블을 Compose 계층 구조에 배치하면 그 안 모든 구성 요소는 자동으로 색상, 서체, 도형 맞춤 지정
+```kotlin
+@Composable
+fun MaterialTheme(
+    colors: Colors,
+    typography: Typography,
+    shapes: Shapes,
+    content: @Composable () -> Unit
+) { ...
+```
+- colors, typography, shapes 속성을 알기 위해서는 MaterialTheme object에 접근하여 프로퍼티로 가져옴
+- 커스텀 테마를 만들어 전체적으로 적용을 하려고 한다면 MaterialTheme을 래핑하고 구성하는 컴포저블 구현
+- 어두운 테마 지원하기 위해서 Theme 루트 컴포저블에 새로운 매개변수를 추가하고 ``isSystemInDarkTheme()`` 메소드를 통해 기기 쿼리
+
+<br>
+
+## Working with Color
+- Raw Colors : Color 객체로 정의 후 사용
+- Theme Colors : MaterialTheme.colors로 부터 가져옴, copy 메소드를 통해서 일부만 변경 가능 ex) alpha
+- Surface & Content Colors 
+    - 모든 구성요소는 일반적으로 color와 contentColor 속성 설정
+    - 이를 통해 컴포저블 색상과 동시에 내부의 컴포저블까지 기본 색상 제공
+    - ``contentColorFor`` 메소드는 테마 색상에 적절한 ``on``color를 가져옴
+```kotlin
+// 정의
+Surface(
+  color: Color = MaterialTheme.colors.surface,
+  contentColor: Color = contentColorFor(color),
+  ...
+)
+TopAppBar(
+  backgroundColor: Color = MaterialTheme.colors.primarySurface,
+  contentColor: Color = contentColorFor(backgroundColor),
+  ...
+)
+
+// 사용 예시
+Surface(color = MaterialTheme.colors.primary) {
+  Text(...) // default text color is 'onPrimary'
+}
+Surface(color = MaterialTheme.colors.error) {
+  Icon(...) // default tint is 'onError'
+}
+```
+- 요소의 색상을 설정할 때는 Surface 사용, content 컴포저블까지 색상 설정 가능
+- Modifier.background를 활용하여 색상 설정 시 주의 필요 (content 컴포저블 설정 x)
+- 콘텐츠를 갖오할 때는 LocalContentAlpha 사용
+
+<br>
+
+## Working with Text
+- 구성요소가 직접 텍스트를 표시하지 않는 경우가 있기에 ``ProvideTextStyle`` 컴포저블을 사용하여 현재 TextStyle로 설정
+- Theme Text : Color와 마찬가지로 MaterialTheme object에서 가져옴
+- 일부 텍스트에 여러 스타일 적용 원할 시 ``AnnotatedString`` 사용
+
+<br>
+
+## Working with Shape
+- 모든 Material 구성요소는 기본 매개변수를 사용하여 도형 속성 정의, 필요에 따라 새로운 값으로 설정
+- 자체 구성요소 만들 시에 ``Surface, Modifier.clip .. ``을 받아들이는 Modifier 사용하거나 직접 컴포넌트 생성
+
+<br>
+
+## Style
+- Compose에서는 Android View 스타일을 별도로 정의하거나 하지 않음. 이미 Compose 구성요소가 재사용 가능하여 해당 컴포저블 사용하면 됨.
+```kotlin
+@Composable
+fun Header(
+  text: String,
+  modifier: Modifier = Modifier
+) {
+  Surface(
+    color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
+    contentColor = MaterialTheme.colors.primary,
+    modifier = modifier.semantics { heading() }
+  ) {
+    Text(
+      text = text,
+      style = MaterialTheme.typography.subtitle2,
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+  }
+}
+```
+- Header는 Text의 변형된 스타일로 필요한 곳 어디서든 사용 가능
