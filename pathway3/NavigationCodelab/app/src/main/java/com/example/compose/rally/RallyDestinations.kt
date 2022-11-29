@@ -21,12 +21,9 @@ import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Money
 import androidx.compose.material.icons.filled.MoneyOff
 import androidx.compose.material.icons.filled.PieChart
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.example.compose.rally.ui.accounts.AccountsScreen
-import com.example.compose.rally.ui.accounts.SingleAccountScreen
-import com.example.compose.rally.ui.bills.BillsScreen
-import com.example.compose.rally.ui.overview.OverviewScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 /**
  * Contract for information needed on every Rally navigation destination
@@ -60,6 +57,9 @@ object SingleAccount : RallyDestination {
     override val icon = Icons.Filled.Money
     override val route = "single_account"
     const val accountTypeArg = "account_type"
+    val arguments = listOf(
+        navArgument(accountTypeArg) { type = NavType.StringType}
+    )
 }
 
 // Screens to be displayed in the top RallyTabRow
