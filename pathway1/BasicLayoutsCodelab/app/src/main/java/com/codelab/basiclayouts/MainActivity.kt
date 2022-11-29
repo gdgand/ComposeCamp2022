@@ -59,7 +59,13 @@ class MainActivity : ComponentActivity() {
 fun SearchBar(
     modifier: Modifier = Modifier
 ) {
-    TextField(value = "", onValueChange = {}, modifier = modifier)
+    TextField(
+        value = "",
+        onValueChange = {},
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+    )
 }
 
 // Step: Align your body - Alignment
