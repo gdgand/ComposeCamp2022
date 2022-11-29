@@ -16,7 +16,7 @@ import com.example.compose.rally.ui.overview.OverviewScreen
 @Composable
 fun RallyNavHost(
     navController: NavHostController,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
