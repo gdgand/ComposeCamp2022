@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 
 /**
  * Contract for information needed on every Rally navigation destination
@@ -52,13 +53,15 @@ object Bills : RallyDestination {
 }
 
 object SingleAccount : RallyDestination {
-    // Added for simplicity, this icon will not in fact be used, as SingleAccount isn't
-    // part of the RallyTabRow selection
     override val icon = Icons.Filled.Money
     override val route = "single_account"
     const val accountTypeArg = "account_type"
+    val routeWithArgs = "${route}/{${accountTypeArg}}"
     val arguments = listOf(
         navArgument(accountTypeArg) { type = NavType.StringType}
+    )
+    val deepLinks = listOf(
+        navDeepLink { uriPattern = "rally://$route/{${accountTypeArg}}" }
     )
 }
 
