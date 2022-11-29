@@ -31,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
@@ -77,14 +79,17 @@ fun SearchBar(
 // Step: Align your body - Alignment
 @Composable
 fun AlignYourBodyElement(
+    @DrawableRes dr: Int,
+    @StringRes txt: Int,
     modifier: Modifier = Modifier
+
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
         Image(
-            painter = painterResource(R.drawable.ab1_inversions),
+            painter = painterResource(dr),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -92,8 +97,8 @@ fun AlignYourBodyElement(
                 .clip(CircleShape)
         )
         Text(
-            text = stringResource(R.string.ab1_inversions),
-            style = MaterialTheme.typography.h3,
+            text = stringResource(txt),
+            style = MaterialTheme.typography.body2,
             modifier = Modifier.paddingFromBaseline(top=24.dp, bottom=8.dp)
         )
     }
@@ -132,7 +137,15 @@ fun FavoriteCollectionCard(
 fun AlignYourBodyRow(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        modifier = modifier
+    ) {
+        items(alignYourBodyData) { item ->
+            AlignYourBodyElement(item.drawable, item.text)
+        }
+    }
 }
 
 // Step: Favorite collections grid - LazyGrid
@@ -169,7 +182,8 @@ fun MySootheApp() {
     Surface {
         Column {
             SearchBar()
-            AlignYourBodyElement()
+            AlignYourBodyRow()
+
         }
     }
 }
@@ -208,6 +222,8 @@ fun SearchBarPreview() {
 fun AlignYourBodyElementPreview() {
     MySootheTheme {
         AlignYourBodyElement(
+            alignYourBodyData.get(0).drawable,
+            alignYourBodyData.get(0).text,
             modifier = Modifier.padding(8.dp)
         )
     }
