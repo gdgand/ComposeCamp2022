@@ -672,8 +672,10 @@ private fun Modifier.swipeToDismiss(
                 }
                 // Dragging finished. Calculate the velocity of the fling.
                 val velocity = velocityTracker.calculateVelocity().x
-                // TODO 6-4: Calculate the eventual position where the fling should settle
-                //           based on the current offset value and velocity
+                // Calculate the eventual position where the fling should settle
+                // based on the current offset value and velocity
+                val targetOffsetX = decay.calculateTargetValue(offsetX.value, velocity)
+
                 // TODO 6-5: Set the upper and lower bounds so that the animation stops when it
                 //           reaches the edge.
                 launch {
