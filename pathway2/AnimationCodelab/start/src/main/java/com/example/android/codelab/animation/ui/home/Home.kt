@@ -102,6 +102,8 @@ import com.example.android.codelab.animation.ui.Purple700
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 private enum class TabPage {
     Home, Work
@@ -683,15 +685,20 @@ private fun Modifier.swipeToDismiss(
                 )
 
                 launch {
-                    // TODO 6-6: Slide back the element if the settling position does not go beyond
-                    //           the size of the element. Remove the element if it does.
+                    // Slide back the element if the settling position does not go beyond
+                    // the size of the element. Remove the element if it does.
+                    if (targetOffsetX.absoluteValue <= size.width) {
+                        offsetX.animateTo(targetValue = 0f, initialVelocity = velocity)
+                    } else {
+                        offsetX.animateDecay(velocity, decay)
+                        onDismissed()
+                    }
                 }
             }
         }
     }
         .offset {
-            // TODO 6-7: Use the animating offset value here.
-            IntOffset(0, 0)
+            IntOffset(offsetX.value.roundToInt(), 0)
         }
 }
 
