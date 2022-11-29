@@ -21,37 +21,40 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.samples.crane.ui.captionTextStyle
 import androidx.compose.ui.graphics.SolidColor
 
 @Composable
 fun CraneEditableUserInput(
-    hint: String,
+//    hint: String,
+    state: EditableUserInputState = rememberEditableUserInputState(hint = ""),
     caption: String? = null,
     @DrawableRes vectorImageId: Int? = null,
-    onInputChanged: (String) -> Unit
+//    onInputChanged: (String) -> Unit,
 ) {
     // TODO Codelab: Encapsulate this state in a state holder
-    var textState by remember { mutableStateOf(hint) }
-    val isHint = { textState == hint }
+//    var textState by remember { mutableStateOf(hint) }
+//    val isHint = { textState == hint }
 
     CraneBaseUserInput(
         caption = caption,
-        tintIcon = { !isHint() },
-        showCaption = { !isHint() },
+//        tintIcon = { !isHint() },
+//        showCaption = { !isHint() },
+        tintIcon = { !state.isHint },
+        showCaption = { state.isHint },
         vectorImageId = vectorImageId
     ) {
         BasicTextField(
-            value = textState,
+//            value = textState,
+            value = state.text,
             onValueChange = {
-                textState = it
-                if (!isHint()) onInputChanged(textState)
+//                textState = it
+//                if (!isHint()) onInputChanged(textState)
+                state.text = it
             },
-            textStyle = if (isHint()) {
+//            textStyle = if (isHint()) {
+            textStyle = if (state.isHint) {
                 captionTextStyle.copy(color = LocalContentColor.current)
             } else {
                 MaterialTheme.typography.body1.copy(color = LocalContentColor.current)
@@ -60,3 +63,9 @@ fun CraneEditableUserInput(
         )
     }
 }
+
+@Composable
+fun rememberEditableUserInputState(hint: String): EditableUserInputState =
+    rememberSaveable(hint, saver = EditableUserInputState.Saver) {
+        EditableUserInputState(hint, hint)
+    }
