@@ -659,7 +659,11 @@ private fun Modifier.swipeToDismiss(
                 // Wait for drag events.
                 awaitPointerEventScope {
                     horizontalDrag(pointerId) { change ->
-                        // TODO 6-3: Apply the drag change to the Animatable offset.
+                        val horizontalDragOffset = offsetX.value + change.positionChange().x
+                        launch {
+                            offsetX.snapTo(horizontalDragOffset)
+                        }
+
                         // Record the velocity of the drag.
                         velocityTracker.addPosition(change.uptimeMillis, change.position)
                         // Consume the gesture event, not passed to external
