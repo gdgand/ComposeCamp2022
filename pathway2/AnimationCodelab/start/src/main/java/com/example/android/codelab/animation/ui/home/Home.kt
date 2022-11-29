@@ -675,9 +675,13 @@ private fun Modifier.swipeToDismiss(
                 // Calculate the eventual position where the fling should settle
                 // based on the current offset value and velocity
                 val targetOffsetX = decay.calculateTargetValue(offsetX.value, velocity)
+                // Set the upper and lower bounds so that the animation stops when it
+                // reaches the edge.
+                offsetX.updateBounds(
+                    lowerBound = -size.width.toFloat(),
+                    upperBound = size.width.toFloat()
+                )
 
-                // TODO 6-5: Set the upper and lower bounds so that the animation stops when it
-                //           reaches the edge.
                 launch {
                     // TODO 6-6: Slide back the element if the settling position does not go beyond
                     //           the size of the element. Remove the element if it does.
