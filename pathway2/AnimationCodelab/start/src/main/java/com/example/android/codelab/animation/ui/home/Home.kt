@@ -653,7 +653,7 @@ private fun Modifier.swipeToDismiss(
             while (true) {
                 // Wait for a touch down event.
                 val pointerId = awaitPointerEventScope { awaitFirstDown().id }
-                // TODO 6-2: Touch detected; the animation should be stopped.
+                offsetX.stop()
                 // Prepare for drag events and record velocity of a fling.
                 val velocityTracker = VelocityTracker()
                 // Wait for drag events.
