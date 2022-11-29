@@ -16,10 +16,8 @@
 
 package com.codelab.theming.ui.start
 
-import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -37,12 +35,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,7 +46,7 @@ import com.codelab.theming.R
 import com.codelab.theming.data.Post
 import com.codelab.theming.data.PostRepo
 import com.codelab.theming.ui.start.theme.JetnewsTheme
-import java.util.Locale
+import java.util.*
 
 @Composable
 fun Home() {
@@ -113,11 +108,10 @@ fun Header(
         contentColor = MaterialTheme.colors.primary
     ) {
         Text(
-            text = text,
             modifier = modifier
                 .fillMaxWidth()
-                .background(Color.LightGray)
                 .padding(horizontal = 16.dp, vertical = 8.dp),
+            text = text,
             style = MaterialTheme.typography.subtitle2
         )
     }
