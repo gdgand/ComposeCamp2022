@@ -21,10 +21,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -33,6 +29,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -76,7 +79,24 @@ fun SearchBar(
 fun AlignYourBodyElement(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ab1_inversions),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(88.dp)
+                .clip(CircleShape)
+        )
+        Text(
+            text = stringResource(R.string.ab1_inversions),
+            style = MaterialTheme.typography.h3,
+            modifier = Modifier.paddingFromBaseline(top=24.dp, bottom=8.dp)
+        )
+    }
 }
 
 // Step: Favorite collection card - Material Surface
@@ -127,11 +147,10 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
 @Composable
 fun MySootheApp() {
     Surface {
-        Column() {
+        Column {
             SearchBar()
+            AlignYourBodyElement()
         }
-
-
     }
 }
 
