@@ -29,8 +29,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp() {
-    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
+fun MyApp(isOnboarding: Boolean = true) {
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(isOnboarding) }
 
     if (shouldShowOnboarding) {
         OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
@@ -112,6 +112,6 @@ fun OnboardingPreview() {
 @Composable
 fun DefaultPreview() {
     BasicsCodelabTheme {
-        MyApp()
+        MyApp(isOnboarding = false)
     }
 }
