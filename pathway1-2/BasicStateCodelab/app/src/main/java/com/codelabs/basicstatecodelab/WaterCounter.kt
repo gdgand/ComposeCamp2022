@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,7 +64,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun WaterCounter(modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(16.dp)) {
-        var count by remember { mutableStateOf(0) }
+        // rememberSaveable로 Config Change가 발생해도 상태 유지 가능
+        var count by rememberSaveable { mutableStateOf(0) }
         if (count > 0) {
             Text("You've had $count glasses.")
         }
