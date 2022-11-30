@@ -34,6 +34,8 @@ buildscript {
         ktlintVersion = '0.45.2'
         ktxVersion = '1.8.0'
         materialVersion = '1.6.1'
+
+        // navigation compose
         navigationComposeVersion = '2.5.0'
     }
 
