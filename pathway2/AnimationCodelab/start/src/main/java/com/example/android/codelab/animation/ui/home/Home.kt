@@ -17,10 +17,7 @@
 package com.example.android.codelab.animation.ui.home
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -109,7 +106,7 @@ fun Home() {
         }
     }
 
-    // Load the weather at the initial composition.
+    // 처음 구성할 때 날씨 정보 불러오기
     LaunchedEffect(Unit) {
         loadWeather()
     }
@@ -159,7 +156,7 @@ fun Home() {
                     } else {
                         WeatherRow(onRefresh = {
                             coroutineScope.launch {
-                                loadWeather()
+                                loadWeather() // 새로고침 시 다시 불러오기
                             }
                         })
                     }
@@ -524,8 +521,20 @@ private fun WeatherRow(
  */
 @Composable
 private fun LoadingRow() {
-    // TODO 5: Animate this value between 0f and 1f, then back to 0f repeatedly.
-    val alpha = 1f
+    // 무한 반복 애니메이션
+    val infiniteTransition = rememberInfiniteTransition()
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = 1000
+                0.7f at 500
+            },
+            repeatMode = RepeatMode.Reverse // 기본값은 RepeatMode.Restart
+             // Reverse로 설정하면 0 -> 1, 1 -> 0, 0 -> 1
+        )
+    )
     Row(
         modifier = Modifier
             .heightIn(min = 64.dp)
