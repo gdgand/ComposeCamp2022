@@ -30,11 +30,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.compose.rally.ui.accounts.AccountsScreen
+import com.example.compose.rally.ui.accounts.SingleAccountScreen
 import com.example.compose.rally.ui.bills.BillsScreen
 import com.example.compose.rally.ui.components.RallyTabRow
 import com.example.compose.rally.ui.overview.OverviewScreen
@@ -59,48 +62,62 @@ fun RallyApp() {
         val navController = rememberNavController()
         val currentBackStack by navController.currentBackStackEntryAsState()
         val currentDestination = currentBackStack?.destination
-        val currentScreen = rallyTabRowScreens.find { it.route == currentDestination?.route} ?: Overview
+        val currentScreen = rallyTabRowScreens.find { it.route == currentDestination?.route } ?: Overview
 
-        Scaffold(
-            topBar = {
-                RallyTabRow(
-                    allScreens = rallyTabRowScreens,
-                    onTabSelected = { newScreen ->
-                        navController.navigateSingleTopTo(newScreen.route)
-                    },
-                    currentScreen = currentScreen
-                )
-            }
-        ) { innerPadding ->
+        Scaffold(topBar = {
+            RallyTabRow(
+                allScreens = rallyTabRowScreens, onTabSelected = { newScreen ->
+                    navController.navigateSingleTopTo(newScreen.route)
+                }, currentScreen = currentScreen
+            )
+        }) { innerPadding ->
             NavHost(navController = navController, startDestination = Overview.route, modifier = Modifier.padding(innerPadding)) {
                 composable(route = Overview.route) {
                     OverviewScreen(
                         onClickSeeAllAccounts = {
                             navController.navigateSingleTopTo(Accounts.route)
-                        },
-                        onClickSeeAllBills = {
+                        }, onClickSeeAllBills = {
                             navController.navigateSingleTopTo(Bills.route)
+                        },
+                        onAccountClick = { accountType ->
+                            navController.navigateToSingleAccount(accountType)
                         }
                     )
                 }
                 composable(route = Accounts.route) {
-                    AccountsScreen()
+                    AccountsScreen(
+                        onAccountClick = { accountType ->
+                            navController.navigateToSingleAccount(accountType)
+
+                        }
+                    )
                 }
                 composable(route = Bills.route) {
                     BillsScreen()
+                }
+                composable(
+                    route = SingleAccount.routeWithArgs,
+                    arguments = SingleAccount.arguments
+                ) { navBackStackEntry ->
+                    val accountType =
+                        navBackStackEntry.arguments?.getString(SingleAccount.accountTypeArg)
+                    SingleAccountScreen(accountType)
                 }
             }
         }
     }
 }
 
-fun NavHostController.navigateSingleTopTo(route: String) =
-    this.navigate(route) {
-        popUpTo(
-            this@navigateSingleTopTo.graph.findStartDestination().id
-        ) {
-            saveState = true
-        }
-        launchSingleTop = true
-        restoreState = true
+fun NavHostController.navigateSingleTopTo(route: String) = this.navigate(route) {
+    popUpTo(
+        this@navigateSingleTopTo.graph.findStartDestination().id
+    ) {
+        saveState = true
     }
+    launchSingleTop = true
+    restoreState = true
+}
+
+fun NavHostController.navigateToSingleAccount(accountType: String) {
+    this.navigateSingleTopTo("${SingleAccount.route}/$accountType")
+}
