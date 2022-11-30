@@ -59,6 +59,8 @@ import com.example.android.codelab.animation.ui.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 private enum class TabPage {
     Home, Work
@@ -597,22 +599,29 @@ private fun TaskRow(task: String, onRemove: () -> Unit) {
 private fun Modifier.swipeToDismiss(
     onDismissed: () -> Unit
 ): Modifier = composed {
-    // TODO 6-1: Create an Animatable instance for the offset of the swiped element.
+
+    val offsetX = remember { Animatable(0f) }
     pointerInput(Unit) {
         // Used to calculate a settling position of a fling animation.
         val decay = splineBasedDecay<Float>(this)
         // Wrap in a coroutine scope to use suspend functions for touch events and animation.
         coroutineScope {
             while (true) {
-                // Wait for a touch down event.
+                // 터치 다운 이벤트 대기하다가 수신
                 val pointerId = awaitPointerEventScope { awaitFirstDown().id }
-                // TODO 6-2: Touch detected; the animation should be stopped.
+                offsetX.stop() // 현재 실행 중인 경우 애니메이션 중단
                 // Prepare for drag events and record velocity of a fling.
                 val velocityTracker = VelocityTracker()
                 // Wait for drag events.
                 awaitPointerEventScope {
                     horizontalDrag(pointerId) { change ->
-                        // TODO 6-3: Apply the drag change to the Animatable offset.
+                        val horizontalDragOffset = offsetX.value + change.positionChange().x
+                        launch {
+                            // Instantly set the Animable to the dragOffset to ensure its moving
+                            // as the user's finger moves
+                            // 터치 이벤트 위치를 애니메이션 값에 동기화
+                            offsetX.snapTo(horizontalDragOffset)
+                        }
                         // Record the velocity of the drag.
                         velocityTracker.addPosition(change.uptimeMillis, change.position)
                         // Consume the gesture event, not passed to external
@@ -621,20 +630,32 @@ private fun Modifier.swipeToDismiss(
                 }
                 // Dragging finished. Calculate the velocity of the fling.
                 val velocity = velocityTracker.calculateVelocity().x
-                // TODO 6-4: Calculate the eventual position where the fling should settle
-                //           based on the current offset value and velocity
-                // TODO 6-5: Set the upper and lower bounds so that the animation stops when it
-                //           reaches the edge.
+                // 원래 위치로 다시 슬라이드해야 할지, 아니면 슬라이드하여 없애고 콜백을 호출해야할지 결정하기 위해
+                // 플링이 정착한 최종 위치를 계산
+                val targetOffsetX = decay.calculateTargetValue(offsetX.value, velocity)
+
+                // 애니메이션을 시작하기 전에 상한값과 하한값을 설정
+                offsetX.updateBounds(
+                    lowerBound = -size.width.toFloat(),
+                    upperBound = size.width.toFloat()
+                )
                 launch {
-                    // TODO 6-6: Slide back the element if the settling position does not go beyond
-                    //           the size of the element. Remove the element if it does.
+                    // 계산한 플링의 위치와 요소의 크기 비교
+                    if (targetOffsetX.absoluteValue <= size.width) {
+                        // 플링 위치가 크기보다 작다면 플링의 속도가 충분하지 않은 것
+                        offsetX.animateTo(targetValue = 0f, initialVelocity = velocity)
+                    } else {
+                        // 속도 충분 -> 애니메이션 시작
+                        offsetX.animateDecay(velocity, decay)
+                        // 애니메이션 완료 후 콜백 호출
+                        onDismissed()
+                    }
                 }
             }
         }
     }
         .offset {
-            // TODO 6-7: Use the animating offset value here.
-            IntOffset(0, 0)
+            IntOffset(offsetX.value.roundToInt(), 0)
         }
 }
 
