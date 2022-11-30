@@ -63,6 +63,7 @@ fun ExploreSection(
                 style = MaterialTheme.typography.caption.copy(color = crane_caption)
             )
             Spacer(Modifier.height(8.dp))
+            // Box 를 사용하여 floating 버튼이 lazyList 위에 올라와 보이도록 함.
             Box(Modifier.weight(1f)) {
                 val listState = rememberLazyListState()
                 ExploreList(exploreList, onItemClicked, listState = listState)
