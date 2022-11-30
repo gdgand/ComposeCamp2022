@@ -45,4 +45,15 @@ class TopAppBarTest {
             )
             .assertExists()
     }
+
+    @Test
+    fun rallyTopApPBarTest_click() {
+        composeTestRule
+            .onNodeWithContentDescription(RallyScreen.Overview.name)
+            .performClick()
+        Thread.sleep(5000)
+        composeTestRule
+            .onNodeWithContentDescription(RallyScreen.Overview.name)
+            .assertIsSelected()
+    }
 }
