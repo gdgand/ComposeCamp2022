@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package com.codelab.theming.ui.start
+package com.codelab.theming.ui.start.theme
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.material.Surface
+import androidx.compose.ui.graphics.Color
 
-/**
- * This activity demonstrates the final state of the codelab. You can run it from the included
- * run configuration.
- */
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            Surface {
-                Home()
-            }
-        }
-    }
-}
+val Red200 = Color(0xfff297a2)
+val Red300 = Color(0xffea6d7e)
+val Red700 = Color(0xffdd0d3c)
+val Red800 = Color(0xffd00036)
+val Red900 = Color(0xffc20029)
