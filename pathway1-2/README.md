@@ -186,3 +186,31 @@ fun Header(
 }
 ```
 - Header는 Text의 변형된 스타일로 필요한 곳 어디서든 사용 가능
+
+<br><br><br>
+
+# MigrationCodelb
+- Compose에서 UI 렌더링하려면 Activity/Fragment가 필요
+- Android 뷰와 공존하는 하는데에서 Compose UI를 호스팅 하기 위해서는 ComposeView를 사용해야 함.
+- ComposeView의 setContent 메소드를 통해 컴포저블 호출
+
+<br>
+
+## ViewModel Migration
+- 일반적으로 Activity/Fragment에 ViewModel 인스턴스가 존재함으로 컴포저블 함수에 매개변수로 전달만 하면 됨.
+- 매개변수 방식이 아닐 경우에는 컴포저블 함수 내에서 ``viewModel`` 을 사용하여 동일 인스턴스 가져옴
+
+<br>
+
+## LiveData
+- 컴포저블에서 LiveData를 관찰하기 위해서는 ``LiveData.observeAsState()`` 함수 사용
+- ``LiveData.observeAsState()``는 LiveData로 관찰 시작하고 State 객체를 통해 값을 사용
+- LiveData의 값이 변경 시마다 State가 업데이트되어 컴포지션 재구성
+
+<br>
+
+## ViewCompositionStrategy
+- Activity/Fragment에서 View가 Detach될 때 컴포지션이 삭제됩니다.
+- 따라서, 컴포지션은 Compose UI 유지를 위해 라이프사이클 내에 상태를 저장해야 합니다.
+- 또한 View가 Detach되더라도 Compose UI 요소가 유자되도록 해야합니다.
+- 이를 위해 ViewCompositionStrategy를 사용하여야 하고 라이프사이클이 파괴될 때까지 유지하는 Strategy로 ViewComppsitionStrategy.DisposeOnViewTreeLifecycleDestroyed 사용하면 됩니다.
