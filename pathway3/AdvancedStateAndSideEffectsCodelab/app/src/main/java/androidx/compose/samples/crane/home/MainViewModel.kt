@@ -37,7 +37,7 @@ class MainViewModel @Inject constructor(
     private val destinationsRepository: DestinationsRepository,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
-
+    val destinations: List<ExploreModel> = destinationsRepository.destinations
     val hotels: List<ExploreModel> = destinationsRepository.hotels
     val restaurants: List<ExploreModel> = destinationsRepository.restaurants
 
