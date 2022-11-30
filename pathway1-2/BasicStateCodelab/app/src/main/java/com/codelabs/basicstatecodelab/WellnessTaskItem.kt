@@ -79,12 +79,13 @@ fun WellnessTaskItem(
 fun WellnessTaskItem(
     taskName: String,
     modifier: Modifier = Modifier,
+    onClose: () -> Unit
 ) {
     var checkedState by rememberSaveable { mutableStateOf(false) }
 
     WellnessTaskItem(
         taskName = taskName,
-        onClose = { /*TODO*/ },
+        onClose = onClose,
         checked = checkedState,
         onCheckedChange = { newValue -> checkedState = newValue},
         modifier = modifier
