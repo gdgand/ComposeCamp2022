@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.statusBarsPadding
+import kotlinx.coroutines.launch
 
 typealias OnExploreItemClicked = (ExploreModel) -> Unit
 
@@ -53,12 +54,17 @@ fun CraneHome(
             CraneDrawer()
         }
     ) { padding ->
+        val scope = rememberCoroutineScope()
         CraneHomeContent(
             modifier = modifier.padding(padding),
             onExploreItemClicked = onExploreItemClicked,
             openDrawer = {
-                // TODO Codelab: rememberCoroutineScope step - open the navigation drawer
-                // scaffoldState.drawerState.open()
+                scope.launch {
+                    // 애니메이션과 관련된 api 일부는 suspend fun 인 경우가 있다.
+                    // drawer 를 여는 이 친구 역시 suspend fun 으로 구현되어 있으며
+                    // 완전히 열렸거나 애니메이션이 취소되면 중단된다.
+                    scaffoldState.drawerState.open()
+                }
             }
         )
     }
