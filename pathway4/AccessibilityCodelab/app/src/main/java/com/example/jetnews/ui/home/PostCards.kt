@@ -25,15 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Card
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
@@ -58,147 +50,146 @@ import com.example.jetnews.ui.theme.JetnewsTheme
 
 @Composable
 fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
-    var openDialog by remember { mutableStateOf(false) }
-    Row(
-        Modifier.clickable { navigateToArticle(post.id) }
+  var openDialog by remember { mutableStateOf(false) }
+  Row(
+    Modifier.clickable { navigateToArticle(post.id) }
+  ) {
+    Image(
+      painter = painterResource(post.imageThumbId),
+      contentDescription = null,
+      modifier = Modifier
+        .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+        .size(40.dp, 40.dp)
+        .clip(MaterialTheme.shapes.small)
+    )
+    Column(
+      Modifier
+        .weight(1f)
+        .padding(top = 16.dp, bottom = 16.dp)
     ) {
-        Image(
-            painter = painterResource(post.imageThumbId),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                .size(40.dp, 40.dp)
-                .clip(MaterialTheme.shapes.small)
-        )
-        Column(
-            Modifier
-                .weight(1f)
-                .padding(top = 16.dp, bottom = 16.dp)
-        ) {
-            Text(post.title, style = MaterialTheme.typography.subtitle1)
-            Row(Modifier.padding(top = 4.dp)) {
-                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                    val textStyle = MaterialTheme.typography.body2
-                    Text(
-                        text = post.metadata.author.name,
-                        style = textStyle
-                    )
-                    Text(
-                        text = " - ${post.metadata.readTimeMinutes} min read",
-                        style = textStyle
-                    )
-                }
-            }
-        }
+      Text(post.title, style = MaterialTheme.typography.subtitle1)
+      Row(Modifier.padding(top = 4.dp)) {
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = stringResource(R.string.cd_show_fewer),
-                modifier = Modifier
-                    .clickable { openDialog = true }
-                    .size(24.dp)
-            )
+          val textStyle = MaterialTheme.typography.body2
+          Text(
+            text = post.metadata.author.name,
+            style = textStyle
+          )
+          Text(
+            text = " - ${post.metadata.readTimeMinutes} min read",
+            style = textStyle
+          )
         }
+      }
     }
-    if (openDialog) {
-        AlertDialog(
-            modifier = Modifier.padding(20.dp),
-            onDismissRequest = { openDialog = false },
-            title = {
-                Text(
-                    text = stringResource(id = R.string.fewer_stories),
-                    style = MaterialTheme.typography.h6
-                )
-            },
-            text = {
-                Text(
-                    text = stringResource(id = R.string.fewer_stories_content),
-                    style = MaterialTheme.typography.body1
-                )
-            },
-            confirmButton = {
-                Text(
-                    text = stringResource(id = R.string.agree),
-                    style = MaterialTheme.typography.button,
-                    color = MaterialTheme.colors.primary,
-                    modifier = Modifier
-                        .padding(15.dp)
-                        .clickable { openDialog = false }
-                )
-            }
+    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+      IconButton(onClick = { openDialog = true }) {
+        Icon(
+          imageVector = Icons.Default.Close,
+          contentDescription = stringResource(R.string.cd_show_fewer),
         )
+      }
     }
+  }
+  if (openDialog) {
+    AlertDialog(
+      modifier = Modifier.padding(20.dp),
+      onDismissRequest = { openDialog = false },
+      title = {
+        Text(
+          text = stringResource(id = R.string.fewer_stories),
+          style = MaterialTheme.typography.h6
+        )
+      },
+      text = {
+        Text(
+          text = stringResource(id = R.string.fewer_stories_content),
+          style = MaterialTheme.typography.body1
+        )
+      },
+      confirmButton = {
+        Text(
+          text = stringResource(id = R.string.agree),
+          style = MaterialTheme.typography.button,
+          color = MaterialTheme.colors.primary,
+          modifier = Modifier
+            .padding(15.dp)
+            .clickable { openDialog = false }
+        )
+      }
+    )
+  }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostCardPopular(
-    post: Post,
-    navigateToArticle: (String) -> Unit,
-    modifier: Modifier = Modifier
+  post: Post,
+  navigateToArticle: (String) -> Unit,
+  modifier: Modifier = Modifier
 ) {
-    Card(
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier.size(280.dp, 240.dp),
-        onClick = { navigateToArticle(post.id) }
-    ) {
-        Column {
+  Card(
+    shape = MaterialTheme.shapes.medium,
+    modifier = modifier.size(280.dp, 240.dp),
+    onClick = { navigateToArticle(post.id) }
+  ) {
+    Column {
 
-            Image(
-                painter = painterResource(post.imageId),
-                contentDescription = null, // decorative
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .height(100.dp)
-                    .fillMaxWidth()
+      Image(
+        painter = painterResource(post.imageId),
+        contentDescription = null, // decorative
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+          .height(100.dp)
+          .fillMaxWidth()
+      )
+
+      Column(modifier = Modifier.padding(16.dp)) {
+        Text(
+          text = post.title,
+          style = MaterialTheme.typography.h6,
+          maxLines = 2,
+          overflow = TextOverflow.Ellipsis
+        )
+        Text(
+          text = post.metadata.author.name,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+          style = MaterialTheme.typography.body2
+        )
+
+        Text(
+          text = stringResource(
+            id = R.string.home_post_min_read,
+            formatArgs = arrayOf(
+              post.metadata.date,
+              post.metadata.readTimeMinutes
             )
-
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = post.title,
-                    style = MaterialTheme.typography.h6,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = post.metadata.author.name,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.body2
-                )
-
-                Text(
-                    text = stringResource(
-                        id = R.string.home_post_min_read,
-                        formatArgs = arrayOf(
-                            post.metadata.date,
-                            post.metadata.readTimeMinutes
-                        )
-                    ),
-                    style = MaterialTheme.typography.body2
-                )
-            }
-        }
+          ),
+          style = MaterialTheme.typography.body2
+        )
+      }
     }
+  }
 }
 
 @Preview("Regular colors")
 @Preview("Dark colors", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewPostCardPopular() {
-    JetnewsTheme {
-        Surface {
-            PostCardPopular(post1, {})
-        }
+  JetnewsTheme {
+    Surface {
+      PostCardPopular(post1, {})
     }
+  }
 }
 
 @Preview("Post History card")
 @Composable
 fun HistoryPostPreview() {
-    JetnewsTheme {
-        Surface {
-            PostCardHistory(post3, {})
-        }
+  JetnewsTheme {
+    Surface {
+      PostCardHistory(post3, {})
     }
+  }
 }
