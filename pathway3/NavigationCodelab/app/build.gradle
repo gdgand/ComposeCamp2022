@@ -79,6 +79,7 @@ android {
 }
 
 dependencies {
+    implementation "androidx.navigation:navigation-compose:$rootProject.composeNavigationVersion"
 
     implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
     implementation "androidx.core:core-ktx:$rootProject.ktxVersion"
