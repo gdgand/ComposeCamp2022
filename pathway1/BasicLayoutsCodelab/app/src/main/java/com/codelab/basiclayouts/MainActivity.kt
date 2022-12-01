@@ -33,7 +33,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -222,13 +224,52 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 // Step: Bottom navigation - Material
 @Composable
 private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
-    // Implement composable here
+    BottomNavigation(
+        backgroundColor = MaterialTheme.colors.background, // 아이콘과 텍스트의 색상이 테마의 onBackground 색상으로 자동 조정
+        modifier = modifier
+    ) {
+        BottomNavigationItem(
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Spa,
+                    contentDescription = null
+                )
+            },
+            label = {
+                Text(text = stringResource(id = R.string.bottom_navigation_home))
+            },
+            selected = true,
+            onClick = { /*TODO*/ }
+        )
+
+        BottomNavigationItem(
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = null
+                )
+            },
+            label = {
+                Text(text = stringResource(id = R.string.bottom_navigation_profile))
+            },
+            selected = false,
+            onClick = { /*TODO*/ }
+        )
+    }
 }
 
 // Step: MySoothe App - Scaffold
 @Composable
 fun MySootheApp() {
-    // Implement composable here
+    MySootheTheme() {
+        Scaffold(
+            bottomBar = {
+                SootheBottomNavigation()
+            }
+        ) { padding ->
+            HomeScreen(modifier = Modifier.padding(padding))
+        }
+    }
 }
 
 private val alignYourBodyData = listOf(
