@@ -93,7 +93,7 @@ dependencies {
     implementation "androidx.activity:activity-compose:$rootProject.activityComposeVersion"
     implementation "androidx.navigation:navigation-compose:$rootProject.navigationComposeVersion"
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
-
+    implementation "androidx.navigation:navigation-compose:$rootProject.navigationComposeVersion"
     // Testing dependencies
     androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$rootProject.espressoVersion"
