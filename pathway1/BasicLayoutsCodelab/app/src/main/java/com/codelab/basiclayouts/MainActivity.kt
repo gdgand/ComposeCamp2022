@@ -23,6 +23,11 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -110,15 +115,19 @@ fun FavoriteCollectionCard(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.width(192.dp).height(56.dp)
+            modifier = Modifier.width(192.dp)
         ) {
             Image(
                 painter = painterResource(id = drawable),
                 contentDescription = null,
-                modifier = Modifier.fillMaxHeight().aspectRatio(1f),
+                modifier = Modifier.size(56.dp),
                 contentScale = ContentScale.Crop
             )
-            Text(text = stringResource(id = text), style = MaterialTheme.typography.h3, modifier = Modifier.padding(horizontal = 8.dp))
+            Text(
+                text = stringResource(id = text),
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
 
         }
     }
@@ -129,7 +138,16 @@ fun FavoriteCollectionCard(
 fun AlignYourBodyRow(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    LazyRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        contentPadding = PaddingValues(16.dp)
+    ) {
+        items(alignYourBodyData) { item ->
+            AlignYourBodyElement(drawable = item.drawable, text = item.text)
+        }
+    }
 }
 
 // Step: Favorite collections grid - LazyGrid
@@ -137,7 +155,21 @@ fun AlignYourBodyRow(
 fun FavoriteCollectionsGrid(
     modifier: Modifier = Modifier
 ) {
-    // Implement composable here
+    LazyHorizontalGrid(
+        modifier = modifier.padding(vertical = 8.dp).height(40.dp), // 재밌는 점은 height 를 작게줘도 적절하게 그려지는 것
+        rows = GridCells.Fixed(2),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(favoriteCollectionsData) { data ->
+            FavoriteCollectionCard(
+                modifier = Modifier.height(56.dp),
+                drawable = data.drawable,
+                text = data.text
+            )
+        }
+    }
 }
 
 // Step: Home section - Slot APIs
@@ -212,8 +244,8 @@ fun AlignYourBodyElementPreview() {
 fun FavoriteCollectionCardPreview() {
     MySootheTheme {
         FavoriteCollectionCard(
-            text = R.string.ab1_inversions,
-            drawable = R.drawable.ab1_inversions,
+            text = R.string.fc2_nature_meditations,
+            drawable = R.drawable.fc2_nature_meditations,
             modifier = Modifier.padding(8.dp)
         )
     }
