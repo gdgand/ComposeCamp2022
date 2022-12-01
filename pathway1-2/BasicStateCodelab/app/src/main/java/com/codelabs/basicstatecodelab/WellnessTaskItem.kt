@@ -8,8 +8,11 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,13 +22,14 @@ import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 @Composable
 fun WellnessTaskItem(
     modifier: Modifier = Modifier,
-    taskName: String
+    taskName: String,
+    onClose: () -> Unit
 ) {
     var checkedState by rememberSaveable { mutableStateOf(false) }
     WellnessTaskItem(
         checked = checkedState,
         onCheckedChange = { checked -> checkedState = checked },
-        onClose = { },
+        onClose = onClose,
         taskName = taskName
     )
 }
@@ -48,7 +52,7 @@ fun WellnessTaskItem(
                 .padding(start = 16.dp)
         )
         Checkbox(checked, onCheckedChange)
-        IconButton(onClose) {
+        IconButton(onClick = onClose) {
             Icon(Icons.Filled.Close, "Close")
         }
     }
@@ -59,7 +63,8 @@ fun WellnessTaskItem(
 fun WellnessTaskItemPreview() {
     BasicStateCodelabTheme {
         WellnessTaskItem(
-            taskName = "Have you taken 15 minute walk today?"
+            taskName = "Have you taken 15 minute walk today?",
+            onClose = {}
         )
     }
 }
