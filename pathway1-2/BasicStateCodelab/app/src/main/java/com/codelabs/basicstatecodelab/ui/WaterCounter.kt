@@ -1,4 +1,4 @@
-package com.codelabs.basicstatecodelab
+package com.codelabs.basicstatecodelab.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding

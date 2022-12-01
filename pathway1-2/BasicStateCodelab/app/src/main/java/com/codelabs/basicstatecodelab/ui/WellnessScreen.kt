@@ -1,16 +1,20 @@
-package com.codelabs.basicstatecodelab
+package com.codelabs.basicstatecodelab.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
-    StatefulCounter(modifier)
+    Column(modifier = modifier) {
+        StatefulCounter()
+        WellnessTasksList()
+    }
 }
 
 @Composable
@@ -27,10 +31,6 @@ fun StatelessCounter(count: Int, onIncrement: () -> Unit, modifier: Modifier = M
 
 @Composable
 fun StatefulCounter(modifier: Modifier = Modifier) {
-    var waterCount by remember { mutableStateOf(0) }
-
-    var juiceCount by remember { mutableStateOf(0) }
-
-    StatelessCounter(waterCount, { waterCount++ }, modifier)
-    StatelessCounter(juiceCount, { juiceCount++ }, modifier)
+    var count by rememberSaveable { mutableStateOf(0) }
+    StatelessCounter(count, { count++ }, modifier)
 }
