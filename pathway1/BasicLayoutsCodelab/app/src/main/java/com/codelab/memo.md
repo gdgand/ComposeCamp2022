@@ -44,6 +44,10 @@
   - item, items 와 같은 메서드를 제공하는 Lazy 목록 DSL을 사
   - Arrangement.spacedBy() 메서드를 사용하여 각 하위 컴포저블 사이에 고정된 공간을 추가
 
+- 슬롯 기반 레이아웃 (슬롯 API)
+  - 슬롯 기반 레이아웃은 개발자가 원하는 대로 채울 수 있도록 UI에 빈 공간을 남겨 둡니다. 슬롯 기반 레이아웃을 사용하면 보다 유연한 레이아웃을 만들 수 있습니다.
+  - 간단하게 말하면 컴포저블을 파라미터로 두어서 활용하겠다는 말
+  - 대표적인 예시가 TopAppBar, Scaffold 등..
 ---
 컴포저블에 modifier 아규먼트를 줄 때 레이아웃은 위로 하위 컴포저블은 아래로 주는 것 같다.
 
@@ -51,3 +55,6 @@
   - 자식 컴포저블에 Modifier.size 값을 주고 그보다 부모 컴포저블에 그보다 작은 height 값을 줘보았는데 잘리지 않고 size 값보다 작게 만들어주는 것을 알게되었다. 
   - 문서에서는 다음과 같이 설명하는 것의 의미를 알겠다.
   - Declare the preferred - of the content to be exactly - dp. The incoming measurement Constraints may override this value, forcing the content to be either smaller or larger.
+
+- 언제 Padding 대신 Spacer 를 언제 쓸까?
+  - 스크롤 동작이 있는데 PaddingValue 를 받는 부분이 없고, 패딩만큼 잘리기 싫을 때.
