@@ -143,10 +143,6 @@ fun DetailsContent(
 
 @Composable
 private fun CityMapView(latitude: String, longitude: String) {
-    // The MapView lifecycle is handled by this composable. As the MapView also needs to be updated
-    // with input from Compose UI, those updates are encapsulated into the MapViewContainer
-    // composable. In this way, when an update to the MapView happens, this composable won't
-    // recompose and the MapView won't need to be recreated.
     val mapView = rememberMapViewWithLifecycle()
     MapViewContainer(mapView, latitude, longitude)
 }
