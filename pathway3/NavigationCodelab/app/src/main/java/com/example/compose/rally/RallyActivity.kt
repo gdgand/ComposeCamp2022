@@ -94,7 +94,7 @@ private fun NavHostController.navigateToSingleAccount(accountType: String) {
 @Composable
 fun RallyNavHost(
     navController: NavHostController,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
