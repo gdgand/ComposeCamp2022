@@ -31,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.samples.apps.sunflower.R
@@ -82,12 +83,21 @@ class PlantDetailFragment : Fragment() {
              * Fragment에서는 ViewLifecycleOwner에 따라 상태를 저장하는 것이 좋다.
              * Default로는 ViewCompositionStrategy#DisposeOnDetachedFromWindowOrReleasedFromPool
              */
+
+            /**
+             * 11. 상호 운용성 테마 설정
+             * MDC-Android (Theme.MaterialComponents.*)를 사용하는 경우 기존 ViewSystem에서 사용하던 테마의 색상, 글꼴
+             * 및 모양 테마를 Composable에서 쉽게 재사용할 수 있도록 MDC-Android Compose Theme Adapter를 지원
+             *
+             * Material3 -> Mdc3Theme
+             * Material2 -> MdcTheme
+             */
             composeView.apply {
                 setViewCompositionStrategy(
                     ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
                 )
                 setContent {
-                    MaterialTheme {
+                    MdcTheme {
                         PlantDetailDescription(plantDetailViewModel)
                     }
                 }
