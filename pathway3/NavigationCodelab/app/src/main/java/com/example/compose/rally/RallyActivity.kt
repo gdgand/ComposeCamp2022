@@ -33,6 +33,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.rally.ui.components.RallyTabRow
 import com.example.compose.rally.ui.theme.RallyTheme
+import androidx.navigation.NavHostController
 
 /**
  * This Activity recreates part of the Rally Material Study from
@@ -47,6 +48,9 @@ class RallyActivity : ComponentActivity() {
     }
 }
 
+fun NavHostController.navigateSingleTopTo(route: String) =
+    this.navigate(route) { launchSingleTop = true }
+
 @Composable
 fun RallyApp() {
     RallyTheme {
@@ -56,10 +60,9 @@ fun RallyApp() {
             topBar = {
                 RallyTabRow(
                     allScreens = rallyTabRowScreens,
-                    // Pass the callback like this,
-                    // defining the navigation action when a tab is selected:
                     onTabSelected = { newScreen ->
-                        navController.navigate(newScreen.route)
+                        navController
+                            .navigateSingleTopTo(newScreen.route)
                     },
                     currentScreen = currentScreen
                 )
