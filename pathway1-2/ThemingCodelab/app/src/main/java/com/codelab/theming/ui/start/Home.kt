@@ -34,6 +34,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -67,7 +69,11 @@ import java.util.Locale
  * ``` kotlin
  * MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
  * ```
- *
+ */
+
+/**
+ * 7. 도형
+ * Modifier를 통해 직접 도형을 사용할 수 있음
  *
  */
 @Composable
@@ -235,6 +241,11 @@ private fun PostMetadata(
     }
 }
 
+/**
+ * 7. 도형 사용
+ * Material.clip으로 잘라낼 수 있다.
+ *
+ */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostItem(
@@ -248,6 +259,7 @@ fun PostItem(
         icon = {
             Image(
                 painter = painterResource(post.imageThumbId),
+                modifier = modifier.clip(shape = MaterialTheme.shapes.small),
                 contentDescription = null
             )
         },
