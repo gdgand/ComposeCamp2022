@@ -104,6 +104,7 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-test-manifest:$rootProject.composeVersion"
 
     implementation "androidx.navigation:navigation-compose:$rootProject.composeNavigationVersion"
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.composeNavigationVersion"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
