@@ -1,7 +1,7 @@
 /*
  * Copyright 2020 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * LicensedLandingScreen under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -20,18 +20,27 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.samples.crane.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import kotlinx.coroutines.delay
 
 private const val SplashWaitTime: Long = 2000
 
 @Composable
 fun LandingScreen(modifier: Modifier = Modifier, onTimeout: () -> Unit) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        // TODO Codelab: LaunchedEffect and rememberUpdatedState step
-        // TODO: Make LandingScreen disappear after loading data
+
+        val currentOnTimeout by rememberUpdatedState(onTimeout)
+
+        LaunchedEffect(onTimeout) {
+            delay(SplashWaitTime) // Simulates loading things
+            currentOnTimeout()
+        }
         Image(painterResource(id = R.drawable.ic_crane_drawer), contentDescription = null)
     }
 }
