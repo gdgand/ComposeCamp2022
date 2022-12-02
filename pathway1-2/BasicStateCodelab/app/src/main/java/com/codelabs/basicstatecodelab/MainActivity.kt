@@ -40,9 +40,15 @@ fun WaterCounter(modifier: Modifier = Modifier) {
             mutableStateOf(0)
         }
 
-        Text(text = "current count : $count")
+        if (count > 0) {
+            Text(text = "current count : $count")
+        }
 
-        Button(onClick = { count++ }, modifier = Modifier.padding(top = 8.dp)) {
+        Button(
+            onClick = { count++ },
+            modifier = Modifier.padding(top = 8.dp),
+            enabled = count < 10
+        ) {
             Text(text = "count up")
         }
     }
