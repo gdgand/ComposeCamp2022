@@ -27,19 +27,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.ListItem
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -57,11 +49,34 @@ import com.codelab.theming.data.PostRepo
 import com.codelab.theming.ui.start.theme.JetnewsTheme
 import java.util.Locale
 
+/**
+ * 5. 색상
+ * 기본적으로 Color 클래스를 통해 컴포넌트에 원색을 적용할 수 있다.
+ * ``` kotlin
+ * Surface(color = Color.LightGrey) { .. }
+ * ```
+ *
+ * 테마 색상을 적용하기 위해서는 MaterialTheme에 접근하여 사용한다.
+ * ``` kotlin
+ * Surface(color = MaterialTheme.colors.primary) { ... }
+ * ```
+ *
+ * copy 메서드를 통해 색상을 파생할 수 있다.
+ * ``` kotlin
+ * MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
+ * ```
+ *
+ *
+ */
 @Composable
-fun Home() {
+fun Home(
+    darkTheme: Boolean = false
+) {
     val featured = remember { PostRepo.getFeaturedPost() }
     val posts = remember { PostRepo.getPosts() }
-    JetnewsTheme {
+    JetnewsTheme(
+        darkTheme = darkTheme
+    ) {
         Scaffold(
             topBar = { AppBar() }
         ) { innerPadding ->
@@ -87,6 +102,12 @@ fun Home() {
     }
 }
 
+/**
+ * 5. 색상
+ * DarkTheme에서는 밝은 색상 영역을 피하도록 권장한다.
+ * 일반적으로 LightTheme에서는 primary, DarkTheme에서는 surface를 지정한다.
+ * primarySurface로 대응할 수 있다.
+ */
 @Composable
 private fun AppBar() {
     TopAppBar(
@@ -100,23 +121,33 @@ private fun AppBar() {
         title = {
             Text(text = stringResource(R.string.app_title))
         },
-        backgroundColor = MaterialTheme.colors.primary
+        backgroundColor = MaterialTheme.colors.primarySurface
     )
 }
 
+/**
+ * 5. 색상
+ * Text의 배경색을 background로 하드코딩하게되면 Darktheme에서 대비가 올바르게 되지 못함
+ * Surface로 감싸 Surface에서 색상을 지정하는 것이 좋음
+ */
 @Composable
 fun Header(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = text,
+    Surface(
+        color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
+        contentColor = MaterialTheme.colors.primary,
         modifier = modifier
-            .fillMaxWidth()
-            .background(Color.LightGray)
-            .semantics { heading() }
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    )
+    ) {
+        Text(
+            text = text,
+            modifier = modifier
+                .fillMaxWidth()
+                .semantics { heading() }
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+    }
 }
 
 @Composable
@@ -155,6 +186,11 @@ fun FeaturedPost(
     }
 }
 
+/**
+ * 5. 색상
+ * CompositionLocal을 통해 계층구조의 각 컴포넌트에 적당한 alpha값을 전달할 수 있다.
+ * MaterialTheme은 기본으로 ContentAlpha.high로 설정된다.
+ */
 @Composable
 private fun PostMetadata(
     post: Post,
@@ -174,10 +210,13 @@ private fun PostMetadata(
             append(" ${tag.uppercase(Locale.getDefault())} ")
         }
     }
-    Text(
-        text = text,
-        modifier = modifier
-    )
+
+    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+        Text(
+            text = text,
+            modifier = modifier
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -232,8 +271,22 @@ private fun FeaturedPostDarkPreview() {
     }
 }
 
+@Preview("Home Dark")
+@Composable
+private fun HomeDarkPreview() {
+    Home(darkTheme = true)
+}
+
 @Preview("Home")
 @Composable
 private fun HomePreview() {
     Home()
+}
+
+@Preview("AppBar")
+@Composable
+private fun AppBarPreview() {
+    JetnewsTheme(darkTheme = true) {
+        AppBar()
+    }
 }
