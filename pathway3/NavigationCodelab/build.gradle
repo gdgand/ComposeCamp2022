@@ -35,11 +35,16 @@ buildscript {
         ktxVersion = '1.8.0'
         materialVersion = '1.6.1'
         navigationComposeVersion = '2.5.0'
+        composeNavigationVersion = '2.5.0-rc01'
     }
 
     repositories {
         google()
-        mavenCentral()
+        jcenter()
+        maven {
+            url = "http://jcenter.bintray.com"
+            allowInsecureProtocol = true
+        }
     }
 
     dependencies {
@@ -55,7 +60,11 @@ plugins {
 subprojects {
     repositories {
         google()
-        mavenCentral()
+        jcenter()
+        maven {
+            url = "http://jcenter.bintray.com"
+            allowInsecureProtocol = true
+        }
     }
 
     apply plugin: 'com.diffplug.spotless'
