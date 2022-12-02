@@ -1,11 +1,15 @@
 package com.example.compose.rally
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
 import com.example.compose.rally.ui.components.RallyTopAppBar
 import org.junit.Rule
 import org.junit.Test
@@ -65,6 +69,27 @@ class TopAppBarTest {
                 useUnmergedTree = true
             )
             .assertExists()
+    }
+
+    @Test
+    fun rallyTopAppBarTest_tabSelectionChangesSelectedScreen() {
+        val allScreens = RallyScreen.values().toList()
+
+        var currentScreen by mutableStateOf(RallyScreen.Overview)
+
+        composeTestRule.setContent {
+
+            RallyTopAppBar(
+                allScreens = allScreens,
+                onTabSelected = {
+                    currentScreen = it
+                },
+                currentScreen = currentScreen
+            )
+        }
+
+        composeTestRule.onNode(hasContentDescription(RallyScreen.Bills.name)).performClick()
+        assert(currentScreen.name == RallyScreen.Bills.name)
     }
 
 
