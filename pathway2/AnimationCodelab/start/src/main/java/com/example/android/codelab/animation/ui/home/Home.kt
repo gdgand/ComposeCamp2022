@@ -17,6 +17,7 @@
 package com.example.android.codelab.animation.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -158,7 +159,7 @@ fun Home() {
 
     // The background color. The value is changed by the current tab.
     // TODO 1: Animate this color change.
-    val backgroundColor = if (tabPage == TabPage.Home) Purple100 else Green300
+    val backgroundColor by animateColorAsState( if (tabPage == TabPage.Home) Purple100 else Green300 )
 
     // The coroutine scope for event handlers calling suspend functions.
     val coroutineScope = rememberCoroutineScope()
@@ -446,18 +447,14 @@ private fun HomeTabIndicator(
     val indicatorLeft = tabPositions[tabPage.ordinal].left
     val indicatorRight = tabPositions[tabPage.ordinal].right
     val color = if (tabPage == TabPage.Home) Purple700 else Green800
-    Box(
-        Modifier
-            .fillMaxSize()
-            .wrapContentSize(align = Alignment.BottomStart)
-            .offset(x = indicatorLeft)
-            .width(indicatorRight - indicatorLeft)
-            .padding(4.dp)
-            .fillMaxSize()
-            .border(
-                BorderStroke(2.dp, color),
-                RoundedCornerShape(4.dp)
-            )
+    Box(Modifier
+        .fillMaxSize()
+        .wrapContentSize(align = Alignment.BottomStart)
+        .offset(x = indicatorLeft)
+        .width(indicatorRight - indicatorLeft)
+        .padding(4.dp)
+        .fillMaxSize()
+        .border(BorderStroke(2.dp, color), RoundedCornerShape(4.dp))
     )
 }
 
