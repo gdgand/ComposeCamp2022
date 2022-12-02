@@ -16,13 +16,70 @@
 
 package com.google.samples.apps.sunflower.plantdetail
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.google.samples.apps.sunflower.R
+import com.google.samples.apps.sunflower.data.Plant
+import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
+
+/**
+ * 7. ViewModel 및 LiveData
+ * observeAsState를 통해 LiveData의 value를 옵저브할 수 있음
+ */
+@Composable
+fun PlantDetailDescription(
+    plantDetailViewModel: PlantDetailViewModel
+) {
+    val plant by plantDetailViewModel.plant.observeAsState()
+
+    plant?.let {
+        PlantDetailContent(it)
+    }
+}
 
 @Composable
-fun PlantDetailDescription() {
-    Surface {
-        Text("Hello Compose")
+fun PlantDetailContent(
+    plant: Plant
+) {
+    PlantName(name = plant.name)
+}
+
+/**
+ * 6. XML -> Composable
+ * dimensionResource나 stringResource를 통해 resources에 정의한 xml 접근 가능
+ * wrapContentWidth를 통해 가로 정렬
+ * fillMaxWidth <-> width match_parent
+ */
+@Composable
+fun PlantName(name: String) {
+    Text(
+        text = name,
+        style = MaterialTheme.typography.h5,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = dimensionResource(R.dimen.margin_small))
+            .wrapContentWidth(Alignment.CenterHorizontally)
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PlantNamePreview() {
+    val plant = Plant("id", "Apple", "description", 3, 30, "")
+
+    MaterialTheme {
+        PlantDetailContent(plant = plant)
     }
 }
