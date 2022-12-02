@@ -22,6 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -74,11 +75,24 @@ class PlantDetailFragment : Fragment() {
              * 5. Compose 시작
              * ComposeView를 통해 XML + Compose를 사용할 수 있음
              */
-            composeView.setContent {
-                MaterialTheme {
-                    PlantDetailDescription(plantDetailViewModel)
+
+            /**
+             * 10. ViewCompositionStrategy
+             * Compose는 View가 창에서 분리될 때마다 컴포지션을 삭제한다.
+             * Fragment에서는 ViewLifecycleOwner에 따라 상태를 저장하는 것이 좋다.
+             * Default로는 ViewCompositionStrategy#DisposeOnDetachedFromWindowOrReleasedFromPool
+             */
+            composeView.apply {
+                setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+                setContent {
+                    MaterialTheme {
+                        PlantDetailDescription(plantDetailViewModel)
+                    }
                 }
             }
+
 
             var isToolbarShown = false
 
