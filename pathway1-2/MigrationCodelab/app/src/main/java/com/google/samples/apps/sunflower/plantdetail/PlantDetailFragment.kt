@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -29,6 +30,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.samples.apps.sunflower.R
@@ -40,6 +42,11 @@ import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
 /**
  * A fragment representing a single Plant detail screen.
  */
+
+//Compose는 ComposeView가 창에서 분리될 때마다 컴포지션을 삭제합니다. 여러 가지 이유로 프래그먼트에서 ComposeView가 사용될 때에는 바람직하지 않습니다.
+//
+//컴포지션은 Compose UI View 유형을 위한 프래그먼트의 뷰 수명 주기에 따라 상태를 저장해야 합니다.
+//전환 또는 창 전환이 발생할 때 화면에 Compose UI 요소를 유지합니다. 전환 중에는 ComposeView가 창에서 분리된 후에도 계속 표시됩니다.
 class PlantDetailFragment : Fragment() {
 
     private val args: PlantDetailFragmentArgs by navArgs()
@@ -104,6 +111,26 @@ class PlantDetailFragment : Fragment() {
                         true
                     }
                     else -> false
+                }
+            }
+//            AbstractComposeView.disposeComposition 메서드를 수동으로 호출하여 컴포지션을 수동으로 삭제할 수 있습니다.
+//            대안으로 더 이상 필요하지 않은 컴포지션을 자동으로 삭제하려면 다른 전략을 설정하거나 setViewCompositionStrategy 메서드를 호출하여 전략을 직접 만듭니다.
+//
+//            DisposeOnViewTreeLifecycleDestroyed 전략을 사용하여 프래그먼트의 LifecycleOwner가 소멸되면 컴포지션을 삭제합니다.
+//
+//            이렇게 PlantDetailFragment가 전환에 들어가고 나오고(자세한 내용은 nav_garden.xml 확인)
+//            나중에 Compose 내에서 View 유형을 사용할 것이므로 ComposeView가 DisposeOnViewTreeLifecycleDestroyed 전략을 사용하는지 확인해야 합니다.
+//            그럼에도 불구하고 프래그먼트에서 ComposeView를 사용할 때는 항상 이 전략을 설정하는 것이 좋습니다.
+
+            composeView.apply {
+                // Dispose the Composition when the view's LifecycleOwner is detroyed
+                setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+                setContent {
+                    MdcTheme {
+                        PlantDetailDescription(plantDetailViewModel)
+                    }
                 }
             }
         }

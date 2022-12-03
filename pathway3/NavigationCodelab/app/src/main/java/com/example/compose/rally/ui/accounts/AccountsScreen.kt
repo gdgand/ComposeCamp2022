@@ -62,6 +62,7 @@ fun AccountsScreen(
  */
 @Composable
 fun SingleAccountScreen(
+    // composable 이 인수를 받아야 한다는 사실을 알 수 있도록
     accountType: String? = UserData.accounts.first().name
 ) {
     val account = remember(accountType) { UserData.getAccount(accountType) }
