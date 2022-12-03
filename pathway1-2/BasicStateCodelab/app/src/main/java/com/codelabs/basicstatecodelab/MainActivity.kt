@@ -1,9 +1,12 @@
 package com.codelabs.basicstatecodelab
 
 import android.os.Bundle
+import android.service.controls.Control.StatelessBuilder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -11,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 
@@ -25,7 +27,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    WaterCounter()
+                    WellnessScreen()
                 }
             }
         }
@@ -44,11 +46,8 @@ fun WaterCounter(modifier: Modifier = Modifier) {
         }
 
         if (count > 0) {
-//            var showTask by remember { // count 값이 0 이하면 삭제되어 넘을 때 다시 만들어짐
-//                mutableStateOf(true)
-//            }
             if (showTask) {
-                WellnessTaskItem(taskName = "15 walk today?", onClose = { showTask = false })
+                WellnessTaskItem(task = "15 walk today?")
             }
             Text(text = "current count : $count")
         }
@@ -74,28 +73,100 @@ fun WaterCounter(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun WellnessTaskItem(
-    taskName: String,
-    onClose: () -> Unit,
+fun WellnessScreen(modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        StatefulCounter()
+        WellnessTasksList()
+    }
+}
+
+@Composable
+fun StatefulCounter(modifier: Modifier = Modifier) {
+    var count by rememberSaveable {
+        mutableStateOf(0)
+    }
+    StatelessCounter(count = count, onIncrement = { count++ }, modifier = modifier)
+}
+
+@Composable
+fun StatelessCounter(
+    count: Int,
+    onIncrement: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = taskName, modifier = Modifier
-                .weight(1f)
-                .padding(start = 16.dp)
-        )
-        IconButton(onClick = onClose) {
-            Icon(imageVector = Icons.Filled.Close, contentDescription = null)
+    if (count > 0) {
 
+        Text(text = "current count : $count")
+    }
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.padding(top = 8.dp)
+    ) {
+
+        Button(
+            onClick = onIncrement,
+            enabled = count < 10
+        ) {
+            Text(text = "count up")
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun DefaultPreview() {
-    BasicStateCodelabTheme {
-        WaterCounter()
+fun WellnessTasksList(
+    modifier: Modifier = Modifier,
+    list: List<WellnessTask> = remember { getWellnessTasks() }
+) {
+    LazyColumn(modifier = modifier) {
+        items(list) { task ->
+            WellnessTaskItem(task.title)
+        }
     }
 }
+
+@Composable
+fun WellnessTaskItem(task: String, modifier: Modifier = Modifier) {
+    var checkedState by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    StatelessWellnessTaskItem(
+        task = task,
+        checked = checkedState,
+        onCheckedChange = { newCheckedState -> checkedState = newCheckedState },
+        onClose = {},
+        modifier = modifier
+    )
+}
+
+
+@Composable
+fun StatelessWellnessTaskItem(
+    task: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = task, modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp)
+        )
+
+        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
+
+        IconButton(onClick = onClose) {
+            Icon(imageVector = Icons.Filled.Close, contentDescription = null)
+        }
+    }
+}
+
+data class WellnessTask(
+    val id: Int,
+    val title: String
+)
+
+private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i") }

@@ -13,3 +13,13 @@ value 속성을 읽는 각 Composable 을 추적하고 그 value 가 변경 되�
 -> remember 를 사용
 remember는 컴포지션에 객체를 저장하고, remember가 호출되는 소스 위치가 리컴포지션 중에 다시 호출되지 않으면 객체를 삭제
 remember를 사용하면 리컴포지션 간에 상태를 유지하는 데 도움이 되지만 구성 변경 간에는 유지안됨. 이를 위해서는 remember 대신 rememberSaveable을 사용
+
+- remember 를 사용하는 컴포저블은 내부상태가 포함되어있으므로 Stateful. (반대가 Stateless) 
+  - 장 : 호출자가 상태를 직접 관리하지 않아도 된다면 유용
+  - 단 : 재사용 가능성이 적고, 테스트하기 더 어렵게함
+
+- 상태 호이스팅
+  - Composable 을 Stateless 로 만들기 위해 상태를 호출자로 옮기는 패턴.
+  - 일반적으로 value: T 와 onValueChange: (T) -> Unit 을 매개변수로 바꾸는 패턴이 있음.
+  - Composable 에서 UDF (단방향 데이터 흐름) 을 구현하는 방법
+- 
