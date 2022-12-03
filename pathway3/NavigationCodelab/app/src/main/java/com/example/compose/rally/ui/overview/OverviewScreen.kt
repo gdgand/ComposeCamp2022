@@ -76,6 +76,7 @@ fun OverviewScreen(
             onClickSeeAll = onClickSeeAllAccounts,
             onAccountClick = onAccountClick
         )
+
         Spacer(Modifier.height(RallyDefaultPadding))
         BillsCard(
             onClickSeeAll = onClickSeeAllBills
