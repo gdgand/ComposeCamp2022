@@ -1,7 +1,6 @@
 package com.codelabs.basicstatecodelab
 
 import android.os.Bundle
-import android.service.controls.Control.StatelessBuilder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -15,6 +14,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 
 class MainActivity : ComponentActivity() {
@@ -41,14 +42,7 @@ fun WaterCounter(modifier: Modifier = Modifier) {
             mutableStateOf(0)
         }
 
-        var showTask by remember {
-            mutableStateOf(true)
-        }
-
         if (count > 0) {
-            if (showTask) {
-                WellnessTaskItem(task = "15 walk today?")
-            }
             Text(text = "current count : $count")
         }
 
@@ -73,10 +67,15 @@ fun WaterCounter(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun WellnessScreen(modifier: Modifier = Modifier) {
+fun WellnessScreen(modifier: Modifier = Modifier, viewModel: WellnessViewModel = viewModel()) {
     Column(modifier = modifier) {
         StatefulCounter()
-        WellnessTasksList()
+
+        WellnessTasksList(
+            list = viewModel.tasks,
+            onCheckedChange = { task, checked -> viewModel.changeTaskChecked(task, checked) },
+            onCloseTask = { task -> viewModel.remove(task) }
+        )
     }
 }
 
@@ -116,30 +115,25 @@ fun StatelessCounter(
 @Composable
 fun WellnessTasksList(
     modifier: Modifier = Modifier,
-    list: List<WellnessTask> = remember { getWellnessTasks() }
+    onCheckedChange: (WellnessTask, Boolean) -> Unit,
+    onCloseTask: (WellnessTask) -> Unit,
+    list: List<WellnessTask>
 ) {
     LazyColumn(modifier = modifier) {
-        items(list) { task ->
-            WellnessTaskItem(task.title)
+        items(
+            items = list,
+            key = { task -> task.id }
+        ) { task ->
+            StatelessWellnessTaskItem(
+                task = task.title,
+                checked = task.checked,
+                onCheckedChange = { newCheckedState -> onCheckedChange(task, newCheckedState)},
+                onClose = { onCloseTask(task) },
+                modifier = modifier
+            )
         }
     }
 }
-
-@Composable
-fun WellnessTaskItem(task: String, modifier: Modifier = Modifier) {
-    var checkedState by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    StatelessWellnessTaskItem(
-        task = task,
-        checked = checkedState,
-        onCheckedChange = { newCheckedState -> checkedState = newCheckedState },
-        onClose = {},
-        modifier = modifier
-    )
-}
-
 
 @Composable
 fun StatelessWellnessTaskItem(
@@ -163,10 +157,3 @@ fun StatelessWellnessTaskItem(
         }
     }
 }
-
-data class WellnessTask(
-    val id: Int,
-    val title: String
-)
-
-private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i") }
