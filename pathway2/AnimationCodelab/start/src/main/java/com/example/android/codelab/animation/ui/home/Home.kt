@@ -16,8 +16,9 @@
 
 package com.example.android.codelab.animation.ui.home
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.splineBasedDecay
+import android.util.Log
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -158,7 +159,14 @@ fun Home() {
 
     // The background color. The value is changed by the current tab.
     // TODO 1: Animate this color change.
-    val backgroundColor = if (tabPage == TabPage.Home) Purple100 else Green300
+//    val backgroundColor = if (tabPage == TabPage.Home) Purple100 else Green300
+
+    /**
+     * 3. 간단한 값 변경 애니메이션
+     * animate*AsState API를 사용할 수 있다.
+     * Color값을 애니메이션값이 적용된 State로 반환하기 위해 animateColorAsState를 사용할 수 있다.
+     */
+    val backgroundColor by animateColorAsState(targetValue = if (tabPage == TabPage.Home) Purple100 else Green300)
 
     // The coroutine scope for event handlers calling suspend functions.
     val coroutineScope = rememberCoroutineScope()
@@ -271,7 +279,19 @@ private fun HomeFloatingActionButton(
             )
             // Toggle the visibility of the content with animation.
             // TODO 2-1: Animate this visibility change.
-            if (extended) {
+//            if (extended) {
+//                Text(
+//                    text = stringResource(R.string.edit),
+//                    modifier = Modifier
+//                        .padding(start = 8.dp, top = 3.dp)
+//                )
+//            }
+
+            /**
+             * visibility 변경에 애니메이션 효과를 적용하기위해 AnimatedVisibility를 적용할 수 있다.
+             * 지정된 Boolean 값이 변경될 때마다 애니메이션을 실행
+             */
+            AnimatedVisibility(extended) {
                 Text(
                     text = stringResource(R.string.edit),
                     modifier = Modifier
@@ -289,8 +309,20 @@ private fun HomeFloatingActionButton(
 private fun EditMessage(shown: Boolean) {
     // TODO 2-2: The message should slide down from the top on appearance and slide up on
     //           disappearance.
+    /**
+     * 4. 가시성 애니메이션
+     * AnimatedVisibility의 enter, exit으로 애니메이션 방식을 추가할 수 있다.
+     */
     AnimatedVisibility(
-        visible = shown
+        visible = shown,
+        enter = slideInVertically(
+            initialOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
+        ),
+        exit = slideOutVertically(
+            targetOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
+        )
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -360,10 +392,15 @@ private fun TopicRow(topic: String, expanded: Boolean, onClick: () -> Unit) {
         onClick = onClick
     ) {
         // TODO 3: Animate the size change of the content.
+        /**
+         * 5. 콘텐츠 크기 변경 애니메이션
+         * 컨텐츠의 크기가 변경됨에 따라 애니메이션을 적용시키기 위해 animateContentSize를 적용
+         */
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
+                .animateContentSize()
         ) {
             Row {
                 Icon(
@@ -443,9 +480,25 @@ private fun HomeTabIndicator(
     tabPage: TabPage
 ) {
     // TODO 4: Animate these value changes.
-    val indicatorLeft = tabPositions[tabPage.ordinal].left
-    val indicatorRight = tabPositions[tabPage.ordinal].right
-    val color = if (tabPage == TabPage.Home) Purple700 else Green800
+
+    /**
+     * 6. 여러 값 애니메이션
+     * 여러 값에 동시에 에니메이션을 적용하려면 Transition 사용
+     * updateTransition을 통해 생성
+     *
+     */
+    val transition = updateTransition(targetState = tabPage, label = "Tab Indicator")
+
+    val indicatorLeft by transition.animateDp(label = "Indicator Left") { page ->
+        tabPositions[page.ordinal].left
+    }
+    val indicatorRight by transition.animateDp(label = "Indicator Right") { page ->
+        tabPositions[page.ordinal].right
+    }
+    val color by transition.animateColor(label = "Border Color") { page ->
+        if (page == TabPage.Home) Purple700 else Green800
+    }
+
     Box(
         Modifier
             .fillMaxSize()
@@ -531,7 +584,19 @@ private fun WeatherRow(
 @Composable
 private fun LoadingRow() {
     // TODO 5: Animate this value between 0f and 1f, then back to 0f repeatedly.
-    val alpha = 1f
+    val infiniteTransition = rememberInfiniteTransition()
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = 1000
+                0.7f to 500
+            },
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+//    val alpha = 1f
     Row(
         modifier = Modifier
             .heightIn(min = 64.dp)
