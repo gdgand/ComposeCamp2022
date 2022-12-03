@@ -42,3 +42,12 @@ class DetailsViewModel @Inject constructor(
             }
         }
 }
+
+/**
+ * Detail Screen Ui State
+ */
+data class DetailUiState(
+    val cityDetail: ExploreModel? = null,
+    val isLoading: Boolean = false,
+    val throwError: Boolean = false
+)
