@@ -16,9 +16,11 @@
 
 package com.example.android.codelab.animation.ui.home
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.splineBasedDecay
+import android.util.Log
+import androidx.compose.animation.*
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -279,7 +281,19 @@ private fun HomeFloatingActionButton(
             )
             // Toggle the visibility of the content with animation.
             // TODO 2-1: Animate this visibility change.
-            if (extended) {
+//            if (extended) {
+//                Text(
+//                    text = stringResource(R.string.edit),
+//                    modifier = Modifier
+//                        .padding(start = 8.dp, top = 3.dp)
+//                )
+//            }
+
+            /**
+             * visibility 변경에 애니메이션 효과를 적용하기위해 AnimatedVisibility를 적용할 수 있다.
+             * 지정된 Boolean 값이 변경될 때마다 애니메이션을 실행
+             */
+            AnimatedVisibility(extended) {
                 Text(
                     text = stringResource(R.string.edit),
                     modifier = Modifier
@@ -297,8 +311,20 @@ private fun HomeFloatingActionButton(
 private fun EditMessage(shown: Boolean) {
     // TODO 2-2: The message should slide down from the top on appearance and slide up on
     //           disappearance.
+    /**
+     * 4. 가시성 애니메이션
+     * AnimatedVisibility의 enter, exit으로 애니메이션 방식을 추가할 수 있다.
+     */
     AnimatedVisibility(
-        visible = shown
+        visible = shown,
+        enter = slideInVertically(
+            initialOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
+        ),
+        exit = slideOutVertically(
+            targetOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
+        )
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
