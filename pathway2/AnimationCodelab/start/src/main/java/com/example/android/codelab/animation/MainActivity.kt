@@ -19,6 +19,7 @@ package com.example.android.codelab.animation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material.Text
 import com.example.android.codelab.animation.ui.AnimationCodelabTheme
 import com.example.android.codelab.animation.ui.home.Home
 
