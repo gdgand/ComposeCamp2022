@@ -28,7 +28,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.compose.rally.ui.accounts.AccountsScreen
+import com.example.compose.rally.ui.bills.BillsScreen
 import com.example.compose.rally.ui.components.RallyTabRow
+import com.example.compose.rally.ui.overview.OverviewScreen
 import com.example.compose.rally.ui.theme.RallyTheme
 
 /**
@@ -48,6 +54,8 @@ class RallyActivity : ComponentActivity() {
 fun RallyApp() {
     RallyTheme {
         var currentScreen: RallyDestination by remember { mutableStateOf(Overview) }
+        val navController = rememberNavController()
+
         Scaffold(
             topBar = {
                 RallyTabRow(
@@ -57,8 +65,22 @@ fun RallyApp() {
                 )
             }
         ) { innerPadding ->
-            Box(Modifier.padding(innerPadding)) {
-                currentScreen.screen()
+            NavHost(
+                navController = navController,
+                startDestination = Overview.route,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable(route = Overview.route) {
+                    OverviewScreen()
+                }
+
+                composable(route = Accounts.route) {
+                    AccountsScreen()
+                }
+
+                composable(route = Bills.route) {
+                    BillsScreen()
+                }
             }
         }
     }
