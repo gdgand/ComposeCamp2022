@@ -20,18 +20,16 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.Navigation.findNavController
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasType
-import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.intent.matcher.IntentMatchers.*
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.testing.TestListenableWorkerBuilder
@@ -50,16 +48,14 @@ class PlantDetailFragmentTest {
 
     @Rule
     @JvmField
-    val activityTestRule = ActivityScenarioRule(GardenActivity::class.java)
-
-    // Note that keeping these references is only safe if the activity is not recreated.
+    val composeTestRule = createAndroidComposeRule<GardenActivity>()
     private lateinit var activity: ComponentActivity
 
     @Before
     fun jumpToPlantDetailFragment() {
         populateDatabase()
 
-        activityTestRule.scenario.onActivity { gardenActivity ->
+        composeTestRule.activityRule.scenario.onActivity { gardenActivity ->
             activity = gardenActivity
 
             val bundle = Bundle().apply { putString("plantId", "malus-pumila") }
@@ -69,8 +65,7 @@ class PlantDetailFragmentTest {
 
     @Test
     fun testPlantName() {
-        onView(ViewMatchers.withText("Apple"))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        composeTestRule.onNodeWithText("Apple").assertIsDisplayed()
     }
 
     @Test
@@ -89,17 +84,11 @@ class PlantDetailFragmentTest {
             )
         )
         Intents.release()
-
-        // dismiss the Share Dialog
         InstrumentationRegistry.getInstrumentation()
             .uiAutomation
             .performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
     }
 
-    // TODO: This workaround is needed due to the real database being used in tests.
-    //  A fake database created with a Room.inMemoryDatabaseBuilder should be used instead.
-    //  That's difficult to do in the current state of the project since there are no
-    //  dependency injection best practices in place.
     private fun populateDatabase() {
         val request = TestListenableWorkerBuilder<SeedDatabaseWorker>(
             InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
