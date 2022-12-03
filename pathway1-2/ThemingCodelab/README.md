@@ -12,6 +12,7 @@ In this codelab you will learn how to use [Jetpack Compose](https://developer.an
 
 ## License
 
+
 ```
 Copyright 2020 The Android Open Source Project
 
