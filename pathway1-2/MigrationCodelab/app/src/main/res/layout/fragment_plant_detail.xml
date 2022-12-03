@@ -93,6 +93,12 @@
             android:paddingBottom="@dimen/fab_bottom_padding"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/compose_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+<!--
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -156,6 +162,7 @@
                     tools:text="Details about the plant" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+-->
 
         </androidx.core.widget.NestedScrollView>
 
