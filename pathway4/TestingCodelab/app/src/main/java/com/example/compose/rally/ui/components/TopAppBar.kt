@@ -95,6 +95,7 @@ private fun RallyTab(
     Row(
         modifier = Modifier
             .padding(16.dp)
+            .clearAndSetSemantics { contentDescription = text }
             .animateContentSize()
             .height(TabHeight)
             .selectable(
