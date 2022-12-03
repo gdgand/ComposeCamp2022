@@ -29,8 +29,3 @@ fun StatelessCounter(count: Int, onIncrement: () -> Unit, modifier: Modifier = M
         }
     }
 }
-
-@Composable
-fun WellnessScreen(modifier: Modifier = Modifier) {
-    StatefulCounter()
-}
