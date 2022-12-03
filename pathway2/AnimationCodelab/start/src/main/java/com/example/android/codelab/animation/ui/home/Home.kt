@@ -394,10 +394,15 @@ private fun TopicRow(topic: String, expanded: Boolean, onClick: () -> Unit) {
         onClick = onClick
     ) {
         // TODO 3: Animate the size change of the content.
+        /**
+         * 5. 콘텐츠 크기 변경 애니메이션
+         * 컨텐츠의 크기가 변경됨에 따라 애니메이션을 적용시키기 위해 animateContentSize를 적용
+         */
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
+                .animateContentSize()
         ) {
             Row {
                 Icon(
