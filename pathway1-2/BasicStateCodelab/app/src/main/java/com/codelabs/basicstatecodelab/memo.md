@@ -11,3 +11,5 @@ value 속성을 읽는 각 Composable 을 추적하고 그 value 가 변경 되�
 
 어떻게 리컴포지션 간에 데이터를 유지하는가?
 -> remember 를 사용
+remember는 컴포지션에 객체를 저장하고, remember가 호출되는 소스 위치가 리컴포지션 중에 다시 호출되지 않으면 객체를 삭제
+remember를 사용하면 리컴포지션 간에 상태를 유지하는 데 도움이 되지만 구성 변경 간에는 유지안됨. 이를 위해서는 remember 대신 rememberSaveable을 사용
