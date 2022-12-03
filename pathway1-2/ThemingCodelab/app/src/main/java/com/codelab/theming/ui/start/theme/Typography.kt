@@ -60,7 +60,7 @@ val JetnewsTypography = Typography(
         fontSize = 14.sp
     ),
     caption = TextStyle(
-        fontFamily = Montserrat,
+        fontFamily = Domine,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp
     ),
