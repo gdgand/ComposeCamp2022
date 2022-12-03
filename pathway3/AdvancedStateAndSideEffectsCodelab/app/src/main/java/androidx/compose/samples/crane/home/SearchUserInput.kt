@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.samples.crane.R
 import androidx.compose.samples.crane.base.CraneEditableUserInput
 import androidx.compose.samples.crane.base.CraneUserInput
+import androidx.compose.samples.crane.base.rememberEditableUserInputState
 import androidx.compose.samples.crane.home.PeopleUserInputAnimationState.Invalid
 import androidx.compose.samples.crane.home.PeopleUserInputAnimationState.Valid
 import androidx.compose.samples.crane.ui.CraneTheme
@@ -97,11 +98,11 @@ fun FromDestination() {
 
 @Composable
 fun ToDestinationUserInput(onToDestinationChanged: (String) -> Unit) {
+    val editableUserInputState = rememberEditableUserInputState(hint = "Choose Destination")
     CraneEditableUserInput(
-        hint = "Choose Destination",
+        state = editableUserInputState,
         caption = "To",
         vectorImageId = R.drawable.ic_plane,
-        onInputChanged = onToDestinationChanged
     )
 }
 
