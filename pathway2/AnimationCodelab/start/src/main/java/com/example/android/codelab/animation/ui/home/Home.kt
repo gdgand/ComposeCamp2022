@@ -17,6 +17,7 @@
 package com.example.android.codelab.animation.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -158,7 +159,14 @@ fun Home() {
 
     // The background color. The value is changed by the current tab.
     // TODO 1: Animate this color change.
-    val backgroundColor = if (tabPage == TabPage.Home) Purple100 else Green300
+//    val backgroundColor = if (tabPage == TabPage.Home) Purple100 else Green300
+
+    /**
+     * 3. 간단한 값 변경 애니메이션
+     * animate*AsState API를 사용할 수 있다.
+     * Color값을 애니메이션값이 적용된 State로 반환하기 위해 animateColorAsState를 사용할 수 있다.
+     */
+    val backgroundColor by animateColorAsState(targetValue = if (tabPage == TabPage.Home) Purple100 else Green300)
 
     // The coroutine scope for event handlers calling suspend functions.
     val coroutineScope = rememberCoroutineScope()
