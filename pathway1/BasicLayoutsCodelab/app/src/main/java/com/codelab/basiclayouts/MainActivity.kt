@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -38,7 +39,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -71,37 +74,27 @@ class MainActivity : ComponentActivity() {
 fun SearchBar(
     modifier: Modifier = Modifier
 ) {
-    TextField(
-        value = " ",
-        onValueChange = {},
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null
-            )
-        },
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = MaterialTheme.colors.surface
-        ),
-        placeholder = {
-            Text(stringResource(R.string.placeholder_search))
-        },
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp)
+    TextField(value = " ", onValueChange = {}, leadingIcon = {
+        Icon(
+            imageVector = Icons.Default.Search, contentDescription = null
+        )
+    }, colors = TextFieldDefaults.textFieldColors(
+        backgroundColor = MaterialTheme.colors.surface
+    ), placeholder = {
+        Text(stringResource(R.string.placeholder_search))
+    }, modifier = modifier
+        .fillMaxWidth()
+        .heightIn(min = 56.dp)
     )
 }
 
 // Step: Align your body - Alignment
 @Composable
 fun AlignYourBodyElement(
-    @DrawableRes drawable: Int,
-    @StringRes text: Int,
-    modifier: Modifier = Modifier
+    @DrawableRes drawable: Int, @StringRes text: Int, modifier: Modifier = Modifier
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier
     ) {
         Image(
             painter = painterResource(id = drawable),
@@ -124,17 +117,13 @@ fun AlignYourBodyElement(
 // Step: Favorite collection card - Material Surface
 @Composable
 fun FavoriteCollectionCard(
-    @DrawableRes drawable: Int,
-    @StringRes text: Int,
-    modifier: Modifier = Modifier
+    @DrawableRes drawable: Int, @StringRes text: Int, modifier: Modifier = Modifier
 ) {
     Surface(
-        shape = MaterialTheme.shapes.small,
-        modifier = modifier
+        shape = MaterialTheme.shapes.small, modifier = modifier
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.width(192.dp)
+            verticalAlignment = Alignment.CenterVertically, modifier = Modifier.width(192.dp)
         ) {
             Image(
                 painter = painterResource(id = drawable),
@@ -143,8 +132,7 @@ fun FavoriteCollectionCard(
                 modifier = Modifier.size(56.dp)
             )
             Text(
-                text = stringResource(id = text),
-                modifier = Modifier.padding(horizontal = 16.dp)
+                text = stringResource(id = text), modifier = Modifier.padding(horizontal = 16.dp)
             )
         }
     }
@@ -180,9 +168,7 @@ fun FavoriteCollectionsGrid(
     ) {
         items(favoriteCollectionsData) { item ->
             FavoriteCollectionCard(
-                drawable = item.drawable,
-                text = item.text,
-                modifier = Modifier.height(56.dp)
+                drawable = item.drawable, text = item.text, modifier = Modifier.height(56.dp)
             )
         }
     }
@@ -191,9 +177,7 @@ fun FavoriteCollectionsGrid(
 // Step: Home section - Slot APIs
 @Composable
 fun HomeSection(
-    @StringRes title: Int,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    @StringRes title: Int, modifier: Modifier = Modifier, content: @Composable () -> Unit
 ) {
     Column(modifier) {
         Text(
@@ -210,7 +194,21 @@ fun HomeSection(
 // Step: Home screen - Scrolling
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    // Implement composable here
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 16.dp)
+    ) {
+        Spacer(Modifier.height(16.dp))
+        SearchBar(Modifier.padding(horizontal = 16.dp))
+        HomeSection(title = R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+        HomeSection(title = R.string.favorite_collections) {
+            FavoriteCollectionsGrid()
+        }
+        Spacer(Modifier.height(16.dp))
+    }
 }
 
 // Step: Bottom navigation - Material
@@ -244,8 +242,7 @@ private val favoriteCollectionsData = listOf(
 ).map { DrawableStringPair(it.first, it.second) }
 
 private data class DrawableStringPair(
-    @DrawableRes val drawable: Int,
-    @StringRes val text: Int
+    @DrawableRes val drawable: Int, @StringRes val text: Int
 )
 
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
@@ -300,7 +297,7 @@ fun HomeSectionPreview() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
+@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2, heightDp = 180)
 @Composable
 fun ScreenContentPreview() {
     MySootheTheme { HomeScreen() }
