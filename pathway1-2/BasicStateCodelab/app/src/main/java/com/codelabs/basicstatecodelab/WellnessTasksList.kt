@@ -11,13 +11,18 @@ private fun getWellnessTasks() = List(30) { i -> WellnessTask(i, "Task # $i") }
 @Composable
 fun WellnessTasksList(
     modifier: Modifier = Modifier,
+    onCheckedTask: (WellnessTask, Boolean) -> Unit,
+    onCloseTask: (WellnessTask) -> Unit,
     list: List<WellnessTask> = remember { getWellnessTasks() }
 ) {
-    LazyColumn(
-        modifier = modifier
-    ) {
-        items(list) { task ->
-            WellnessTaskItem(taskName = task.label)
+    LazyColumn(modifier = modifier) {
+        items(items = list,
+            key = { task -> task.id }
+        ) { task ->
+            WellnessTaskItem(taskName = task.label,
+                checked = task.checked,
+                onCheckedChange = { checked -> onCheckedTask(task, checked) },
+                onClose = { onCloseTask(task) })
         }
     }
 }

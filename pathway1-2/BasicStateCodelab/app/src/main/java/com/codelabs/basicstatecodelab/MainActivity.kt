@@ -36,7 +36,7 @@ fun Greeting(name: String) {
 @Preview(showBackground = true)
 @Composable
 fun WellnessScreenPreview(){
-    BasicStateCodelabTheme() {
+    BasicStateCodelabTheme {
         WellnessScreen()
     }
 }
