@@ -18,4 +18,4 @@
 
 ## 체크사항
 - 잊지마세요! 수료폼에 작성한 이 PR 링크를 넣어서 제출 부탁드립니다. 
-- 수료폼 작성하러 가기 : bit.ly/compose_camp_2022_final
+- [수료폼 작성하러 가기](https://forms.gle/myphy3UTHN1iiHfN7)
