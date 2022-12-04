@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -67,12 +68,16 @@ fun StateLessCounter(count: Int, onIncrement: () -> Unit, modifier: Modifier = M
 
 @Composable
 fun WellnessTasksList(
-    modifier: Modifier = Modifier,
-    list: List<WellnessTask> = remember { getWellnessTasks() }
+    list: List<WellnessTask> = remember { getWellnessTasks() },
+    onCloseTask: (WellnessTask) -> Boolean,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
-        items(list) { task ->
-            WellnessTaskItem(taskName = task.label)
+        items(
+            items = list,
+            key = { task -> task.id }
+        ) { task ->
+            WellnessTaskItem(taskName = task.label, onClose = { onCloseTask(task) })
         }
     }
 }
@@ -81,6 +86,7 @@ fun WellnessTasksList(
 @Composable
 fun WellnessTaskItem(
     taskName: String,
+    onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var checkedState by rememberSaveable { mutableStateOf(false) }
@@ -89,7 +95,7 @@ fun WellnessTaskItem(
         taskName = taskName,
         checked = checkedState,
         onCheckedChange = { newValue -> checkedState = newValue },
-        onClose = {},
+        onClose = onClose,
         modifier = modifier
     )
 }
@@ -126,7 +132,9 @@ fun WellnessTaskItem(
 fun WellnessScreen(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         StateFullCounter()
-        WellnessTasksList()
+
+        val list = remember { getWellnessTasks().toMutableStateList() }
+        WellnessTasksList(list = list, onCloseTask = { task -> list.remove(task) })
     }
 }
 
