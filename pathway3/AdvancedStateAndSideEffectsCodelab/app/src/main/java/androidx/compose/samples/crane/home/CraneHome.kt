@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.statusBarsPadding
+import kotlinx.coroutines.launch
 
 typealias OnExploreItemClicked = (ExploreModel) -> Unit
 
@@ -53,12 +54,15 @@ fun CraneHome(
             CraneDrawer()
         }
     ) { padding ->
+        val scope = rememberCoroutineScope()
         CraneHomeContent(
             modifier = modifier.padding(padding),
             onExploreItemClicked = onExploreItemClicked,
             openDrawer = {
                 // TODO Codelab: rememberCoroutineScope step - open the navigation drawer
-//                 scaffoldState.drawerState.open()
+                scope.launch {
+                    scaffoldState.drawerState.open()
+                }
             }
         )
     }
@@ -77,6 +81,7 @@ fun CraneHomeContent(
 
     val onPeopleChanged: (Int) -> Unit = { viewModel.updatePeople(it) }
     var tabSelected by remember { mutableStateOf(CraneScreen.Fly) }
+
 
     BackdropScaffold(
         modifier = modifier,
