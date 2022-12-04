@@ -23,12 +23,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.compose.rally.ui.accounts.AccountsScreen
+import com.example.compose.rally.ui.bills.BillsScreen
 import com.example.compose.rally.ui.components.RallyTabRow
+import com.example.compose.rally.ui.overview.OverviewScreen
 import com.example.compose.rally.ui.theme.RallyTheme
 
 /**
@@ -57,13 +61,9 @@ fun RallyApp() {
                 RallyTabRow(
                     allScreens = rallyTabRowScreens,
                     onTabSelected = { screen ->
-                        navController.navigate(screen.route) {
-                            launchSingleTop = true
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            restoreState = true
-                        }
+                        navController.navigateSingleTop(screen.route)
                     },
-                    currentScreen = currentScreen
+                    currentScreen = checkNotNull(currentScreen) { "Current Screen Null" }
                 )
             }
         ) { innerPadding ->
@@ -73,16 +73,25 @@ fun RallyApp() {
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(route = Overview.route) {
-                    Overview.screen()
+                    OverviewScreen(
+                        onClickSeeAllAccounts = { navController.navigateSingleTop(Accounts.route) },
+                        onClickSeeAllBills = { navController.navigateSingleTop(Bills.route) }
+                    )
                 }
 
                 composable(route = Accounts.route) {
-                    Accounts.screen()
+                    AccountsScreen()
                 }
                 composable(route = Bills.route) {
-                    Bills.screen()
+                    BillsScreen()
                 }
             }
         }
     }
+}
+
+fun NavController.navigateSingleTop(route: String) = navigate(route) {
+    launchSingleTop = true
+    popUpTo(graph.findStartDestination().id) { saveState = true }
+    restoreState = true
 }
