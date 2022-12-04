@@ -169,7 +169,7 @@ fun HomeSection(
                 .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
                 .padding(horizontal = 16.dp)
         )
-        content
+        content()
     }
 }
 
@@ -223,10 +223,15 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
     }
 }
 
-// Step: MySoothe App - Scaffold
 @Composable
 fun MySootheApp() {
-    // Implement composable here
+    MySootheTheme {
+        Scaffold(
+            bottomBar = { SootheBottomNavigation()}
+        ) { padding ->
+            HomeScreen(Modifier.padding(padding))
+        }
+    }
 }
 
 private val alignYourBodyData = listOf(
