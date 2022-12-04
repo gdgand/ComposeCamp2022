@@ -63,7 +63,8 @@ fun RallyApp() {
                     onTabSelected = { newScreen ->
                         navController.navigateSingleTopTo(newScreen.route)
                     },
-                    currentScreen = rallyTabRowScreens.find { it.route == currentDestination?.route } ?: Overview
+                    currentScreen = rallyTabRowScreens.find { it.route == currentDestination?.route }
+                        ?: Overview
                 )
             }
         ) { innerPadding ->
@@ -73,7 +74,14 @@ fun RallyApp() {
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(route = Overview.route) {
-                    OverviewScreen()
+                    OverviewScreen(
+                        onClickSeeAllAccounts = {
+                            navController.navigateSingleTopTo(Accounts.route)
+                        },
+                        onClickSeeAllBills = {
+                            navController.navigateSingleTopTo(Bills.route)
+                        }
+                    )
                 }
 
                 composable(route = Accounts.route) {
