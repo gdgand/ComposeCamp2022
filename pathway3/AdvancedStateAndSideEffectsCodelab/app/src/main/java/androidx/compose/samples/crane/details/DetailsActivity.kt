@@ -39,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -61,8 +62,52 @@ import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.LatLng
 import com.google.maps.android.ktx.addMarker
 import com.google.maps.android.ktx.awaitMap
+import com.google.maps.android.ktx.model.streetViewPanoramaOrientation
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
+data class DetailsUiState(
+    val cityDetails: ExploreModel? = null,
+    val isLoading: Boolean = false,
+    val throwError: Boolean = false
+)
+
+@Composable
+fun DetailScreen(
+    onErrorLoading: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: DetailsViewModel = viewModel()
+) {
+    val uiState by produceState(initialValue = DetailsUiState(isLoading = true)) {
+        val cityDetailsResult = viewModel.cityDetails
+        value = if(cityDetailsResult is Result.Success<ExploreModel>) {
+            DetailsUiState(cityDetails = cityDetailsResult.data)
+        } else {
+            DetailsUiState(throwError = true)
+        }
+    }
+
+    when {
+        uiState.cityDetails != null {
+            DetailsContent(
+                cityDetails = uiState.cityDetails,
+                modifier = modifier.fillMaxSize()
+            )
+        }
+        uiState.isLoading -> {
+            Box(modifier.fillMaxSize()){
+                CircularProgressIndicator(
+                    color = MaterialTheme.colors.onSurface,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+        else -> { onErrorLoading() }
+    }
+
+}
+
+
 
 internal const val KEY_ARG_DETAILS_CITY_NAME = "KEY_ARG_DETAILS_CITY_NAME"
 
