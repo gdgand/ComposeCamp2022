@@ -52,11 +52,11 @@ android {
         kotlinCompilerExtensionVersion rootProject.composeCompilerVersion
     }
     packagingOptions {
-        // Multiple dependency bring these files in. Exclude them to enable
-        // our test APK to build (has no effect on our AARs)
-        excludes += "/META-INF/AL2.0"
-        excludes += "/META-INF/LGPL2.1"
+        resources {
+            excludes += ['/META-INF/AL2.0', '/META-INF/LGPL2.1']
+        }
     }
+    namespace 'com.google.samples.apps.sunflower'
 }
 
 dependencies {
@@ -83,14 +83,16 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutinesVersion"
 
     // Compose
-    implementation "androidx.compose.runtime:runtime:$rootProject.composeVersion"
-    implementation "androidx.compose.ui:ui:$rootProject.composeVersion"
-    implementation "androidx.compose.foundation:foundation:$rootProject.composeVersion"
-    implementation "androidx.compose.foundation:foundation-layout:$rootProject.composeVersion"
-    implementation "androidx.compose.material:material:$rootProject.composeVersion"
-    implementation "androidx.compose.runtime:runtime-livedata:$rootProject.composeVersion"
-    implementation "androidx.compose.ui:ui-tooling-preview:$rootProject.composeVersion"
-    debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
+    implementation platform('androidx.compose:compose-bom:2022.11.00')
+    androidTestImplementation platform('androidx.compose:compose-bom:2022.11.00')
+    implementation "androidx.compose.runtime:runtime"
+    implementation "androidx.compose.ui:ui"
+    implementation "androidx.compose.foundation:foundation"
+    implementation "androidx.compose.foundation:foundation-layout"
+    implementation "androidx.compose.material:material"
+    implementation "androidx.compose.runtime:runtime-livedata"
+    implementation "androidx.compose.ui:ui-tooling-preview"
+    debugImplementation "androidx.compose.ui:ui-tooling"
 
     implementation "com.google.android.material:compose-theme-adapter:$rootProject.materialComposeAdapterVersion"
 
@@ -103,6 +105,6 @@ dependencies {
     androidTestImplementation "androidx.test.uiautomator:uiautomator:$rootProject.uiAutomatorVersion"
     androidTestImplementation "androidx.work:work-testing:$rootProject.workVersion"
     androidTestImplementation "com.google.truth:truth:$rootProject.truthVersion"
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$rootProject.composeVersion"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4"
     testImplementation "junit:junit:$rootProject.junitVersion"
 }
