@@ -22,6 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -57,59 +58,68 @@ class PlantDetailFragment : Fragment() {
         val binding = DataBindingUtil.inflate<FragmentPlantDetailBinding>(
             inflater, R.layout.fragment_plant_detail, container, false
         ).apply {
-            composeView.setContent {
-                MaterialTheme {
-                    PlantDetailDescription(plantDetailViewModel)
-                }
-            }
-            viewModel = plantDetailViewModel
-            lifecycleOwner = viewLifecycleOwner
-            callback = object : Callback {
-                override fun add(plant: Plant?) {
-                    plant?.let {
-                        hideAppBarFab(fab)
-                        plantDetailViewModel.addPlantToGarden()
-                        Snackbar.make(root, R.string.added_plant_to_garden, Snackbar.LENGTH_LONG)
-                            .show()
+            composeView.apply {
+                setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+                setContent {
+                    MaterialTheme {
+                        PlantDetailDescription(plantDetailViewModel)
                     }
                 }
-            }
-
-            var isToolbarShown = false
-
-            // scroll change listener begins at Y = 0 when image is fully collapsed
-            plantDetailScrollview.setOnScrollChangeListener(
-                NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
-
-                    // User scrolled past image to height of toolbar and the title text is
-                    // underneath the toolbar, so the toolbar should be shown.
-                    val shouldShowToolbar = scrollY > toolbar.height
-
-                    // The new state of the toolbar differs from the previous state; update
-                    // appbar and toolbar attributes.
-                    if (isToolbarShown != shouldShowToolbar) {
-                        isToolbarShown = shouldShowToolbar
-
-                        // Use shadow animator to add elevation if toolbar is shown
-                        appbar.isActivated = shouldShowToolbar
-
-                        // Show the plant name if toolbar is shown
-                        toolbarLayout.isTitleEnabled = shouldShowToolbar
+                viewModel = plantDetailViewModel
+                lifecycleOwner = viewLifecycleOwner
+                callback = object : Callback {
+                    override fun add(plant: Plant?) {
+                        plant?.let {
+                            hideAppBarFab(fab)
+                            plantDetailViewModel.addPlantToGarden()
+                            Snackbar.make(
+                                root,
+                                R.string.added_plant_to_garden,
+                                Snackbar.LENGTH_LONG
+                            )
+                                .show()
+                        }
                     }
                 }
-            )
 
-            toolbar.setNavigationOnClickListener { view ->
-                view.findNavController().navigateUp()
-            }
+                var isToolbarShown = false
 
-            toolbar.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.action_share -> {
-                        createShareIntent()
-                        true
+                // scroll change listener begins at Y = 0 when image is fully collapsed
+                plantDetailScrollview.setOnScrollChangeListener(
+                    NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
+
+                        // User scrolled past image to height of toolbar and the title text is
+                        // underneath the toolbar, so the toolbar should be shown.
+                        val shouldShowToolbar = scrollY > toolbar.height
+
+                        // The new state of the toolbar differs from the previous state; update
+                        // appbar and toolbar attributes.
+                        if (isToolbarShown != shouldShowToolbar) {
+                            isToolbarShown = shouldShowToolbar
+
+                            // Use shadow animator to add elevation if toolbar is shown
+                            appbar.isActivated = shouldShowToolbar
+
+                            // Show the plant name if toolbar is shown
+                            toolbarLayout.isTitleEnabled = shouldShowToolbar
+                        }
                     }
-                    else -> false
+                )
+
+                toolbar.setNavigationOnClickListener { view ->
+                    view.findNavController().navigateUp()
+                }
+
+                toolbar.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.action_share -> {
+                            createShareIntent()
+                            true
+                        }
+                        else -> false
+                    }
                 }
             }
         }
