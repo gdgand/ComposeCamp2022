@@ -6,7 +6,7 @@
 
 - [x] Pathway1/BasicCodelab
 - [x] Pathway1/BasicLayoutsCodelab
-- [ ] Pathway1-2/BasicStateCodelab
+- [x] Pathway1-2/BasicStateCodelab
 - [ ] Pathway1-2/ThemingCodelab
 - [ ] Pathway1-2/MigrationCodelab
 - [ ] Pathway2/AnimationCodelab
