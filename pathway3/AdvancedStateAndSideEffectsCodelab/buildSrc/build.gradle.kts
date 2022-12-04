@@ -17,7 +17,11 @@
 import org.gradle.kotlin.dsl.`kotlin-dsl`
 
 repositories {
-    mavenCentral()
+    jcenter()
+    maven {
+        url = uri("http://jcenter.bintray.com")
+        isAllowInsecureProtocol = true
+    }
 }
 
 plugins {
