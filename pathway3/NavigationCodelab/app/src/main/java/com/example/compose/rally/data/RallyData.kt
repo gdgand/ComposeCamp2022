@@ -16,6 +16,7 @@
 
 package com.example.compose.rally.data
 
+import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
@@ -101,6 +102,8 @@ object UserData {
     )
 
     fun getAccount(accountName: String?): Account {
-        return accounts.first { it.name == accountName }
+        return accounts.first {
+            it.name == accountName
+        }
     }
 }
