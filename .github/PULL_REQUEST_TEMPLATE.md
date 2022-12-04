@@ -4,16 +4,16 @@
 ## 완료한 코드랩
 완료한 코드랩을 체크 해주세요. 코드랩 중 80% 이상 완주하셔야 Compose Camp가 준비한 트래킹 완주 기념품을 배송해 드립니다.
 
-- [ ] Pathway1/BasicCodelab
-- [ ] Pathway1/BasicLayoutsCodelab
-- [ ] Pathway1-2/BasicStateCodelab
-- [ ] Pathway1-2/ThemingCodelab
-- [ ] Pathway1-2/MigrationCodelab
-- [ ] Pathway2/AnimationCodelab
-- [ ] Pathway3/AdvancedStateAndSideEffectsCodelab
-- [ ] Pathway3/NavigationCodelab
-- [ ] Pathway4/AccessibilityCodelab
-- [ ] Pathway4/TestingCodelab
+- [v] Pathway1/BasicCodelab
+- [v] Pathway1/BasicLayoutsCodelab
+- [v] Pathway1-2/BasicStateCodelab
+- [v] Pathway1-2/ThemingCodelab
+- [v] Pathway1-2/MigrationCodelab
+- [v] Pathway2/AnimationCodelab
+- [v] Pathway3/AdvancedStateAndSideEffectsCodelab
+- [v] Pathway3/NavigationCodelab
+- [v] Pathway4/AccessibilityCodelab
+- [v] Pathway4/TestingCodelab
 - Pathway5는 Optional :)
 
 ## 체크사항
