@@ -28,6 +28,7 @@ if (rootProject.file("local.properties").exists()) {
 }
 
 android {
+    namespace "androidx.compose.samples.crane"
     compileSdkVersion 33
     defaultConfig {
         applicationId "androidx.compose.samples.crane"
@@ -83,7 +84,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion "1.3.2"
+        kotlinCompilerExtensionVersion "1.4.0-alpha02"
     }
 
     packagingOptions {
@@ -95,7 +96,7 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.21"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
     implementation "com.google.android.libraries.maps:maps:3.1.0-beta"
     implementation "com.google.maps.android:maps-v3-ktx:3.4.0"
@@ -110,7 +111,7 @@ dependencies {
     implementation "androidx.activity:activity-compose:1.6.1"
     implementation "androidx.appcompat:appcompat:1.5.1"
 
-    def composeBom = platform('androidx.compose:compose-bom:2022.10.00')
+    def composeBom = platform('androidx.compose:compose-bom:2022.11.00')
     implementation(composeBom)
     androidTestImplementation(composeBom)
     implementation "androidx.compose.runtime:runtime"
@@ -125,19 +126,19 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
-    implementation "com.google.dagger:hilt-android:2.44"
-    kapt "com.google.dagger:hilt-compiler:2.44"
+    implementation "com.google.dagger:hilt-android:2.44.2"
+    kapt "com.google.dagger:hilt-compiler:2.44.2"
 
-    implementation "io.coil-kt:coil-compose:2.2.1"
+    implementation "io.coil-kt:coil-compose:2.2.2"
 
     androidTestImplementation "junit:junit:4.13.2"
-    androidTestImplementation "androidx.test:core:1.4.0"
-    androidTestImplementation "androidx.test:runner:1.4.0"
-    androidTestImplementation "androidx.test:rules:1.4.0"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
-    androidTestImplementation "androidx.test.ext:junit-ktx:1.1.3"
+    androidTestImplementation "androidx.test:core:1.5.0"
+    androidTestImplementation "androidx.test:runner:1.5.1"
+    androidTestImplementation "androidx.test:rules:1.5.0"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.0"
+    androidTestImplementation "androidx.test.ext:junit-ktx:1.1.4"
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
-    androidTestImplementation "com.google.dagger:hilt-android:2.44"
+    androidTestImplementation "com.google.dagger:hilt-android:2.44.2"
     androidTestImplementation "com.google.dagger:hilt-android-testing:2.44"
-    kaptAndroidTest "com.google.dagger:hilt-compiler:2.44"
+    kaptAndroidTest "com.google.dagger:hilt-compiler:2.44.2"
 }
