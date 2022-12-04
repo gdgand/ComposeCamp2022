@@ -33,7 +33,7 @@ import com.example.compose.rally.ui.components.StatementBody
  */
 @Composable
 fun AccountsScreen(
-    onAccountClick: (String) -> Unit = {},
+    onAccountClick: (String) -> Unit = {}
 ) {
     val amountsTotal = remember { UserData.accounts.map { account -> account.balance }.sum() }
     StatementBody(

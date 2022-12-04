@@ -19,6 +19,7 @@ package com.example.compose.rally
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -48,6 +49,13 @@ class AnimatingCircleTests {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @Test
+    fun myTest() {
+        composeTestRule.setContent {
+            Text("You can set any Compose content!")
+        }
+    }
 
     @Test
     fun circleAnimation_idle_screenshot() {
