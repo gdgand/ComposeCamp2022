@@ -1,21 +1,24 @@
 package com.codelab.basics.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
-private val DarkColorPalette = darkColors(
-    primary = Purple200,
-    primaryVariant = Purple700,
-    secondary = Teal200
+private val DarkColorPalette = darkColorScheme(
+    surface = Blue,
+    onSurface = Navy,
+    primary = Navy,
+    onPrimary = Chartreuse
 )
 
-private val LightColorPalette = lightColors(
-    primary = Purple500,
-    primaryVariant = Purple700,
-    secondary = Teal200
+private val LightColorPalette = lightColorScheme(
+    surface = Blue,
+    onSurface = Color.White,
+    primary = LightBlue,
+    onPrimary = Navy
 
     /* Other default colors to override
     background = Color.White,
@@ -30,16 +33,17 @@ private val LightColorPalette = lightColors(
 @Composable
 fun BasicsCodelabTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) {
+    val colorScheme = if (darkTheme) {
         DarkColorPalette
     } else {
         LightColorPalette
     }
 
     MaterialTheme(
-        colors = colors,
+        colorScheme = colorScheme,
         typography = Typography,
         shapes = Shapes,
         content = content
