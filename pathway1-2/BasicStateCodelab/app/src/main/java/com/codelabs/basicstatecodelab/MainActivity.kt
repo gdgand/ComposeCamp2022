@@ -43,6 +43,25 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+fun StateFullCounter(modifier: Modifier = Modifier) {
+    var count by rememberSaveable { mutableStateOf(0) }
+    StateLessCounter(count = count, onIncrement = { count++ })
+}
+
+
+@Composable
+fun StateLessCounter(count: Int, onIncrement: () -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.padding(16.dp)) {
+        if (count > 0) {
+            Text("You've had $count glasses.")
+        }
+        Button(onClick = onIncrement, Modifier.padding(top = 8.dp), enabled = count < 10) {
+            Text("Add one")
+        }
+    }
+}
+
+@Composable
 fun WellnessTaskItem(
     taskName: String, onClose: () -> Unit, modifier: Modifier = Modifier
 ) {
@@ -63,21 +82,8 @@ fun WellnessTaskItem(
 }
 
 @Composable
-fun WaterCounter(modifier: Modifier = Modifier) {
-    Column(modifier = modifier.padding(16.dp)) {
-        var count by rememberSaveable { mutableStateOf(0) }
-        if (count > 0) {
-            Text("You've had $count glasses.")
-        }
-        Button(onClick = { count++ }, Modifier.padding(top = 8.dp), enabled = count < 10) {
-            Text("Add one")
-        }
-    }
-}
-
-@Composable
 fun WellnessScreen(modifier: Modifier = Modifier) {
-    WaterCounter(modifier = modifier)
+    StateFullCounter(modifier = modifier)
 }
 
 
