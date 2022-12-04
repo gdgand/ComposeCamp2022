@@ -76,6 +76,13 @@ android {
         exclude "META-INF/AL2.0"
         exclude "META-INF/LGPL2.1"
     }
+    sourceSets {
+        main {
+            java {
+                srcDirs 'src/main/java', 'src/test'
+            }
+        }
+    }
 }
 
 dependencies {
@@ -93,6 +100,8 @@ dependencies {
     implementation "androidx.activity:activity-compose:$rootProject.activityComposeVersion"
     implementation "androidx.navigation:navigation-compose:$rootProject.navigationComposeVersion"
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
+
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.navigationComposeVersion"
 
     // Testing dependencies
     androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
