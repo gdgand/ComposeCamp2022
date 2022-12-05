@@ -43,6 +43,7 @@ plugins {
 subprojects {
     repositories {
         google()
+        jcenter()
         maven {
             url = "http://jcenter.bintray.com"
             allowInsecureProtocol = true
