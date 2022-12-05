@@ -95,11 +95,11 @@ private fun AlertCard() {
         )
     }
 
-    var currentTargetElevation by remember { mutableStateOf(1.dp) }
-    LaunchedEffect(Unit) {
-        // Start the animation
-        currentTargetElevation = 8.dp
-    }
+//    var currentTargetElevation by remember { mutableStateOf(1.dp) }
+//    LaunchedEffect(Unit) {
+//        // Start the animation
+//        currentTargetElevation = 8.dp
+//    }
 
     val infiniteElevationAnimation = rememberInfiniteTransition()
     val animatedElevation: Dp by infiniteElevationAnimation.animateValue(
