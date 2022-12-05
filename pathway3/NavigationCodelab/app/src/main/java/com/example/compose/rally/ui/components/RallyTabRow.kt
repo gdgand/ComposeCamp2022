@@ -49,7 +49,7 @@ import com.example.compose.rally.RallyDestination
 import java.util.Locale
 
 @Composable
-fun RallyTabRow(
+fun  RallyTabRow(
     allScreens: List<RallyDestination>,
     onTabSelected: (RallyDestination) -> Unit,
     currentScreen: RallyDestination
