@@ -1,9 +1,7 @@
 package com.example.compose.rally
 
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.printToLog
 import com.example.compose.rally.ui.components.RallyTopAppBar
 import org.junit.Rule
 import org.junit.Test
@@ -14,7 +12,7 @@ class TopAppBarTest {
     val composeTestRule = createComposeRule()
     
     @Test
-    fun rallyTopAppBarTest_currentTabSelected() {
+    fun rallyTopAppBarTest_currentLabelExists() {
         val allScreens = RallyScreen.values().toList()
         composeTestRule.setContent { 
             RallyTopAppBar(
@@ -24,10 +22,13 @@ class TopAppBarTest {
             )
         }
 
-        composeTestRule.onRoot().printToLog("currentLabelexists")
-
         composeTestRule
-            .onNodeWithContentDescription(RallyScreen.Accounts.name)
-            .assertExists()
+            .onNode(
+                hasText(RallyScreen.Accounts.name.uppercase()) and hasParent(
+                    hasContentDescription(RallyScreen.Accounts.name)
+                ),
+                useUnmergedTree = true
+            ).assertExists()
+
     }
 }
