@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-buildscript {
-    ext {
-        compose_version = '1.0.4'
-    }
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.3'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31'
-    }
-}
+package com.example.android.codelab.animation
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import com.example.android.codelab.animation.ui.AnimationCodelabTheme
+import com.example.android.codelab.animation.ui.home.Home
+
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            AnimationCodelabTheme {
+                Home()
+            }
+        }
     }
 }

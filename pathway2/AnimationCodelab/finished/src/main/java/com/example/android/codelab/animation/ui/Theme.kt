@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-buildscript {
-    ext {
-        compose_version = '1.0.4'
-    }
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.3'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31'
-    }
-}
+package com.example.android.codelab.animation.ui
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.lightColors
+import androidx.compose.runtime.Composable
+
+@Composable
+fun AnimationCodelabTheme(content: @Composable () -> Unit) {
+    val colors = lightColors(
+        primary = Purple500,
+        primaryVariant = Purple700,
+        secondary = Teal200
+    )
+    MaterialTheme(
+        colors = colors,
+        content = content
+    )
 }
