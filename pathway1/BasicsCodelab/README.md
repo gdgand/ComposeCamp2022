@@ -1,3 +1,6 @@
+### Refresh Compose Preview
+option + command + shift R
+
 # Jetpack Compose Basic Codelab
 Week1 Jetpack Compose Basic 코드랩은 새 프로젝트를 만드는 것으로 시작합니다.
 
