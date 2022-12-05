@@ -19,15 +19,16 @@ package com.example.compose.rally
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.compose.rally.ui.components.RallyTabRow
 import com.example.compose.rally.ui.theme.RallyTheme
 
@@ -47,19 +48,65 @@ class RallyActivity : ComponentActivity() {
 @Composable
 fun RallyApp() {
     RallyTheme {
-        var currentScreen: RallyDestination by remember { mutableStateOf(Overview) }
+        // 탑레벨 컴포저블에 NavController를 위치시키면, 모든 컴포저블이 NavController에 접근할 수 있다.
+        val navController = rememberNavController()
+        val currentBackStack by navController.currentBackStackEntryAsState()
+        val currentDestination = currentBackStack?.destination
+        val currentScreen = rallyTabRowScreens.find { it.route == currentDestination?.route } ?: Overview
         Scaffold(
             topBar = {
                 RallyTabRow(
                     allScreens = rallyTabRowScreens,
-                    onTabSelected = { screen -> currentScreen = screen },
+                    onTabSelected = { newScreen ->
+                        // navController.navigate(newScreen.route)
+                        navController.navigateSingleTopTo(newScreen.route)
+                    },
                     currentScreen = currentScreen
                 )
             }
         ) { innerPadding ->
-            Box(Modifier.padding(innerPadding)) {
-                currentScreen.screen()
+            NavHost(
+                navController = navController,
+                startDestination = Overview.route,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable(route = Overview.route) {
+                    Overview.screen()
+                }
+                composable(route = Accounts.route) {
+                    Accounts.screen()
+                }
+                composable(route = Bills.route) {
+                    Bills.screen()
+                }
             }
         }
     }
 }
+
+
+fun NavHostController.navigateSingleTopTo(route: String) =
+    this.navigate(route) {
+        // popUpTo(startDestination) { saveState = true }
+        // 그래프 출발지로 pop. 큰 스택을 다시 구성하는 것을 피하기 위해.
+        popUpTo(
+            this@navigateSingleTopTo.graph.findStartDestination().id
+        ) {
+            saveState = true
+        }
+
+        // 스택 탑에 있는 친구와 동일하면 다시 쌓지 않기
+        // launchSingleTop 옵션을 사용하지 않으면 동일한 탭을 여러번 눌렀을 때
+        // 같은 화면이 계속해서 쌓이게 됨
+        launchSingleTop = true
+
+        // restoreState = true
+        // 이전의 상태로 복구해야 하는지 옵션
+        // 이전에 저장한 상태가 없다면 true로 설정해도 아무런 효과가 없다.
+        restoreState = true
+    }
+
+
+
+
+
