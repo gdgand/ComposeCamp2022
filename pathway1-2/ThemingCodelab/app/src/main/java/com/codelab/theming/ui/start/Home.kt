@@ -54,13 +54,20 @@ import androidx.compose.ui.unit.dp
 import com.codelab.theming.R
 import com.codelab.theming.data.Post
 import com.codelab.theming.data.PostRepo
+import com.codelab.theming.ui.start.theme.JetnewsTheme
 import java.util.Locale
 
+/*
+- Theme CodeLab Start
+
+ */
 @Composable
 fun Home() {
     val featured = remember { PostRepo.getFeaturedPost() }
     val posts = remember { PostRepo.getPosts() }
-    MaterialTheme {
+    // 매개변수를 지정하지 않기 때문에 기본적인 '표준' 스타일이 적용
+    // Theme에서 지정한 함수로 변경
+    JetnewsTheme {
         Scaffold(
             topBar = { AppBar() }
         ) { innerPadding ->
@@ -204,20 +211,24 @@ fun PostItem(
     )
 }
 
+// 변경사항 표시를 위해 변경된 함수를 업데이트 시켜줌
 @Preview("Post Item")
 @Composable
 private fun PostItemPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    Surface {
-        PostItem(post = post)
-    }
+        Surface {
+            PostItem(post = post)
+            }
 }
 
+// 변경사항 표시를 위해 변경된 함수를 업데이트 시켜줌
 @Preview("Featured Post")
 @Composable
 private fun FeaturedPostPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    FeaturedPost(post = post)
+    JetnewsTheme {
+        FeaturedPost(post = post)
+    }
 }
 
 @Preview("Home")
