@@ -37,6 +37,7 @@ import com.example.compose.rally.ui.theme.RallyTheme
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.compose.rally.ui.accounts.AccountsScreen
+import com.example.compose.rally.ui.accounts.SingleAccountScreen
 import com.example.compose.rally.ui.bills.BillsScreen
 import com.example.compose.rally.ui.overview.OverviewScreen
 
@@ -107,6 +108,9 @@ fun RallyApp() {
                 }
                 composable(route = Bills.route) {
                     BillsScreen()
+                }
+                composable(route = SingleAccount.route) {
+                    SingleAccountScreen()
                 }
             }
         }
