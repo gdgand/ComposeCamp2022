@@ -30,11 +30,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.compose.rally.ui.accounts.AccountsScreen
+import com.example.compose.rally.ui.accounts.SingleAccountScreen
 import com.example.compose.rally.ui.bills.BillsScreen
 import com.example.compose.rally.ui.components.RallyTabRow
 import com.example.compose.rally.ui.overview.OverviewScreen
@@ -86,14 +89,28 @@ fun RallyApp() {
                         },
                         onClickSeeAllBills = {
                             navController.navigateSingleTopTo(Bills.route)
+                        },
+                        onAccountClick = { accountType ->
+                            navController.navigateToSingleAccount(accountType)
                         }
                     )
                 }
                 composable(route = Accounts.route) {
-                    AccountsScreen()
+                    AccountsScreen(
+                        onAccountClick = { accountType ->
+                            navController.navigateToSingleAccount(accountType)
+                        }
+                    )
                 }
                 composable(route = Bills.route) {
                     BillsScreen()
+                }
+                composable(
+                    route = SingleAccount.routeWithArgs,
+                    arguments = SingleAccount.arguments
+                ) { entry ->
+                    val accountType = entry.arguments?.getString(SingleAccount.accountTypeArg)
+                    SingleAccountScreen(accountType)
                 }
             }
         }
@@ -110,3 +127,7 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         launchSingleTop = true
         restoreState = true
     }
+
+private fun NavHostController.navigateToSingleAccount(accountType: String) {
+    this.navigateSingleTopTo("${SingleAccount.route}/$accountType")
+}
