@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ import com.example.compose.rally.ui.components.formatAmount
 import java.util.Locale
 
 @Composable
-fun OverviewScreen(
+fun OverviewBody(
     onClickSeeAllAccounts: () -> Unit = {},
     onClickSeeAllBills: () -> Unit = {},
     onAccountClick: (String) -> Unit = {},
@@ -72,14 +72,9 @@ fun OverviewScreen(
     ) {
         AlertCard()
         Spacer(Modifier.height(RallyDefaultPadding))
-        AccountsCard(
-            onClickSeeAll = onClickSeeAllAccounts,
-            onAccountClick = onAccountClick
-        )
+        AccountsCard(onClickSeeAllAccounts, onAccountClick = onAccountClick)
         Spacer(Modifier.height(RallyDefaultPadding))
-        BillsCard(
-            onClickSeeAll = onClickSeeAllBills
-        )
+        BillsCard(onClickSeeAllBills)
     }
 }
 
