@@ -45,14 +45,19 @@ fun WellnessTaskItem(
 }
 
 @Composable
-fun WellnessTaskItem(taskName: String, modifier: Modifier = Modifier) {
+fun WellnessTaskItem(
+    taskName: String,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier
+
+) {
     val checkedState = rememberSaveable { mutableStateOf(false) }
 
     WellnessTaskItem(
         taskName = taskName,
         checked = checkedState.value,
         onCheckedChange = { newValue -> checkedState.value = newValue },
-        onClose = {},
+        onClose = onClose,
         modifier = modifier,
     )
 }
