@@ -47,7 +47,11 @@ buildscript {
 
     repositories {
         google()
-        mavenCentral()
+        jcenter()
+        maven {
+            url = "http://jcenter.bintray.com"
+            allowInsecureProtocol = true
+        }
     }
 
     dependencies {
@@ -63,7 +67,11 @@ plugins {
 subprojects {
     repositories {
         google()
-        mavenCentral()
+        jcenter()
+        maven {
+            url = "http://jcenter.bintray.com"
+            allowInsecureProtocol = true
+        }
     }
 
     apply plugin: 'com.diffplug.spotless'
