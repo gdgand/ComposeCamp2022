@@ -193,6 +193,7 @@ private fun <T> OverviewScreenCard(
             Column(Modifier.padding(start = 16.dp, top = 4.dp, end = 8.dp)) {
                 data.take(SHOWN_ITEMS).forEach { row(it) }
                 SeeAllButton(
+                    // Button ContentDescription 지정
                     modifier = Modifier.clearAndSetSemantics {
                         contentDescription = "All $title"
                     },
