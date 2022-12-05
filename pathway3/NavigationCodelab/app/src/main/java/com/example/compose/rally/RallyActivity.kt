@@ -126,9 +126,7 @@ fun RallyApp() {
                 composable(
                     route = SingleAccount.routeWithArgs,
                     arguments = SingleAccount.arguments,
-                    deepLinks = listOf(navDeepLink {
-                        uriPattern = "rally://${SingleAccount.route}/{${SingleAccount.accountTypeArg}}"
-                    })
+                    deepLinks = SingleAccount.deepLinks
                 ) { navBackStackEntry ->
                     // Retrieve the passed argument
                     val accountType =
