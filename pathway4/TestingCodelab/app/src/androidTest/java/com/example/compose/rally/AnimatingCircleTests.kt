@@ -49,32 +49,32 @@ class AnimatingCircleTests {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    @Test
-    fun circleAnimation_idle_screenshot() {
-        composeTestRule.mainClock.autoAdvance = true
-        showAnimatedCircle()
-        assertScreenshotMatchesGolden("circle_done", composeTestRule.onRoot())
-    }
-
-    @Test
-    fun circleAnimation_initial_screenshot() {
-        compareTimeScreenshot(0, "circle_initial")
-    }
-
-    @Test
-    fun circleAnimation_beforeDelay_screenshot() {
-        compareTimeScreenshot(499, "circle_initial")
-    }
-
-    @Test
-    fun circleAnimation_midAnimation_screenshot() {
-        compareTimeScreenshot(600, "circle_100")
-    }
-
-    @Test
-    fun circleAnimation_animationDone_screenshot() {
-        compareTimeScreenshot(1500, "circle_done")
-    }
+//    @Test
+//    fun circleAnimation_idle_screenshot() {
+//        composeTestRule.mainClock.autoAdvance = true
+//        showAnimatedCircle()
+//        assertScreenshotMatchesGolden("circle_done", composeTestRule.onRoot())
+//    }
+//
+//    @Test
+//    fun circleAnimation_initial_screenshot() {
+//        compareTimeScreenshot(0, "circle_initial")
+//    }
+//
+//    @Test
+//    fun circleAnimation_beforeDelay_screenshot() {
+//        compareTimeScreenshot(499, "circle_initial")
+//    }
+//
+//    @Test
+//    fun circleAnimation_midAnimation_screenshot() {
+//        compareTimeScreenshot(600, "circle_100")
+//    }
+//
+//    @Test
+//    fun circleAnimation_animationDone_screenshot() {
+//        compareTimeScreenshot(1500, "circle_done")
+//    }
 
     private fun compareTimeScreenshot(timeMs: Long, goldenName: String) {
         // Start with a paused clock
