@@ -109,7 +109,10 @@ fun RallyApp() {
                 composable(route = Bills.route) {
                     BillsScreen()
                 }
-                composable(route = SingleAccount.route) {
+                composable(
+                    route =
+                    "${SingleAccount.route}/{${SingleAccount.accountTypeArg}}"
+                ) {
                     SingleAccountScreen()
                 }
             }
