@@ -141,7 +141,8 @@ fun PostCardPopular(
     Card(
         shape = MaterialTheme.shapes.medium,
         modifier = modifier.size(280.dp, 240.dp),
-        onClick = { navigateToArticle(post.id) }
+        onClick = { navigateToArticle(post.id) },
+        onClickLabel = stringResource(id = R.string.action_read_article)
     ) {
         Column {
 
