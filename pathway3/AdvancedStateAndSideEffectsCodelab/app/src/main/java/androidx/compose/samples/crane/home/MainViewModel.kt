@@ -16,6 +16,7 @@
 
 package androidx.compose.samples.crane.home
 
+import android.util.Log
 import androidx.compose.samples.crane.data.DestinationsRepository
 import androidx.compose.samples.crane.data.ExploreModel
 import androidx.compose.samples.crane.di.DefaultDispatcher
@@ -49,17 +50,16 @@ class MainViewModel @Inject constructor(
         _suggestedDestinations.value = destinationsRepository.destinations
     }
 
-    fun updatePeople(people: Int) {
-        viewModelScope.launch {
-            if (people > MAX_PEOPLE) {
-                _suggestedDestinations.value = emptyList()
-            } else {
-                val newDestinations = withContext(defaultDispatcher) {
-                    destinationsRepository.destinations
-                        .shuffled(Random(people * (1..100).shuffled().first()))
-                }
-                _suggestedDestinations.value = newDestinations
+    fun updatePeople(people: Int) = viewModelScope.launch {
+        if (people > MAX_PEOPLE) {
+            _suggestedDestinations.value = emptyList()
+        } else {
+            Log.d("TEST", "thread check1 : ${this.coroutineContext}")
+            val newDestinations: List<ExploreModel> = withContext(defaultDispatcher) {
+                Log.d("TEST", "thread check2 : ${this.coroutineContext}")
+                destinationsRepository.destinations.shuffled(Random(people * (1..100).shuffled().first()))
             }
+            _suggestedDestinations.value = newDestinations
         }
     }
 
