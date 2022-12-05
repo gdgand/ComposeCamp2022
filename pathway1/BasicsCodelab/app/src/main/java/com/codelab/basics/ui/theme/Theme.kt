@@ -45,3 +45,22 @@ fun BasicsCodelabTheme(
         content = content
     )
 }
+
+@Composable
+fun ComposeTutorialTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    val colors = if (darkTheme) {
+        DarkColorPalette
+    } else {
+        LightColorPalette
+    }
+
+    MaterialTheme(
+        colors = colors,
+        typography = TypographyCompose,
+        shapes = Shapes,
+        content = content
+    )
+}
