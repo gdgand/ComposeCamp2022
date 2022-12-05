@@ -62,6 +62,7 @@ object SingleAccount : RallyDestination {
     override val icon = Icons.Filled.Money
     override val route = "single_account"
     const val accountTypeArg = "account_type"
+    val routeWithArgs = "${route}/{${accountTypeArg}}"
     val arguments = listOf(
         navArgument(accountTypeArg) { type = NavType.StringType }
     )
