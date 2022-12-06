@@ -75,44 +75,7 @@ fun RallyApp() {
                 )
             }
         ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = Overview.route,
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                composable(route = Overview.route) {
-                    OverviewScreen(
-                        onClickSeeAllAccounts = {
-                            navController.navigateSingleTopTo(Accounts.route)
-                        },
-                        onClickSeeAllBills = {
-                            navController.navigateSingleTopTo(Bills.route)
-                        },
-                        onAccountClick = {
-                            navController.navigateToSingAccount(it)
-                        }
-                    )
-                }
-                composable(route = Accounts.route) {
-                    AccountsScreen(
-                        onAccountClick = {
-                            navController.navigateToSingAccount(it)
-                        }
-                    )
-                }
-                composable(route = Bills.route) {
-                    BillsScreen()
-                }
-                composable(
-                    route = SingleAccount.routeWithArgs,
-                    arguments = SingleAccount.arguments,
-                    deepLinks = SingleAccount.deepLinks
-                ) {
-                    val accountType =
-                        it.arguments?.getString(SingleAccount.accountTypeArg)
-                    SingleAccountScreen(accountType)
-                }
-            }
+            RallyNavHost(navController, Modifier.padding(innerPadding))
         }
     }
 }
@@ -130,4 +93,49 @@ fun NavController.navigateSingleTopTo(route: String) =
 
 fun NavHostController.navigateToSingAccount(accountType: String) {
     navigateSingleTopTo("${SingleAccount.route}/$accountType")
+}
+
+@Composable
+fun RallyNavHost(
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
+    NavHost(
+        navController = navController,
+        startDestination = Overview.route,
+        modifier = modifier
+    ) {
+        composable(route = Overview.route) {
+            OverviewScreen(
+                onClickSeeAllAccounts = {
+                    navController.navigateSingleTopTo(Accounts.route)
+                },
+                onClickSeeAllBills = {
+                    navController.navigateSingleTopTo(Bills.route)
+                },
+                onAccountClick = {
+                    navController.navigateToSingAccount(it)
+                }
+            )
+        }
+        composable(route = Accounts.route) {
+            AccountsScreen(
+                onAccountClick = {
+                    navController.navigateToSingAccount(it)
+                }
+            )
+        }
+        composable(route = Bills.route) {
+            BillsScreen()
+        }
+        composable(
+            route = SingleAccount.routeWithArgs,
+            arguments = SingleAccount.arguments,
+            deepLinks = SingleAccount.deepLinks
+        ) {
+            val accountType =
+                it.arguments?.getString(SingleAccount.accountTypeArg)
+            SingleAccountScreen(accountType)
+        }
+    }
 }
