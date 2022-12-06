@@ -460,9 +460,9 @@ val paragraphsPost2 = listOf(
 
 val paragraphsPost3 = listOf(
     Paragraph(
-        ParagraphType.Text,
-        "Learn how to get started converting Java Programming Language code to Kotlin, making it more idiomatic and avoid common pitfalls, by following our new Refactoring to Kotlin codelab, available in English \uD83C\uDDEC\uD83C\uDDE7, Chinese \uD83C\uDDE8\uD83C\uDDF3 and Brazilian Portuguese \uD83C\uDDE7\uD83C\uDDF7.",
-        listOf(
+        type = ParagraphType.Text,
+        text = "Learn how to get started converting Java Programming Language code to Kotlin, making it more idiomatic and avoid common pitfalls, by following our new Refactoring to Kotlin codelab, available in English \uD83C\uDDEC\uD83C\uDDE7, Chinese \uD83C\uDDE8\uD83C\uDDF3 and Brazilian Portuguese \uD83C\uDDE7\uD83C\uDDF7.",
+        markups = listOf(
             Markup(
                 MarkupType.Link,
                 151,
