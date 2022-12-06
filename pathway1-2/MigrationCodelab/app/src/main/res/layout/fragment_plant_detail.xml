@@ -75,11 +75,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:background="@android:color/transparent"
-                    app:titleTextColor="?attr/colorOnSurface"
-                    app:layout_collapseMode="pin"
                     app:contentInsetStartWithNavigation="0dp"
+                    app:layout_collapseMode="pin"
+                    app:menu="@menu/menu_plant_detail"
                     app:navigationIcon="@drawable/ic_detail_back"
-                    app:menu="@menu/menu_plant_detail" />
+                    app:titleTextColor="?attr/colorOnSurface" />
 
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 
