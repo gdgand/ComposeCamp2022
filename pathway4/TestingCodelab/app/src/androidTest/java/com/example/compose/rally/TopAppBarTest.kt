@@ -22,6 +22,9 @@ class TopAppBarTest {
                 currentScreen = RallyScreen.Accounts
             )
         }
+
+//        composeTestRule.onRoot().printToLog("currentLabelExists")
+
         composeTestRule
             .onNodeWithContentDescription(RallyScreen.Accounts.name)
             .assertIsSelected()
