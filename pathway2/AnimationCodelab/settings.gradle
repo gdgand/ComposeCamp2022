@@ -1,2 +1,4 @@
 rootProject.name = "AnimationCodelab"
 include ':finished', ':start'
+include ':dynamicfeature'
+include ':feature'

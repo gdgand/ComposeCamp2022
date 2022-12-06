@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">BasicsCodelab</string>
+    <string name="show_less">접기</string>
+    <string name="show_more">더보기</string>
 </resources>
