@@ -61,7 +61,9 @@ fun RallyApp() {
         val currentBackStack by navController.currentBackStackEntryAsState()
         val currentScreen = rallyTabRowScreens.find {
             it.route == currentBackStack?.destination?.route
-        } ?: Overview
+        }
+            ?: if (currentBackStack?.destination?.route?.contains(SingleAccount.route) == true) Accounts
+            else Overview
         Scaffold(
             topBar = {
                 RallyTabRow(
@@ -117,13 +119,13 @@ fun RallyApp() {
 
 fun NavController.navigateSingleTopTo(route: String) =
     this.navigate(route) {
-//        popUpTo(
-//            this@navigateSingleTopTo.graph.findStartDestination().id
-//        ) {
-//            saveState = true
-//        }
+        popUpTo(
+            this@navigateSingleTopTo.graph.findStartDestination().id
+        ) {
+            saveState = true
+        }
         launchSingleTop = true
-        //restoreState = true
+        restoreState = true
     }
 
 fun NavHostController.navigateToSingAccount(accountType: String) {
