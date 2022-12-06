@@ -79,7 +79,7 @@ class NavigationTest {
 
     @Test
     fun rallyNavHost_clickAllBills_navigateToBills() {
-        composeTestRule.onNodeWithContentDescription("All Bills")
+        composeTestRule.onNodeWithContentDescription("All%20Bills")
             .performScrollTo()
             .performClick()
 
