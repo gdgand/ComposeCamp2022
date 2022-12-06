@@ -22,7 +22,9 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.slideInVertically
@@ -465,10 +467,37 @@ private fun HomeTabIndicator(
 ) {
     // TODO 4: Animate these value changes. Done
     val transition = updateTransition(targetState = tabPage, label = "Tab indicator")
-    val indicatorLeft by transition.animateDp(label = "Indicator left") { page ->
+
+    val indicatorLeft by transition.animateDp(
+        label = "Indicator left",
+        transitionSpec = {
+            if (TabPage.Home isTransitioningTo TabPage.Work) {
+                //Indicator moves to the right
+                //The left edge moves slower than the right edge
+                spring(stiffness = Spring.StiffnessVeryLow)
+            } else {
+                //Indicator moves to the left
+                //The left edge moves faster than the right edge
+                spring(stiffness = Spring.StiffnessMedium)
+            }
+        }
+    ) { page ->
         tabPositions[page.ordinal].left
     }
-    val indicatorRight by transition.animateDp(label = "Indicator right") { page ->
+    val indicatorRight by transition.animateDp(
+        label = "Indicator right",
+        transitionSpec = {
+            if (TabPage.Home isTransitioningTo TabPage.Work) {
+                //Indicator moves to the right
+                //The riht edge moves faster than the left edge
+                spring(stiffness = Spring.StiffnessMedium)
+            } else {
+                //Indicator moves to the left
+                //The right edge moves slower than the left edge
+                spring(stiffness = Spring.StiffnessVeryLow)
+            }
+        }
+    ) { page ->
         tabPositions[page.ordinal].right
     }
     val color by transition.animateColor(label = "Border color") { page ->
