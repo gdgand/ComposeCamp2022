@@ -130,11 +130,11 @@ fun OnBoardingScreen(onContinueClicked: () -> Unit, modifier: Modifier = Modifie
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Welcome to the Basics CodeLab!")
-        Button(,
+        Button(
+            modifier = Modifier.padding(vertical = 24.dp),
             onClick =  onContinueClicked
         ) {
             Text("Continue")
-            modifier = Modifier.padding(vertical = 24.dp)
         }
     }
 }
