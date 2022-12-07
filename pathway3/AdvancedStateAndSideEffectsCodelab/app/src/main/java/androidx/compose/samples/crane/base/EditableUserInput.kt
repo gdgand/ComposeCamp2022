@@ -39,6 +39,7 @@ fun CraneEditableUserInput(
     var textState by remember { mutableStateOf(hint) }
     val isHint = { textState == hint }
 
+
     CraneBaseUserInput(
         caption = caption,
         tintIcon = { !isHint() },
