@@ -17,17 +17,14 @@
 package androidx.compose.samples.crane.home
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.BackdropScaffold
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.base.CraneDrawer
 import androidx.compose.samples.crane.base.CraneTabBar
 import androidx.compose.samples.crane.base.CraneTabs
@@ -36,7 +33,8 @@ import androidx.compose.samples.crane.data.ExploreModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.accompanist.insets.statusBarsPadding
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 typealias OnExploreItemClicked = (ExploreModel) -> Unit
 
@@ -56,28 +54,36 @@ fun CraneHome(
         drawerContent = {
             CraneDrawer()
         }
-    ) { padding ->
+    ) {
+        val scope = rememberCoroutineScope()
         CraneHomeContent(
-            modifier = modifier.padding(padding),
+            modifier = modifier,
             onExploreItemClicked = onExploreItemClicked,
             openDrawer = {
-                // TODO Codelab: rememberCoroutineScope step - open the navigation drawer
-                // scaffoldState.drawerState.open()
+                scope.launch {
+                    // TODO Codelab: rememberCoroutineScope step - open the navigation drawer
+                    // scaffoldState.drawerState.open() -> 코루틴 내에서 호출되어야 함!
+                    //scope를 생성해서 그 안에서 실행시켜준다.
+                    scaffoldState.drawerState.open()
+                }
             }
         )
     }
 }
 
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CraneHomeContent(
     onExploreItemClicked: OnExploreItemClicked,
-    openDrawer: () -> Unit,
+    openDrawer: () -> Unit, // 탐색창 열기 callback
+    //open 함수가 정지 함수,
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = viewModel(),
 ) {
-    // TODO Codelab: collectAsState step - consume stream of data from the ViewModel
-    val suggestedDestinations: List<ExploreModel> = remember { emptyList() }
+    // TODO collectAsState()는 StateFlow에서 값을 수집하고 Compose의 State API를 통해 최신 값을 나타냅니다.
+    //val suggestedDestinations: List<ExploreModel> = remember { emptyList() }
+    val suggestedDestinations by viewModel.suggestedDestinations.collectAsState()
 
     val onPeopleChanged: (Int) -> Unit = { viewModel.updatePeople(it) }
     var tabSelected by remember { mutableStateOf(CraneScreen.Fly) }
