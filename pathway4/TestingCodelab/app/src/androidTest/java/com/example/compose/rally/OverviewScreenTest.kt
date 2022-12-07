@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package com.example.jetnews.ui
+package com.example.compose.rally
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.core.view.WindowCompat
-import com.example.jetnews.JetnewsApplication
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import com.example.compose.rally.ui.overview.OverviewBody
+import org.junit.Rule
+import org.junit.Test
 
-class MainActivity : ComponentActivity() {
+class OverviewScreenTest {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
-        val appContainer = (application as JetnewsApplication).container
-        setContent {
-            JetnewsApp(appContainer)
+    @Test
+    fun overviewScreen_alertsDisplayed() {
+        composeTestRule.setContent {
+            OverviewBody()
         }
+
+        composeTestRule
+            .onNodeWithText("Alerts")
+            .assertIsDisplayed()
     }
 }
