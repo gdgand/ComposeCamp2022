@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.MaterialTheme
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -104,6 +105,13 @@ class PlantDetailFragment : Fragment() {
                         true
                     }
                     else -> false
+                }
+            }
+            // 데이터 바인딩을 사용하므로 composeView에서 setContent를 호출해 화면에 Compose 코드를 표시
+            composeView.setContent {
+                MaterialTheme{
+                    // Material Design을 사용하기 있기 때문에 PlatentDetatilDescription 호출
+                    PlantDetailDescription(plantDetailViewModel)
                 }
             }
         }
