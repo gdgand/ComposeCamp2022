@@ -25,11 +25,10 @@ android {
     defaultConfig {
         applicationId "com.example.compose.rally"
         minSdkVersion 21
-        targetSdkVersion 32
+        targetSdkVersion 31
         versionCode 1
         versionName '1.0'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-
         vectorDrawables.useSupportLibrary = true
     }
 
