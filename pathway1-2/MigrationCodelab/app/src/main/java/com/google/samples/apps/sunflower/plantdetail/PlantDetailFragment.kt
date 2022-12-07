@@ -22,6 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -30,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.samples.apps.sunflower.R
@@ -52,8 +54,7 @@ class PlantDetailFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+        savedInstanceState: Bundle?): View? {
         val binding = DataBindingUtil.inflate<FragmentPlantDetailBinding>(
             inflater, R.layout.fragment_plant_detail, container, false
         ).apply {
@@ -107,11 +108,16 @@ class PlantDetailFragment : Fragment() {
                     else -> false
                 }
             }
-            // 데이터 바인딩을 사용하므로 composeView에서 setContent를 호출해 화면에 Compose 코드를 표시
-            composeView.setContent {
-                MaterialTheme{
-                    // Material Design을 사용하기 있기 때문에 PlatentDetatilDescription 호출
-                    PlantDetailDescription(plantDetailViewModel)
+            composeView.apply {
+                // Fragment의 LifecycleOwner가 소멸되면 Composition을 삭제
+                setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+                setContent {
+                    // MaterialTheme을 MdcTheme으로 대체
+                    MdcTheme {
+                        PlantDetailDescription(plantDetailViewModel)
+                    }
                 }
             }
         }
