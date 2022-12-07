@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.sunflower.plantdetail
 
+import android.content.res.Configuration
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.samples.apps.sunflower.R
 import com.google.samples.apps.sunflower.data.Plant
 import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
@@ -125,7 +127,16 @@ private fun PlantDescription(description: String) {
 @Composable
 fun PlantDetailContentPreview() {
     val plant = Plant("id", "Apple", "HTML<br><br>description", 3, 30, "")
-    MaterialTheme {
+    MdcTheme {
+        PlantDetailContent(plant)
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PlantDetailContentDarkPreview() {
+    val plant = Plant("id", "Apple", "HTML<br><br>description", 3, 30, "")
+    MdcTheme {
         PlantDetailContent(plant)
     }
 }
@@ -133,7 +144,7 @@ fun PlantDetailContentPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun PlantNamePreview() {
-    MaterialTheme {
+    MdcTheme {
         PlantName("Apple")
     }
 }
@@ -141,7 +152,7 @@ private fun PlantNamePreview() {
 @Preview(showBackground = true)
 @Composable
 private fun PlantWateringPreview() {
-    MaterialTheme {
+    MdcTheme {
         PlantWatering(7)
     }
 }
@@ -149,8 +160,7 @@ private fun PlantWateringPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun PlantDescriptionPreview() {
-    MaterialTheme {
+    MdcTheme {
         PlantDescription("HTML<br><br>description")
     }
 }
-
