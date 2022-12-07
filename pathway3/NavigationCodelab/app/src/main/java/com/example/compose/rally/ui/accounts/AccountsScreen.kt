@@ -27,7 +27,7 @@ import com.example.compose.rally.R
 import com.example.compose.rally.data.UserData
 import com.example.compose.rally.ui.components.AccountRow
 import com.example.compose.rally.ui.components.StatementBody
-
+import androidx.navigation.navDeepLink
 /**
  * The Accounts screen.
  */
@@ -62,7 +62,8 @@ fun AccountsScreen(
  */
 @Composable
 fun SingleAccountScreen(
-    accountType: String? = UserData.accounts.first().name
+    accountType: String? = UserData.accounts.first().name,
+
 ) {
     val account = remember(accountType) { UserData.getAccount(accountType) }
     StatementBody(
