@@ -40,6 +40,7 @@ fun rememberMapViewWithLifecycle(): MapView {
     }
 }
 
+
 fun GoogleMap.setZoom(
     @FloatRange(from = MinZoom.toDouble(), to = MaxZoom.toDouble()) zoom: Float
 ) {
@@ -47,3 +48,20 @@ fun GoogleMap.setZoom(
     setMinZoomPreference(zoom)
     setMaxZoomPreference(zoom)
 }
+// details/MapViewUtils.kt file
+
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+
+private fun getMapLifecycleObserver(mapView: MapView): LifecycleEventObserver =
+    LifecycleEventObserver { _, event ->
+        when (event) {
+            Lifecycle.Event.ON_CREATE -> mapView.onCreate(Bundle())
+            Lifecycle.Event.ON_START -> mapView.onStart()
+            Lifecycle.Event.ON_RESUME -> mapView.onResume()
+            Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+            Lifecycle.Event.ON_STOP -> mapView.onStop()
+            Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
+            else -> throw IllegalStateException()
+        }
+    }
