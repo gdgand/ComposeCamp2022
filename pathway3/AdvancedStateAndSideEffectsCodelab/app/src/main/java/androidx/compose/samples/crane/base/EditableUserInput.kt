@@ -31,8 +31,7 @@ import androidx.compose.ui.graphics.SolidColor
 fun CraneEditableUserInput(
     state: EditableUserInputState = rememberEditableUserInputState(hint = ""),
     caption: String? = null,
-    @DrawableRes vectorImageId: Int? = null,
-    onInputChanged: (String) -> Unit
+    @DrawableRes vectorImageId: Int? = null
 ) {
     CraneBaseUserInput(
         caption = caption,

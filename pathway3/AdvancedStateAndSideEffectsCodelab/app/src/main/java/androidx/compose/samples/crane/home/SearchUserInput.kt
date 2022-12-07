@@ -100,8 +100,7 @@ fun ToDestinationUserInput(onToDestinationChanged: (String) -> Unit) {
     CraneEditableUserInput(
         state = editableUserInputState,
         caption = "To",
-        vectorImageId = R.drawable.ic_plane,
-        onInputChanged = onToDestinationChanged
+        vectorImageId = R.drawable.ic_plane
     )
 
     val currentOnDestinationChanged by rememberUpdatedState(newValue = onToDestinationChanged)
