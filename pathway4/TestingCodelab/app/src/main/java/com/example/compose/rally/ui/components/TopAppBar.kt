@@ -79,6 +79,8 @@ private fun RallyTab(
     onSelected: () -> Unit,
     selected: Boolean
 ) {
+    Modifier
+        .clearAndSetSemantics { contentDescription = text }
     val color = MaterialTheme.colors.onSurface
     val durationMillis = if (selected) TabFadeInAnimationDuration else TabFadeOutAnimationDuration
     val animSpec = remember {
