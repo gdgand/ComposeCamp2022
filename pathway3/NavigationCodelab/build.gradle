@@ -26,6 +26,7 @@ buildscript {
         appCompatVersion = '1.4.2'
         activityComposeVersion = '1.6.0-alpha03'
         composeCompilerVersion = "1.3.0"
+        composeNavigationVersion = "2.5.3"
         composeVersion = '1.2.1'
         coreTestingVersion = '2.1.0'
         espressoVersion = '3.4.0'
@@ -34,7 +35,7 @@ buildscript {
         ktlintVersion = '0.45.2'
         ktxVersion = '1.8.0'
         materialVersion = '1.6.1'
-        navigationComposeVersion = '2.5.0'
+        navigationComposeVersion = '2.5.3'
     }
 
     repositories {
