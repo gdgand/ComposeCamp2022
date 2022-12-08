@@ -13,7 +13,7 @@ fun JetnewsTheme(
     content: @Composable () -> Unit,
 ) {
     MaterialTheme(
-        colors = if (darkTheme) LightColors else DarkColors,
+        colors = if (darkTheme) DarkColors else LightColors,
         typography = JetnewsTypography,
         shapes = JetnewsShapes,
         content = content,
