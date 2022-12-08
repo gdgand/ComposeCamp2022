@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,12 @@ package com.example.compose.rally.ui.accounts
 
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.example.compose.rally.R
-import com.example.compose.rally.data.UserData
+import com.example.compose.rally.data.Account
 import com.example.compose.rally.ui.components.AccountRow
 import com.example.compose.rally.ui.components.StatementBody
 
@@ -32,16 +31,16 @@ import com.example.compose.rally.ui.components.StatementBody
  * The Accounts screen.
  */
 @Composable
-fun AccountsScreen(
+fun AccountsBody(
+    accounts: List<Account>,
     onAccountClick: (String) -> Unit = {},
 ) {
-    val amountsTotal = remember { UserData.accounts.map { account -> account.balance }.sum() }
     StatementBody(
         modifier = Modifier.semantics { contentDescription = "Accounts Screen" },
-        items = UserData.accounts,
+        items = accounts,
         amounts = { account -> account.balance },
         colors = { account -> account.color },
-        amountsTotal = amountsTotal,
+        amountsTotal = accounts.map { account -> account.balance }.sum(),
         circleLabel = stringResource(R.string.total),
         rows = { account ->
             AccountRow(
@@ -61,10 +60,7 @@ fun AccountsScreen(
  * Detail screen for a single account.
  */
 @Composable
-fun SingleAccountScreen(
-    accountType: String? = UserData.accounts.first().name
-) {
-    val account = remember(accountType) { UserData.getAccount(accountType) }
+fun SingleAccountBody(account: Account) {
     StatementBody(
         items = listOf(account),
         colors = { account.color },
