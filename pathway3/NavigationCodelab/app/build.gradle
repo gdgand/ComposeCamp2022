@@ -105,6 +105,7 @@ dependencies {
 
     // Code lab - navigation
     implementation "androidx.navigation:navigation-compose:$rootProject.composeNavigationVersion"
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.composeNavigationVersion"
 
 }
 
