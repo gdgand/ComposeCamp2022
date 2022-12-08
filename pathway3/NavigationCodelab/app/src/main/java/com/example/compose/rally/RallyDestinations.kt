@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.compose.rally.ui.accounts.SingleAccountScreen
 
 /**
@@ -65,6 +66,11 @@ object SingleAccount : RallyDestination {
             type = NavType.StringType
         }
     )
+    val deepLinks = listOf(
+            navDeepLink {
+                uriPattern = "rally://$route/{$accountTypeArg}"
+            }
+        )
 }
 
 // Screens to be displayed in the top RallyTabRow
