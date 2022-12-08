@@ -35,8 +35,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.jetnews.R
 import com.example.jetnews.data.posts.PostsRepository
 import com.example.jetnews.data.posts.impl.post3
 import com.example.jetnews.model.Post
@@ -97,7 +99,9 @@ fun ArticleScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = stringResource(
+                                R.string.cd_navigate_up
+                            )
                         )
                     }
                 }
@@ -107,9 +111,7 @@ fun ArticleScreen(
         PostContent(
             post = post,
             modifier = Modifier
-                // innerPadding takes into account the top and bottom bar
                 .padding(innerPadding)
-                // center content in landscape mode
                 .supportWideScreen()
         )
     }
@@ -145,6 +147,6 @@ private fun FunctionalityNotAvailablePopup(onDismiss: () -> Unit) {
 @Composable
 fun PreviewArticle() {
     JetnewsTheme {
-        ArticleScreen(PostsRepository().getPost(post3.id)!!, {})
+        ArticleScreen(PostsRepository().getPost(post3.id)!!) {}
     }
 }
