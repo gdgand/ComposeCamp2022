@@ -59,5 +59,6 @@ class NavigationTest {
         val route = navController.currentBackStackEntry?.destination?.route
         assertEquals(route, "bills")
     }
+
 }
 
