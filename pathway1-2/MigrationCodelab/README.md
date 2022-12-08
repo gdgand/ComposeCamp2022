@@ -19,6 +19,7 @@ details screen to Jetpack Compose is built in multiple GitHub branches:
 4. Build and run the sample.
 
 
+
 ## Screenshots
 
 ![List of plants](screenshots/phone_plant_list.png "A list of plants")
