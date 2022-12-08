@@ -25,11 +25,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.compose.rally.ui.accounts.AccountsScreen
+import com.example.compose.rally.ui.accounts.SingleAccountScreen
 import com.example.compose.rally.ui.bills.BillsScreen
 import com.example.compose.rally.ui.components.RallyTabRow
 import com.example.compose.rally.ui.overview.OverviewScreen
@@ -48,7 +51,7 @@ class RallyActivity : ComponentActivity() {
     }
 }
 
-fun NavHostController.navigateSingleTop(route: String) =
+private fun NavHostController.navigateSingleTop(route: String) =
     navigate(route) {
         popUpTo(graph.startDestinationId) {
             saveState = true
@@ -56,6 +59,9 @@ fun NavHostController.navigateSingleTop(route: String) =
         restoreState = true
         launchSingleTop = true
     }
+
+private fun NavHostController.navigateSingleAccount(accountType: String) =
+    navigateSingleTop("${SingleAccount.route}/$accountType")
 
 @Composable
 fun RallyApp() {
@@ -89,14 +95,26 @@ fun RallyApp() {
                         },
                         onClickSeeAllBills = {
                             navController.navigateSingleTop(Bills.route)
+                        },
+                        onAccountClick = { accountType ->
+                            navController.navigateSingleAccount(accountType)
                         }
                     )
                 }
                 composable(route = Accounts.route) {
-                    AccountsScreen()
+                    AccountsScreen { accountType ->
+                        navController.navigateSingleAccount(accountType)
+                    }
                 }
                 composable(route = Bills.route) {
                     BillsScreen()
+                }
+                composable(
+                    route = SingleAccount.routeWithArgs,
+                    arguments = SingleAccount.arguments
+                ) { navBackStackEntry ->
+                    val accountType = navBackStackEntry.arguments?.getString(SingleAccount.accountTypeArg)
+                    SingleAccountScreen(accountType)
                 }
             }
         }
