@@ -1,5 +1,9 @@
 package com.example.compose.rally
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.example.compose.rally.ui.components.RallyTopAppBar
@@ -30,6 +34,31 @@ class TopAppBarTest {
                         ),
                 useUnmergedTree = true
             )
+            .assertExists()
+    }
+
+    @Test
+    fun appbarChangeTest() {
+        val allScreens = RallyScreen.values().toList()
+        val currentScreen = mutableStateOf(RallyScreen.Overview)
+        composeTestRule.setContent {
+            RallyTopAppBar(
+                allScreens = allScreens,
+                onTabSelected = { screen -> currentScreen.value = screen },
+                currentScreen = currentScreen.value
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription("Accounts")
+            .assertExists()
+            .performClick()
+        composeTestRule.onNode(
+            hasText(currentScreen.value.name.uppercase()) and
+                    hasParent(
+                        hasContentDescription(currentScreen.value.name)
+                    ),
+            useUnmergedTree = true
+        )
             .assertExists()
     }
 }
