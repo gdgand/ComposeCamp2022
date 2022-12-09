@@ -56,7 +56,7 @@ import com.example.compose.rally.ui.components.BillRow
 import com.example.compose.rally.ui.components.RallyAlertDialog
 import com.example.compose.rally.ui.components.RallyDivider
 import com.example.compose.rally.ui.components.formatAmount
-import java.util.Locale
+import java.util.*
 
 @Composable
 fun OverviewScreen(
