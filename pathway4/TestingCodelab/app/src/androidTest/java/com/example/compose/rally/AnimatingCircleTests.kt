@@ -21,13 +21,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.MainTestClock
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import com.example.compose.rally.ui.components.AnimatedCircle
+import com.example.compose.rally.ui.components.RallyTopAppBar
 import com.example.compose.rally.ui.theme.RallyTheme
 import org.junit.Rule
 import org.junit.Test
@@ -94,7 +93,9 @@ class AnimatingCircleTests {
         composeTestRule.setContent {
             RallyTheme {
                 AnimatedCircle(
-                    modifier = Modifier.background(Color.White).size(320.dp),
+                    modifier = Modifier
+                        .background(Color.White)
+                        .size(320.dp),
                     proportions = listOf(0.25f, 0.5f, 0.25f),
                     colors = listOf(Color.Red, Color.DarkGray, Color.Black)
                 )

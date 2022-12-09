@@ -27,6 +27,7 @@ buildscript {
         activityComposeVersion = '1.6.0-alpha03'
         composeCompilerVersion = "1.3.0"
         composeVersion = '1.2.1'
+        composeNavigationVersion = '2.5.3'
         coreTestingVersion = '2.1.0'
         espressoVersion = '3.4.0'
         gradleVersion = '7.2.2'
