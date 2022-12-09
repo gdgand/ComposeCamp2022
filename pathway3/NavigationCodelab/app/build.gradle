@@ -79,7 +79,7 @@ android {
 }
 
 dependencies {
-
+    implementation "androidx.navigation:navigation-compose:$rootProject.composeNavigationVersion"
     implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
     implementation "androidx.core:core-ktx:$rootProject.ktxVersion"
     implementation "com.google.android.material:material:$rootProject.materialVersion"
@@ -92,6 +92,7 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$rootProject.composeVersion"
     implementation "androidx.activity:activity-compose:$rootProject.activityComposeVersion"
     implementation "androidx.navigation:navigation-compose:$rootProject.navigationComposeVersion"
+    implementation 'androidx.room:room-compiler:2.4.3'
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
 
     // Testing dependencies
@@ -100,6 +101,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.espressoVersion"
 
     // Compose testing dependencies
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.composeNavigationVersion"
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$rootProject.composeVersion"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$rootProject.composeVersion"
 }
