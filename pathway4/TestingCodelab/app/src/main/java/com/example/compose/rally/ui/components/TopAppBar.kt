@@ -116,6 +116,7 @@ private fun RallyTab(
             Text(text.uppercase(Locale.getDefault()), color = tabTintColor)
         }
     }
+    Modifier.clearAndSetSemantics { contentDescription = text }
 }
 
 private val TabHeight = 56.dp
