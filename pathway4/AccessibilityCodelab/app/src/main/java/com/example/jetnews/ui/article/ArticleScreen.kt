@@ -66,28 +66,6 @@ fun ArticleScreen(
         post = postData,
         onBack = onBack
     )
-
-    Scaffold(
-        topBar = {
-            InsetAwareTopAppBar(
-                title = {
-
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = stringResource(
-                                R.string.cd_navigate_up
-                            )
-                        )
-                    }
-                }
-            )
-        }
-    ) {
-
-    }
 }
 
 /**
@@ -111,17 +89,15 @@ fun ArticleScreen(
         topBar = {
             InsetAwareTopAppBar(
                 title = {
-                    Text(
-                        text = "Published in: ${post.publication?.name}",
-                        style = MaterialTheme.typography.subtitle2,
-                        color = LocalContentColor.current
-                    )
+
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = stringResource(
+                                R.string.cd_navigate_up
+                            )
                         )
                     }
                 }
