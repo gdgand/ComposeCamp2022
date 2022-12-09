@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 
 /**
  * Created by okwon on 2022/12/08.
@@ -34,4 +35,10 @@ fun WellnessTasksList(
                 onClose = { onCloseTask(task) })
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WellnessTasksListPreview(){
+    WellnessTasksList(onCheckedTask = { _, _ -> }, onCloseTask = {})
 }
