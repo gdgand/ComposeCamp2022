@@ -94,20 +94,6 @@ private fun RallyTab(
     )
     Row(
         modifier = Modifier
-            .padding(16.dp)
-            .animateContentSize()
-            .height(TabHeight)
-            .selectable(
-                selected = selected,
-                onClick = onSelected,
-                role = Role.Tab,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple(
-                    bounded = false,
-                    radius = Dp.Unspecified,
-                    color = Color.Unspecified
-                )
-            )
             .clearAndSetSemantics { contentDescription = text }
     ) {
         Icon(imageVector = icon, contentDescription = null, tint = tabTintColor)
