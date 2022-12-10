@@ -16,8 +16,8 @@
 
 package com.example.android.codelab.animation.ui.home
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.splineBasedDecay
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -158,7 +158,12 @@ fun Home() {
 
     // The background color. The value is changed by the current tab.
     // TODO 1: Animate this color change.
-    val backgroundColor = if (tabPage == TabPage.Home) Purple100 else Green300
+    // 여기서 tabPage는 State 객체로 지원되는 Int 타입
+    /*
+    State<T> 객체 이기 때문에 by 선언으로 로컬 위임을 하여 일반 변수처럼 처리가 가능하다.
+    by : get, set을 위임하여 해당 변수 자체가 값을 변경하고 사용할 수 있게 한다.
+     */
+    val backgroundColor by animateColorAsState(if (tabPage == TabPage.Home) Purple100 else Green300)
 
     // The coroutine scope for event handlers calling suspend functions.
     val coroutineScope = rememberCoroutineScope()
@@ -271,7 +276,10 @@ private fun HomeFloatingActionButton(
             )
             // Toggle the visibility of the content with animation.
             // TODO 2-1: Animate this visibility change.
-            if (extended) {
+            /*
+            해당 플로팅 액션버튼이 확장 축소 되는 애니메이션을 구현하기 위해 if를 AnimatedVisibility Composable로 대체
+             */
+            AnimatedVisibility (extended) {
                 Text(
                     text = stringResource(R.string.edit),
                     modifier = Modifier
@@ -289,8 +297,21 @@ private fun HomeFloatingActionButton(
 private fun EditMessage(shown: Boolean) {
     // TODO 2-2: The message should slide down from the top on appearance and slide up on
     //           disappearance.
+    // edit 메시지를 띄워주는 애니메이션 코드
     AnimatedVisibility(
-        visible = shown
+        visible = shown,
+        enter = slideInVertically(
+            // 매개변수 설정을 통해 항목의 전체 높이를 사용하도록 설정 - 최상단이 0이고 해당 위치 위부터 내려오도록 구현
+            // slideIn 후의 target offset은 0 픽셀
+            initialOffsetY = {fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
+        ),
+        exit = slideOutVertically(
+            // 마찬가지로 초기 offset 0이라고 가정
+            targetOffsetY = {fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
+
+        )
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -364,6 +385,10 @@ private fun TopicRow(topic: String, expanded: Boolean, onClick: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
+                // animateContentSize() 를 추가하여 애니메이션 구현이 가능.
+                .animateContentSize(
+                    animationSpec = tween(durationMillis = 500, easing = LinearOutSlowInEasing)
+                )
         ) {
             Row {
                 Icon(
@@ -443,9 +468,30 @@ private fun HomeTabIndicator(
     tabPage: TabPage
 ) {
     // TODO 4: Animate these value changes.
-    val indicatorLeft = tabPositions[tabPage.ordinal].left
-    val indicatorRight = tabPositions[tabPage.ordinal].right
-    val color = if (tabPage == TabPage.Home) Purple700 else Green800
+//
+//    val indicatorLeft = tabPositions[tabPage.ordinal].left
+//    val indicatorRight = tabPositions[tabPage.ordinal].right
+//    val color = if (tabPage == TabPage.Home) Purple700 else Green800
+    // 각 탭의 indicator 전환시의 애니메이션을 구현
+    // 각 애니메이션은 Transition의 animate* 확장 함수를 사용하여 선언이 가능하다.
+    // animate* 함수가 State 객체를 반환하므로 다시 by 키워드로 위임을 해준다.
+    val transition = updateTransition(tabPage, label = "Tab Indicator")
+    // 각 좌우 탭 애니메이션 구현
+    // animateDp(), animateColor()는 by 키워드로 animate* 확장 함수로 부터 위임 받음
+    val indicatorLeft by transition.animateDp(label = "Indicator left") { page ->
+        tabPositions[page.ordinal].left
+    }
+
+    val indicatorRight by transition.animateDp(label = "Indicator right") { page ->
+        tabPositions[page.ordinal].right
+    }
+
+    val color by transition.animateColor(label = "Border color") { page ->
+        // 해당 텝페이지의 Indicator가 홈탭을 가리키면 보라색 배경을 띄워주고 그렇지 않으면 초록색 배경을 띄워준다.
+        if (page == TabPage.Home) Purple700 else Green800
+
+    }
+
     Box(
         Modifier
             .fillMaxSize()
