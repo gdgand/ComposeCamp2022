@@ -47,6 +47,8 @@ android {
 }
 
 dependencies {
+    // compose icon
+    implementation "androidx.compose.material:material-icons-extended:$compose_ui_version"
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
