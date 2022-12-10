@@ -19,34 +19,22 @@ package com.example.jetnews.ui.home
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Card
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,8 +47,23 @@ import com.example.jetnews.ui.theme.JetnewsTheme
 @Composable
 fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
     var openDialog by remember { mutableStateOf(false) }
+    val showFewerLabel = stringResource(R.string.cd_show_fewer)
     Row(
-        Modifier.clickable { navigateToArticle(post.id) }
+        Modifier
+            .clickable(
+                onClickLabel = stringResource(R.string.action_read_article)
+            ) {
+                navigateToArticle(post.id)
+            }
+            .semantics {
+                customActions = listOf(
+                    CustomAccessibilityAction(
+                        label = showFewerLabel,
+                        // action returns boolean to indicate success
+                        action = { openDialog = true; true }
+                    )
+                )
+            }
     ) {
         Image(
             painter = painterResource(post.imageThumbId),
@@ -78,15 +81,15 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
             Text(post.title, style = MaterialTheme.typography.subtitle1)
             Row(Modifier.padding(top = 4.dp)) {
                 CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                    val textStyle = MaterialTheme.typography.body2
-                    Text(
-                        text = post.metadata.author.name,
-                        style = textStyle
-                    )
-                    Text(
-                        text = " - ${post.metadata.readTimeMinutes} min read",
-                        style = textStyle
-                    )
+                    IconButton(
+                        modifier = Modifier.clearAndSetSemantics { },
+                        onClick = { openDialog = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.cd_show_fewer)
+                        )
+                    }
                 }
             }
         }
@@ -96,6 +99,7 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
                 contentDescription = stringResource(R.string.cd_show_fewer),
                 modifier = Modifier
                     .clickable { openDialog = true }
+                    .padding(12.dp)
                     .size(24.dp)
             )
         }
@@ -137,11 +141,17 @@ fun PostCardPopular(
     navigateToArticle: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier.size(280.dp, 240.dp),
-        onClick = { navigateToArticle(post.id) }
-    ) {
+    stringResource(id = R.string.action_read_article)
+    //deprecated!!!
+    Card({ navigateToArticle(post.id) },
+        modifier.size(280.dp, 240.dp),
+        true,
+        MaterialTheme.shapes.medium,
+        MaterialTheme.colors.surface,
+        contentColorFor(backgroundColor),
+        null,
+        1.dp,
+        remember { MutableInteractionSource() }) {
         Column {
 
             Image(

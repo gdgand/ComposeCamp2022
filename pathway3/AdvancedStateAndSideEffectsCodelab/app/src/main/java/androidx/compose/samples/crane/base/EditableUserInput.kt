@@ -27,31 +27,62 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.samples.crane.ui.captionTextStyle
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
+
+
+//상태 홀더로 일반 클래스 생성.
+//향후 로직이 더 복잡해지면 EditableUserInputState 클래스만 변경하면 됩니다.
+class EditableUserInputState(private val hint: String, initialText: String) {
+    var text by mutableStateOf(initialText)
+
+    val isHint: Boolean
+        get() = text == hint
+
+    companion object {
+        //Saver에서 EditableUserInputState의 인스턴스를 저장하고 복원하는 구현 세부정보로 listSaver
+        val Saver: Saver<EditableUserInputState, *> = listSaver(
+            save = { listOf(it.hint, it.text) },
+            restore = {
+                EditableUserInputState(
+                    hint = it[0],
+                    initialText = it[1],
+                )
+            }
+        )
+    }
+}
+
+@Composable
+fun rememberEditableUserInputState(hint: String): EditableUserInputState =
+    rememberSaveable(hint, saver = EditableUserInputState.Saver) {
+        EditableUserInputState(hint, hint)
+    }
 
 @Composable
 fun CraneEditableUserInput(
-    hint: String,
+    //끌어올린 상태를 사용
+    state: EditableUserInputState = rememberEditableUserInputState(""),
     caption: String? = null,
-    @DrawableRes vectorImageId: Int? = null,
-    onInputChanged: (String) -> Unit
+    @DrawableRes vectorImageId: Int? = null
 ) {
-    // TODO Codelab: Encapsulate this state in a state holder
-    var textState by remember { mutableStateOf(hint) }
-    val isHint = { textState == hint }
-
+    // TODO Text 상태를 끌어올려서 사용하도록 해야함
+    // !! TextField 값은 끌어올려지지 않아 외부에서 제어할 수 없으므로 테스트가 더 어렵습니다.
+    // !! 컴포저블의 논리가 더 복잡해지고 내부 상태가 더 쉽게 동기화되지 않을 수 있습니다.
     CraneBaseUserInput(
         caption = caption,
-        tintIcon = { !isHint() },
-        showCaption = { !isHint() },
+        tintIcon = { !state.isHint },
+        showCaption = { !state.isHint },
         vectorImageId = vectorImageId
     ) {
         BasicTextField(
-            value = textState,
-            onValueChange = {
-                textState = it
-                if (!isHint()) onInputChanged(textState)
-            },
-            textStyle = if (isHint()) {
+            value = state.text,
+            onValueChange = { state.text = it },
+            textStyle = if (state.isHint) {
                 captionTextStyle.copy(color = LocalContentColor.current)
             } else {
                 MaterialTheme.typography.body1.copy(color = LocalContentColor.current)
