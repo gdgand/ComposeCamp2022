@@ -58,12 +58,6 @@ class PlantDetailFragment : Fragment() {
             inflater, R.layout.fragment_plant_detail, container, false
         ).apply {
 
-            composeView.setContent {
-                MaterialTheme {
-                    PlantDetailDescription()
-                }
-            }
-
             viewModel = plantDetailViewModel
             lifecycleOwner = viewLifecycleOwner
             callback = object : Callback {
@@ -75,6 +69,7 @@ class PlantDetailFragment : Fragment() {
                             .show()
                     }
                 }
+
             }
 
             var isToolbarShown = false
@@ -112,6 +107,12 @@ class PlantDetailFragment : Fragment() {
                         true
                     }
                     else -> false
+                }
+            }
+
+            composeView.setContent {
+                MaterialTheme {
+                    PlantDetailDescription(plantDetailViewModel)
                 }
             }
         }
