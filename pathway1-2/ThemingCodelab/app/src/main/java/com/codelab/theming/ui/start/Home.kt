@@ -40,6 +40,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,7 +61,7 @@ import java.util.Locale
 fun Home() {
     val featured = remember { PostRepo.getFeaturedPost() }
     val posts = remember { PostRepo.getPosts() }
-    MaterialTheme {
+    JetnewsTheme {
         Scaffold(
             topBar = { AppBar() }
         ) { innerPadding ->
@@ -217,9 +218,21 @@ private fun PostItemPreview() {
 @Composable
 private fun FeaturedPostPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    FeaturedPost(post = post)
+    JetnewsTheme {
+        FeaturedPost(post = post)
+    }
 }
 
+@Preview("Featured Post • Dark")
+@Composable
+private fun FeaturedPostDarkPreview() {
+    val post = remember {
+        PostRepo.getFeaturedPost()
+    }
+    JetnewsTheme(darkTheme = true) {
+        FeaturedPost(post = post)
+    }
+}
 @Preview("Home")
 @Composable
 private fun HomePreview() {
