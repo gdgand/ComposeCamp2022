@@ -58,7 +58,7 @@ fun RallyApp() {
         val currentBackStack by navController.currentBackStackEntryAsState()
         val currentDestination = currentBackStack?.destination
         val currentScreen =
-            rallyTabRowScreens.find { it.route == currentDestination?.route } ?: Overview
+            rallyTabRowScreens.find { currentDestination?.route?.contains(it.route) ?: false  } ?: Overview
 
         Scaffold(
             topBar = {
