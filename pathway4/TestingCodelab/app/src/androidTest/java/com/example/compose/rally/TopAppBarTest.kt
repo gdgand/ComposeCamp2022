@@ -47,4 +47,20 @@ class TopAppBarTest {
             )
             .assertExists()
     }
+
+    @Test
+    fun rallyTopAppBarTest_clickAccountSelectAccount() {
+        composeTestRule.setContent {
+            RallyApp()
+        }
+        composeTestRule.onRoot().printToLog("beforeClick root")
+        composeTestRule.onNodeWithContentDescription(RallyScreen.Accounts.name).printToLog("beforeClick tab")
+        composeTestRule
+            .onNodeWithContentDescription(RallyScreen.Accounts.name)
+            .performClick()
+        composeTestRule.onNodeWithContentDescription(RallyScreen.Accounts.name).printToLog("afterClick tab")
+        composeTestRule
+            .onNodeWithContentDescription(RallyScreen.Accounts.name)
+            .assertIsSelected()
+    }
 }
