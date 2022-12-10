@@ -21,6 +21,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -29,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.samples.apps.sunflower.R
@@ -104,6 +107,35 @@ class PlantDetailFragment : Fragment() {
                         true
                     }
                     else -> false
+                }
+            }
+
+            /*composeView.setContent {
+                MaterialTheme {
+                    PlantDetailDescription(plantDetailViewModel)
+                }
+            }*/
+
+            composeView.apply {
+                // Dispose the Composition when the view's LifecycleOwner
+                // is destroyed
+
+                //AbstractComposeView.disposeComposition 메서드를 수동으로 호출하여
+                // 컴포지션을 수동으로 삭제할 수 있습니다.
+                // 대안으로 더 이상 필요하지 않은 컴포지션을
+                // 자동으로 삭제하려면 다른 전략을 설정하거나
+                // setViewCompositionStrategy 메서드를 호출하여
+                // 전략을 직접 만듭니다.
+                setViewCompositionStrategy(
+                    //DisposeOnViewTreeLifecycleDestroyed 전략을 사용하여
+                    //프래그먼트의 LifecycleOwner가 소멸되면 컴포지션을 삭제합니다.
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+                setContent {
+                    //MdcTheme -> MaterialTheme 사용을 대체
+                    MdcTheme {
+                        PlantDetailDescription(plantDetailViewModel)
+                    }
                 }
             }
         }

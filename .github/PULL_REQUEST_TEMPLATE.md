@@ -8,7 +8,7 @@
 - [x] Pathway1/BasicLayoutsCodelab
 - [x] Pathway1-2/BasicStateCodelab
 - [x] Pathway1-2/ThemingCodelab
-- [ ] Pathway1-2/MigrationCodelab
+- [x] Pathway1-2/MigrationCodelab
 - [ ] Pathway2/AnimationCodelab
 - [ ] Pathway3/AdvancedStateAndSideEffectsCodelab
 - [ ] Pathway3/NavigationCodelab
