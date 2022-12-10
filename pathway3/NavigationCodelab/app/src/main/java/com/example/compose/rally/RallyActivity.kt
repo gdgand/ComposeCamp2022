@@ -72,54 +72,11 @@ fun RallyApp() {
                 )
             }
         ) { innerPadding ->
-            NavHost(
+            RallyNavHost(
                 navController = navController,
-                startDestination = Overview.route,
                 modifier = Modifier.padding(innerPadding)
-            ) {
-                composable(Overview.route) {
-                    OverviewScreen(
-                        onClickSeeAllAccounts = {
-                            navController.navigateSingleTopTo(Accounts.route)
-                        },
-                        onClickSeeAllBills = {
-                            navController.navigateSingleTopTo(Bills.route)
-                        },
-                        onAccountClick = { accountType ->
-                            navController.navigateSingleTopTo("${SingleAccount.route}/$accountType")
-                        }
-                    )
-                }
-                composable(Accounts.route) {
-                    AccountsScreen(
-                        onAccountClick = { accountType ->
-                            navController.navigateSingleTopTo("${SingleAccount.route}/$accountType")
-                        }
-                    )
-                }
-                composable(Bills.route) {
-                    BillsScreen()
-                }
-                composable(
-                    route = SingleAccount.routeWithType,
-                    arguments = SingleAccount.arguments,
-                    deepLinks = SingleAccount.deepLinks
-                ) {
-                    val accountType = it.arguments?.getString(SingleAccount.accountTypeArg)
-                    SingleAccountScreen(accountType)
-                }
-            }
+            )
         }
     }
 }
 
-fun NavHostController.navigateSingleTopTo(route: String) =
-    this.navigate(route) {
-        popUpTo(
-            this@navigateSingleTopTo.graph.findStartDestination().id
-        ) {
-            saveState = true
-        }
-        launchSingleTop = true
-        restoreState = true
-    }
