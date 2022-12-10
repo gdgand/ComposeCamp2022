@@ -134,7 +134,9 @@ private fun PostHeaderImage(post: Post) {
 @Composable
 private fun PostMetadata(metadata: Metadata) {
     val typography = MaterialTheme.typography
-    Row {
+    Row(
+        modifier = Modifier.semantics(mergeDescendants = true) {}
+    ) {
         Image(
             imageVector = Icons.Filled.AccountCircle,
             contentDescription = null,
@@ -183,7 +185,8 @@ private fun Paragraph(paragraph: Paragraph) {
             )
             ParagraphType.Header -> {
                 Text(
-                    modifier = Modifier.padding(4.dp)
+                    modifier = Modifier
+                        .padding(4.dp)
                         .semantics { heading() },
                     text = annotatedString,
                     style = textStyle.merge(paragraphStyle)
