@@ -1,6 +1,11 @@
 package com.example.compose.rally
 
+import android.util.Log
 import androidx.compose.material.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.example.compose.rally.ui.components.RallyTopAppBar
@@ -95,5 +100,28 @@ class OverviewScreenTest {
         composeTestRule
             .onNodeWithText("Alerts")
             .assertIsDisplayed()
+    }
+}
+
+class PerformClickTabsTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Test
+    fun clickOverviewTabClickedTest() {
+        composeTestRule.setContent {
+            RallyApp()
+        }
+
+        val allScreens = RallyScreen.values().toList()
+        var tabNames = listOf("overview", "accounts", "bills")
+
+        for (i in 0..2) {
+            composeTestRule.onNodeWithContentDescription(tabNames[i], ignoreCase = true).performClick()
+            composeTestRule
+                .onNodeWithContentDescription(allScreens[i].name)
+                .assertIsSelected()
+        }
     }
 }
