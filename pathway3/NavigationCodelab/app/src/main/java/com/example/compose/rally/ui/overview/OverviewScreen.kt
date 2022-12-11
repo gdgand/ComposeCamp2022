@@ -68,7 +68,9 @@ fun OverviewScreen(
         modifier = Modifier
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
-            .semantics { contentDescription = "Overview Screen" }
+            .semantics {
+                contentDescription = "Overview Screen"
+            }
     ) {
         AlertCard()
         Spacer(Modifier.height(RallyDefaultPadding))

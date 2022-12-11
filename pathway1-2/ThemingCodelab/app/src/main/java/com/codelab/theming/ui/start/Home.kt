@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import com.codelab.theming.R
 import com.codelab.theming.data.Post
 import com.codelab.theming.data.PostRepo
+import com.codelab.theming.ui.start.theme.JetnewsTheme
 import java.util.Locale
 
 @Composable
@@ -99,7 +100,6 @@ private fun AppBar() {
         title = {
             Text(text = stringResource(R.string.app_title))
         },
-        backgroundColor = MaterialTheme.colors.primary
     )
 }
 
@@ -108,14 +108,21 @@ fun Header(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = text,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color.LightGray)
-            .semantics { heading() }
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    )
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colors.onSurface.copy(alpha = 0.1F),
+        contentColor = MaterialTheme.colors.primary
+    ) {
+        Text(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(Color.LightGray)
+                .semantics { heading() }
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            text = text,
+            style = MaterialTheme.typography.subtitle2
+        )
+    }
 }
 
 @Composable
@@ -217,7 +224,9 @@ private fun PostItemPreview() {
 @Composable
 private fun FeaturedPostPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    FeaturedPost(post = post)
+    JetnewsTheme {
+        FeaturedPost(post = post)
+    }
 }
 
 @Preview("Home")
