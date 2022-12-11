@@ -22,7 +22,7 @@ import androidx.activity.compose.setContent
 import com.example.android.codelab.animation.ui.AnimationCodelabTheme
 import com.example.android.codelab.animation.ui.home.Home
 
-class MainActivity : ComponentActivity() { 
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
