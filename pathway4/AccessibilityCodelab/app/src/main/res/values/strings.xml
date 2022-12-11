@@ -18,7 +18,7 @@
     <string name="retry">Retry</string>
     <string name="home_popular_section_title">Popular on Jetnews</string>
     <string name="home_post_min_read">%1$s - %2$d min read</string>
-    <string name="cd_navigate_up">Navigate up</string>
+    <string name="cd_navigate_up">이전 화면으로</string>
     <string name="cd_add_to_favorites">Add to favorites</string>
     <string name="cd_share">Share</string>
     <string name="cd_text_settings">Text settings</string>
@@ -30,7 +30,7 @@
     <string name="fewer_stories">Show fewer stories like this?</string>
     <string name="fewer_stories_content">This feature is not yet implemented</string>
     <string name="agree">AGREE</string>
-    <string name="action_read_article">read article</string>
-    <string name="state_not_subscribed">not subscribed</string>
-    <string name="state_subscribed">subscribed</string>
+    <string name="action_read_article">기사 읽기</string>
+    <string name="state_not_subscribed">구독 해지됨</string>
+    <string name="state_subscribed">구독됨</string>
 </resources>
