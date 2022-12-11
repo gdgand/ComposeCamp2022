@@ -79,6 +79,7 @@ android {
 }
 
 dependencies {
+    implementation "androidx.navigation:navigation-compose:$rootProject.composeNavigationVersion"
 
     implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
     implementation "androidx.core:core-ktx:$rootProject.ktxVersion"
@@ -102,6 +103,8 @@ dependencies {
     // Compose testing dependencies
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$rootProject.composeVersion"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$rootProject.composeVersion"
+
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.composeNavigationVersion"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
