@@ -10,7 +10,7 @@
 - [x] Pathway1-2/ThemingCodelab
 - [x] Pathway1-2/MigrationCodelab
 - [x] Pathway2/AnimationCodelab
-- [ ] Pathway3/AdvancedStateAndSideEffectsCodelab
+- [x] Pathway3/AdvancedStateAndSideEffectsCodelab
 - [ ] Pathway3/NavigationCodelab
 - [ ] Pathway4/AccessibilityCodelab
 - [ ] Pathway4/TestingCodelab
