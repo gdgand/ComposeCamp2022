@@ -18,7 +18,7 @@
     <string name="retry">Retry</string>
     <string name="home_popular_section_title">Popular on Jetnews</string>
     <string name="home_post_min_read">%1$s - %2$d min read</string>
-    <string name="cd_navigate_up">Navigate up</string>
+    <string name="cd_navigate_up">이전 화면으로</string>
     <string name="cd_add_to_favorites">Add to favorites</string>
     <string name="cd_share">Share</string>
     <string name="cd_text_settings">Text settings</string>
