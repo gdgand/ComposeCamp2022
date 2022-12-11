@@ -6,6 +6,22 @@ codelab.
 
 In this codelab, you will learn how to use some Animation APIs in Jetpack Compose.
 
+## NOTES
+
+- animate*AsState
+    - returned value is `State<T>`
+    - So we can use a local delegated property with a `by` declaration to treat it like a normal variable
+    
+    ```kotlin
+    val backgroundColor by animateColorAsState(if (tabPage == TabPage.Home) Purple100 else Green300)
+    ```
+    
+- AnimatedVisibility
+- .animatedContentSize()
+- Transition API
+- InfiniteTransition
+    - `rememberInfiniteTransition`
+
 ## Screenshot
 
 ![Screenshot](screenshots/app.png)
