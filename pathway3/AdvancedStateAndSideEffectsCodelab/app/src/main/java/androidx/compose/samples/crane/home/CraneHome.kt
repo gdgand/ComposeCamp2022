@@ -23,11 +23,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.base.CraneDrawer
 import androidx.compose.samples.crane.base.CraneTabBar
 import androidx.compose.samples.crane.base.CraneTabs
@@ -37,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.statusBarsPadding
+import kotlinx.coroutines.launch
 
 typealias OnExploreItemClicked = (ExploreModel) -> Unit
 
@@ -49,6 +46,13 @@ fun CraneHome(
     onExploreItemClicked: OnExploreItemClicked,
     modifier: Modifier = Modifier,
 ) {
+    //LaunchedEffect vs rememberCoroutineScope
+    //LaunchedEffect는 컴포저블에 대한 호출이 컴포지션으로 향할 때 부작용이 실행되도록 합니다.
+    // LandingScreen의 본문에 rememberCoroutineScope 및 scope.launch를 사용하는 경우
+    // 코루틴은 호출이 컴포지션으로 향하는지 여부와 무관하게
+    // Compose에서 LandingScreen을 호출할 때마다 실행됩니다.
+    // 따라서 리소스를 낭비하게 되며 제어된 환경에서
+    // 이 부작용을 실행하지 않게 됩니다.
     val scaffoldState = rememberScaffoldState()
     Scaffold(
         scaffoldState = scaffoldState,
@@ -56,13 +60,17 @@ fun CraneHome(
         drawerContent = {
             CraneDrawer()
         }
-    ) { padding ->
+    ) {
+        val scope = rememberCoroutineScope()
         CraneHomeContent(
-            modifier = modifier.padding(padding),
+            modifier = modifier,
             onExploreItemClicked = onExploreItemClicked,
             openDrawer = {
                 // TODO Codelab: rememberCoroutineScope step - open the navigation drawer
-                // scaffoldState.drawerState.open()
+                //open은 정지 함수라서 코루틴내에서 호출되어야함함                // scaffoldState.drawerState.open()
+                scope.launch {
+                    scaffoldState.drawerState.open()
+                }
             }
         )
     }
@@ -77,7 +85,10 @@ fun CraneHomeContent(
     viewModel: MainViewModel = viewModel(),
 ) {
     // TODO Codelab: collectAsState step - consume stream of data from the ViewModel
-    val suggestedDestinations: List<ExploreModel> = remember { emptyList() }
+    //val suggestedDestinations: List<ExploreModel> = remember { emptyList() }
+    //collectAsState는 StateFlow에서 값 수집, compose의 state api를 통해 최신값
+    //이러면 상태 값을 읽는 compose코드가 새로 내보낼 때 재구성
+    val suggestedDestinations by viewModel.suggestedDestinations.collectAsState()
 
     val onPeopleChanged: (Int) -> Unit = { viewModel.updatePeople(it) }
     var tabSelected by remember { mutableStateOf(CraneScreen.Fly) }

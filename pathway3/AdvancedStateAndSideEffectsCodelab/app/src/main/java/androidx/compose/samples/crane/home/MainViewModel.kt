@@ -34,6 +34,7 @@ const val MAX_PEOPLE = 4
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    //초기화
     private val destinationsRepository: DestinationsRepository,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -41,6 +42,7 @@ class MainViewModel @Inject constructor(
     val hotels: List<ExploreModel> = destinationsRepository.hotels
     val restaurants: List<ExploreModel> = destinationsRepository.restaurants
 
+    //updatePeople 또는 toDestinationChanged 함수가 호출될 때 업데이트
     private val _suggestedDestinations = MutableStateFlow<List<ExploreModel>>(emptyList())
     val suggestedDestinations: StateFlow<List<ExploreModel>>
         get() = _suggestedDestinations
