@@ -97,12 +97,21 @@ fun FromDestination() {
 
 @Composable
 fun ToDestinationUserInput(onToDestinationChanged: (String) -> Unit) {
+    val editableUserInputState = rememberEditableUserInputState(hint = "Choose Destination")
     CraneEditableUserInput(
-        hint = "Choose Destination",
+        state = editableUserInputState,
         caption = "To",
-        vectorImageId = R.drawable.ic_plane,
-        onInputChanged = onToDestinationChanged
+        vectorImageId = R.drawable.ic_plane
     )
+
+    val currentOnDestinationChanged by rememberUpdatedState(onToDestinationChanged)
+    LaunchedEffect(editableUserInputState) {
+        snapshotFlow { editableUserInputState.text }
+            .filter { !editableUserInputState.isHint }
+            .collect {
+                currentOnDestinationChanged(editableUserInputState.text)
+            }
+    }
 }
 
 @Composable
