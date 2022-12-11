@@ -19,6 +19,7 @@ package com.codelab.theming.ui.start
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
@@ -39,6 +41,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.lightColors
 import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -251,4 +254,44 @@ private fun FeaturedPostDarkPreview() {
 @Composable
 private fun HomePreview() {
     Home()
+}
+
+@Preview("temp")
+@Composable
+private fun Temp() {
+    MaterialTheme(
+        colors = lightColors(
+            //onPrimary = Color.Red,
+            surface = Color.Black,
+            onSurface = Color.Red,
+            primary = Color.Blue,
+            onPrimary = Color.Yellow
+        )
+    ) {
+        Text(
+            text = "test",
+            //color = MaterialTheme.colors.onPrimary,
+            modifier = Modifier.fillMaxWidth()
+                .back
+        )
+        FilledTextField
+        /*Surface {
+            Text(
+                text = "test",
+                //color = MaterialTheme.colors.onPrimary,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        Button(
+
+        )*/
+
+        /*Surface {
+            Text(
+                text = "test",
+                //color = MaterialTheme.colors.onPrimary,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }*/
+    }
 }
