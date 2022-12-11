@@ -4,6 +4,7 @@ import androidx.compose.material.Text
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.example.compose.rally.ui.components.RallyTopAppBar
+import com.example.compose.rally.ui.overview.OverviewBody
 import org.junit.Rule
 import org.junit.Test
 
@@ -68,7 +69,7 @@ class TopAppBarTest {
                 useUnmergedTree = true
             )
             .assertExists()
-        
+
 //        composeTestRule.onRoot(useUnmergedTree = true).printToLog("currentLabelExists")
 
 //        composeTestRule
@@ -78,4 +79,21 @@ class TopAppBarTest {
 
 
 
+}
+
+class OverviewScreenTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Test
+    fun overviewScreen_alertsDisplayed() {
+        composeTestRule.setContent {
+            OverviewBody()
+        }
+
+        composeTestRule
+            .onNodeWithText("Alerts")
+            .assertIsDisplayed()
+    }
 }
