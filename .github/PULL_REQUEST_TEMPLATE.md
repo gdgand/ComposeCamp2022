@@ -11,7 +11,7 @@
 - [x] Pathway1-2/MigrationCodelab
 - [x] Pathway2/AnimationCodelab
 - [x] Pathway3/AdvancedStateAndSideEffectsCodelab
-- [ ] Pathway3/NavigationCodelab
+- [x] Pathway3/NavigationCodelab
 - [ ] Pathway4/AccessibilityCodelab
 - [ ] Pathway4/TestingCodelab
 - Pathway5는 Optional :)
