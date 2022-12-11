@@ -16,8 +16,7 @@
 
 package com.example.compose.rally.ui.overview
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.compose.rally.R
 import com.example.compose.rally.RallyScreen
@@ -96,11 +96,13 @@ private fun AlertCard() {
     }
 
     var currentTargetElevation by remember { mutableStateOf(1.dp) }
+    val infiniteElevationAnimation = rememberInfiniteTransition()
     LaunchedEffect(Unit) {
         // Start the animation
         currentTargetElevation = 8.dp
     }
-    val animatedElevation = animateDpAsState(
+    //애니메이션이 완료될 때까지 기다렸다가( finishedListener) 다시 실행
+    /*val animatedElevation = animateDpAsState(
         targetValue = currentTargetElevation,
         animationSpec = tween(durationMillis = 500),
         finishedListener = {
@@ -110,8 +112,19 @@ private fun AlertCard() {
                 8.dp
             }
         }
+    )*/
+    //이제 애니메이션을 다시 시작하는 대신 무한 애니메이션을 animateDpAsState로 사용
+    val animatedElevation: Dp by infiniteElevationAnimation.animateValue(
+        initialValue = 1.dp,
+        targetValue = 8.dp,
+        typeConverter = Dp.VectorConverter,
+        animationSpec = infiniteRepeatable(
+            animation = tween(500),
+            repeatMode = RepeatMode.Reverse
+        )
     )
-    Card(elevation = animatedElevation.value) {
+
+    Card(elevation = animatedElevation) {
         Column {
             AlertHeader {
                 showDialog = true
