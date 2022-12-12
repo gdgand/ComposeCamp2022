@@ -78,9 +78,6 @@ fun RallyApp() {
                     Bills.screen()
                 }
             }
-            Box(Modifier.padding(innerPadding)) {
-                currentScreen.screen()
-            }
         }
     }
 }
