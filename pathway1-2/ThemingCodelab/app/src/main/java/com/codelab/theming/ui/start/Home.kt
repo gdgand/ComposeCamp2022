@@ -16,6 +16,7 @@
 
 package com.codelab.theming.ui.start
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,6 +43,7 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -54,13 +56,14 @@ import androidx.compose.ui.unit.dp
 import com.codelab.theming.R
 import com.codelab.theming.data.Post
 import com.codelab.theming.data.PostRepo
+import com.codelab.theming.ui.start.theme.JetnewsTheme
 import java.util.Locale
 
 @Composable
 fun Home() {
     val featured = remember { PostRepo.getFeaturedPost() }
     val posts = remember { PostRepo.getPosts() }
-    MaterialTheme {
+    JetnewsTheme {
         Scaffold(
             topBar = { AppBar() }
         ) { innerPadding ->
@@ -192,7 +195,8 @@ fun PostItem(
         icon = {
             Image(
                 painter = painterResource(post.imageThumbId),
-                contentDescription = null
+                contentDescription = null,
+                modifier = Modifier.clip(shape = MaterialTheme.shapes.small),
             )
         },
         text = {
@@ -217,11 +221,22 @@ private fun PostItemPreview() {
 @Composable
 private fun FeaturedPostPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    FeaturedPost(post = post)
+    JetnewsTheme {
+        FeaturedPost(post = post)
+    }
 }
 
-@Preview("Home")
+@Preview("Dark Home", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun HomePreview() {
     Home()
+}
+
+@Preview("Featured Post • Dark")
+@Composable
+private fun FeaturedPostDarkPreview() {
+    val post = remember { PostRepo.getFeaturedPost() }
+    JetnewsTheme(darkTheme = true) {
+        FeaturedPost(post = post)
+    }
 }
