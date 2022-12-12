@@ -62,8 +62,6 @@ fun CraneHome(
                 scope.launch {
                     scaffoldState.drawerState.open()
                 }
-                // TODO Codelab: rememberCoroutineScope step - open the navigation drawer
-                // scaffoldState.drawerState.open()
             }
         )
     }
