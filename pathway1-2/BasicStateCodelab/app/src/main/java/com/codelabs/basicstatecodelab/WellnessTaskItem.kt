@@ -2,6 +2,7 @@ package com.codelabs.basicstatecodelab
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Checkbox
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -17,6 +18,8 @@ import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 @Composable
 fun WellnessTaskItem(
     taskName: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -29,6 +32,10 @@ fun WellnessTaskItem(
                 .padding(start = 16.dp),
             text = taskName
         )
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
         IconButton(onClick = onClose) {
             Icon(Icons.Filled.Close, contentDescription = "Close")
         }
@@ -39,6 +46,11 @@ fun WellnessTaskItem(
 @Composable
 fun WellnessTaskItemPreview() {
     BasicStateCodelabTheme {
-        WellnessTaskItem(taskName = "This is a task", onClose = { /*TODO*/ })
+        WellnessTaskItem(
+            taskName = "This is a task",
+            onClose = {},
+            onCheckedChange = {},
+            checked = false
+        )
     }
 }

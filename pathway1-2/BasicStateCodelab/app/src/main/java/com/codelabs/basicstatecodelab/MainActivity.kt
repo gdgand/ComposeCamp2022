@@ -28,11 +28,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun WellnessScreen(modifier: Modifier = Modifier) {
-    WaterCounter(modifier)
-}
-
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
