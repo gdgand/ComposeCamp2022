@@ -49,6 +49,8 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.example.compose.rally.Accounts
+import com.example.compose.rally.Bills
 import com.example.compose.rally.R
 import com.example.compose.rally.data.UserData
 import com.example.compose.rally.ui.components.AccountRow
@@ -133,7 +135,7 @@ private fun AlertHeader(onClickSeeAll: () -> Unit) {
         ) {
             Text(
                 text = "SEE ALL",
-                style = MaterialTheme.typography.button,
+                style = MaterialTheme.typography.button
             )
         }
     }
@@ -196,7 +198,7 @@ private fun <T> OverviewScreenCard(
                     modifier = Modifier.clearAndSetSemantics {
                         contentDescription = "All $title"
                     },
-                    onClick = onClickSeeAll,
+                    onClick = onClickSeeAll
                 )
             }
         }

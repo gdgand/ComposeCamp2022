@@ -79,6 +79,7 @@ android {
 }
 
 dependencies {
+    implementation "androidx.navigation:navigation-compose:$rootProject.composeNavigationVersion"
 
     implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
     implementation "androidx.core:core-ktx:$rootProject.ktxVersion"
@@ -95,6 +96,8 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
 
     // Testing dependencies
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.composeNavigationVersion"
+
     androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$rootProject.espressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.espressoVersion"
