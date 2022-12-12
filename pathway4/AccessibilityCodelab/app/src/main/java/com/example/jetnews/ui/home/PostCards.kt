@@ -25,15 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Card
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
@@ -47,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,8 +52,22 @@ import com.example.jetnews.ui.theme.JetnewsTheme
 @Composable
 fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
     var openDialog by remember { mutableStateOf(false) }
+    val showFewerLabel = stringResource(R.string.cd_show_fewer)
     Row(
-        Modifier.clickable { navigateToArticle(post.id) }
+        Modifier
+            .clickable(
+                onClickLabel = stringResource(R.string.action_read_article)
+            ) {
+                navigateToArticle(post.id)
+            }
+            .semantics {
+                customActions = listOf(
+                    CustomAccessibilityAction(
+                        label = showFewerLabel,
+                        action = { openDialog = true; true }
+                    )
+                )
+            }
     ) {
         Image(
             painter = painterResource(post.imageThumbId),
@@ -80,29 +87,28 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
                 CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
                     val textStyle = MaterialTheme.typography.body2
                     Text(
-                        text = post.metadata.author.name,
-                        style = textStyle
+                        text = post.metadata.author.name, style = textStyle
                     )
                     Text(
-                        text = " - ${post.metadata.readTimeMinutes} min read",
-                        style = textStyle
+                        text = " - ${post.metadata.readTimeMinutes} min read", style = textStyle
                     )
                 }
             }
         }
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = stringResource(R.string.cd_show_fewer),
-                modifier = Modifier
-                    .clickable { openDialog = true }
-                    .size(24.dp)
-            )
+            IconButton(
+                modifier = Modifier.clearAndSetSemantics { },
+                onClick = { openDialog = true }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.cd_show_fewer)
+                )
+            }
         }
     }
     if (openDialog) {
-        AlertDialog(
-            modifier = Modifier.padding(20.dp),
+        AlertDialog(modifier = Modifier.padding(20.dp),
             onDismissRequest = { openDialog = false },
             title = {
                 Text(
@@ -117,38 +123,34 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
                 )
             },
             confirmButton = {
-                Text(
-                    text = stringResource(id = R.string.agree),
+                Text(text = stringResource(id = R.string.agree),
                     style = MaterialTheme.typography.button,
                     color = MaterialTheme.colors.primary,
                     modifier = Modifier
                         .padding(15.dp)
-                        .clickable { openDialog = false }
-                )
-            }
-        )
+                        .clickable { openDialog = false })
+            })
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostCardPopular(
-    post: Post,
-    navigateToArticle: (String) -> Unit,
-    modifier: Modifier = Modifier
+    post: Post, navigateToArticle: (String) -> Unit, modifier: Modifier = Modifier
 ) {
+    val readArticleLabel = stringResource(R.string.action_read_article)
     Card(
         shape = MaterialTheme.shapes.medium,
-        modifier = modifier.size(280.dp, 240.dp),
-        onClick = { navigateToArticle(post.id) }
+        modifier = modifier
+            .size(280.dp, 240.dp)
+            .semantics { onClick(label = readArticleLabel, action = null) },
+        onClick = { navigateToArticle(post.id) },
     ) {
         Column {
 
             Image(
-                painter = painterResource(post.imageId),
-                contentDescription = null, // decorative
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
+                painter = painterResource(post.imageId), contentDescription = null, // decorative
+                contentScale = ContentScale.Crop, modifier = Modifier
                     .height(100.dp)
                     .fillMaxWidth()
             )
@@ -169,13 +171,10 @@ fun PostCardPopular(
 
                 Text(
                     text = stringResource(
-                        id = R.string.home_post_min_read,
-                        formatArgs = arrayOf(
-                            post.metadata.date,
-                            post.metadata.readTimeMinutes
+                        id = R.string.home_post_min_read, formatArgs = arrayOf(
+                            post.metadata.date, post.metadata.readTimeMinutes
                         )
-                    ),
-                    style = MaterialTheme.typography.body2
+                    ), style = MaterialTheme.typography.body2
                 )
             }
         }
