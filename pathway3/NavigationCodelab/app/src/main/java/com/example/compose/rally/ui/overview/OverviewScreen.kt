@@ -72,6 +72,7 @@ fun OverviewScreen(
     ) {
         AlertCard()
         Spacer(Modifier.height(RallyDefaultPadding))
+
         AccountsCard(
             onClickSeeAll = onClickSeeAllAccounts,
             onAccountClick = onAccountClick
