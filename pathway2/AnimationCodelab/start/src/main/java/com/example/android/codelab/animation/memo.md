@@ -19,4 +19,8 @@ Transition API 을 사용하면 모든 애니메이션이 완료된 시점을 �
 여러 상태 간에 전환할 때 다양한 transitionSpec을 정의할 수도 있다. 
 여러 값에 동시에 애니메이션을 적용하려면 Transition을 사용
 Transition은 updateTransition 함수를 사용하여 만들 수 있다.
-   각 애니메이션 값은 Transition의 animate* 확장 함수를 사용하여 선언
+각 애니메이션 값은 Transition의 animate* 확장 함수를 사용하여 선언
+그럼 Transition 의 target value 에 따라 함께 일어나는 애니메이션을 만들 수 있는 것이다!
+animate* 에는 transitionSpec 을 주어 FiniteAnimationSpec 을 사용할 수 있고
+isTransitioningTo 중위함수를 사용해서 분기를 쳐서 FiniteAnimationSpec 을 바꿔 설정할 수 있다.
+
