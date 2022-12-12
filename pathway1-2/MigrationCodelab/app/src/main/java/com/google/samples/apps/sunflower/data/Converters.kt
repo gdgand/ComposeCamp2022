@@ -17,7 +17,7 @@
 package com.google.samples.apps.sunflower.data
 
 import androidx.room.TypeConverter
-import java.util.Calendar
+import java.util.*
 
 /**
  * Type converters to allow Room to reference complex data types.

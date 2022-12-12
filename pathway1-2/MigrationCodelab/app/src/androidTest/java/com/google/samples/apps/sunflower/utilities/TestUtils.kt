@@ -26,7 +26,7 @@ import com.google.samples.apps.sunflower.data.Plant
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.allOf
-import java.util.Calendar
+import java.util.*
 
 /**
  * [Plant] objects used for tests.
