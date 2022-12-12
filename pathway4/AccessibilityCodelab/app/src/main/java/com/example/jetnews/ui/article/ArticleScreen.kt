@@ -17,7 +17,6 @@
 package com.example.jetnews.ui.article
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Icon
@@ -35,8 +34,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.jetnews.R
 import com.example.jetnews.data.posts.PostsRepository
 import com.example.jetnews.data.posts.impl.post3
 import com.example.jetnews.model.Post
@@ -51,7 +52,8 @@ import com.example.jetnews.utils.supportWideScreen
  * @param postsRepository data source for this screen
  * @param onBack (event) request back navigation
  */
-@Suppress("DEPRECATION") // allow ViewModelLifecycleScope call
+@Suppress("DEPRECATION")
+// allow ViewModelLifecycleScope call
 @Composable
 fun ArticleScreen(
     postId: String?,
@@ -77,7 +79,6 @@ fun ArticleScreen(
     post: Post,
     onBack: () -> Unit
 ) {
-
     var showDialog by rememberSaveable { mutableStateOf(false) }
     if (showDialog) {
         FunctionalityNotAvailablePopup { showDialog = false }
@@ -97,7 +98,9 @@ fun ArticleScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = stringResource(
+                                id = R.string.cd_navigate_up
+                            )
                         )
                     }
                 }
