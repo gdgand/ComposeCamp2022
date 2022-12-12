@@ -52,7 +52,13 @@ class TopAppBarTest {
         }
 
         composeTestRule
-            .onNodeWithText(RallyScreen.Accounts.name.uppercase())
+            .onNode(
+                hasText(RallyScreen.Accounts.name.uppercase()) and
+                        hasParent(
+                            hasContentDescription(RallyScreen.Accounts.name)
+                        ),
+                useUnmergedTree = true
+            )
             .assertExists()
     }
 }
