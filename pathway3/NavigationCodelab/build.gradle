@@ -18,6 +18,7 @@ buildscript {
     // Define versions in a single place
     ext {
         // Sdk and tools
+        composeNavigationVersion = '2.5.0-rc01'
         compileSdkVersion = 32
         minSdkVersion = 21
         targetSdkVersion = 32
