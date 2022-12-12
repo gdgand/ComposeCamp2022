@@ -211,6 +211,12 @@ private fun ZoomButton(text: String, onClick: () -> Unit) {
     }
 }
 
+data class DetailsUiState(
+    val cityDetails: ExploreModel? = null,
+    val isLoading: Boolean = false,
+    val throwError: Boolean = false
+)
+
 private const val InitialZoom = 5f
 const val MinZoom = 2f
 const val MaxZoom = 20f
