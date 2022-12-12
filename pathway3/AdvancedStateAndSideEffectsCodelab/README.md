@@ -2,7 +2,7 @@
 
 This folder contains the source code for the
 [Advanced State in Jetpack Compose Codelab](https://developer.android.com/codelabs/jetpack-compose-advanced-state-side-effects)
-codelab.
+codelab. 
 
 The project is built in multiple git branches:
 * `main` – the starter code for this project, you will make changes to this to complete the codelab
