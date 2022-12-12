@@ -94,6 +94,7 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:$rootProject.navigationComposeVersion"
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
     implementation "androidx.navigation:navigation-compose:$rootProject.composeNavigationVersion"
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.composeNavigationVersion"
 
     // Testing dependencies
     androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
