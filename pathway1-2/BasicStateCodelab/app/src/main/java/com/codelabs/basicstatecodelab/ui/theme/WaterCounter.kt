@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -23,6 +25,25 @@ fun WaterCounter(modifier: Modifier = Modifier) {
   }}
 
 @Composable
-fun WellnessScreen(modifier: Modifier = Modifier) {
-  WaterCounter(modifier)
+fun WellnessScreen() {
+  StatefulCounter()
+}
+
+@Composable
+fun StatelessCounter(count: Int, onIncrement: () -> Unit, modifier: Modifier = Modifier) {
+  Column(modifier = modifier.padding(16.dp)) {
+    if (count > 0) {
+      Text("You've had $count glasses.")
+    }
+    Button(onClick = onIncrement, Modifier.padding(top = 8.dp), enabled = count < 10) {
+      Text("Add one")
+    }
+  }
+}
+
+@Composable
+fun StatefulCounter() {
+  var count by remember { mutableStateOf(0) }
+
+  StatelessCounter(count, { count++ })
 }
