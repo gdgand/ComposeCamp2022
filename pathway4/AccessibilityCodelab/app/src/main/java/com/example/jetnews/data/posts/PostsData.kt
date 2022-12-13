@@ -17,14 +17,7 @@
 package com.example.jetnews.data.posts.impl
 
 import com.example.jetnews.R
-import com.example.jetnews.model.Markup
-import com.example.jetnews.model.MarkupType
-import com.example.jetnews.model.Metadata
-import com.example.jetnews.model.Paragraph
-import com.example.jetnews.model.ParagraphType
-import com.example.jetnews.model.Post
-import com.example.jetnews.model.PostAuthor
-import com.example.jetnews.model.Publication
+import com.example.jetnews.model.*
 
 /**
  * Define hardcoded posts to avoid handling any non-ui operations.
