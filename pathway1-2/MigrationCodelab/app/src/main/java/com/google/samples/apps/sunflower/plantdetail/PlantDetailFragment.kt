@@ -21,6 +21,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -29,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.samples.apps.sunflower.R
@@ -105,6 +108,26 @@ class PlantDetailFragment : Fragment() {
                     }
                     else -> false
                 }
+            }
+            composeView.setViewCompositionStrategy(
+                //컴포지션 뷰의 수명주기와  프래그먼트 뷰와 수명주기를 연결한다.
+                ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+            )
+            /*
+            기본적으로 Compose UI는 그 상위에 있는 뷰가 창에서 분리되면 닫히지만 이 동작은 수정할 수 있습니다.
+            예를 들어 우리가 변환한 UI는 프래그먼트 안에 표시됩니다.
+            하지만 프래그먼트 뷰는 뷰가 분리되어도 그대로 표시할 수 있습니다.
+            창을 전환하는 동작을 실행할 경우 뷰가 화면에 분리되어도 여전히 표시될 수 있습니다.
+            Compose는 컴포지션의 수명을 설정할 수 있습니다.
+
+            Compose 뷰에서 창이 분리되면 컴포지션이 닫히게 됩니다.
+            이 경우에는 전환을 실행하는 동안 창이 분리되는데 프래그먼트는 여전히 화면에 표시되고 전환은 시작된다.
+            전환이 일어날때 마다 컴포지션이 메모리에서 제거되기 때문에 빈 화면이 보인다. 컴포즈 뷰는 비어있게된다. 컴포지션이 제거되었기 때문에       */
+            composeView.setContent {
+                MdcTheme() {
+                    PlantDetailDescription(plantDetailViewModel)
+                }
+
             }
         }
         setHasOptionsMenu(true)
