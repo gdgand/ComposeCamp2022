@@ -19,26 +19,18 @@ package com.example.jetnews.ui.home
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,7 +44,11 @@ import com.example.jetnews.ui.theme.JetnewsTheme
 fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
     var openDialog by remember { mutableStateOf(false) }
     Row(
-        Modifier.clickable { navigateToArticle(post.id) }
+        Modifier.clickable(
+            onClickLabel = stringResource(id = R.string.action_read_article)
+        ) {
+            navigateToArticle(post.id)
+        }
     ) {
         Image(
             painter = painterResource(post.imageThumbId),
@@ -128,9 +124,13 @@ fun PostCardPopular(
     navigateToArticle: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val readArticleLabel = stringResource(id = R.string.action_read_article)
+
     Card(
         shape = MaterialTheme.shapes.medium,
-        modifier = modifier.size(280.dp, 240.dp),
+        modifier = modifier
+            .size(280.dp, 240.dp)
+            .semantics { onClick(label = readArticleLabel, action = null) },
         onClick = { navigateToArticle(post.id) }
     ) {
         Column {
