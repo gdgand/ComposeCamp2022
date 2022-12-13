@@ -155,8 +155,11 @@
                     app:renderHtml="@{viewModel.plant.description}"
                     tools:text="Details about the plant" />
 
+                <androidx.compose.ui.platform.ComposeView
+                    android:id="@+id/composeView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
-
         </androidx.core.widget.NestedScrollView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
