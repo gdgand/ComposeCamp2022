@@ -23,20 +23,18 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.R
 import androidx.compose.samples.crane.base.CraneEditableUserInput
 import androidx.compose.samples.crane.base.CraneUserInput
+import androidx.compose.samples.crane.base.rememberEditableUserInputState
 import androidx.compose.samples.crane.home.PeopleUserInputAnimationState.Invalid
 import androidx.compose.samples.crane.home.PeopleUserInputAnimationState.Valid
 import androidx.compose.samples.crane.ui.CraneTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
 
 enum class PeopleUserInputAnimationState { Valid, Invalid }
 
@@ -95,14 +93,35 @@ fun FromDestination() {
     CraneUserInput(text = "Seoul, South Korea", vectorImageId = R.drawable.ic_location)
 }
 
+
+// CraneEditableUserInput 변경에 따른 호출된 모든 위치에서 변경 필요.
+// ToDestinationUserInput 수준에서 상태를 기억후 CraneEditableUserInput에 전달.
 @Composable
 fun ToDestinationUserInput(onToDestinationChanged: (String) -> Unit) {
+    val editableUserInputState = rememberEditableUserInputState(hint = "Choose Destination")
+
     CraneEditableUserInput(
-        hint = "Choose Destination",
+        state = editableUserInputState,
         caption = "To",
         vectorImageId = R.drawable.ic_plane,
-        onInputChanged = onToDestinationChanged
     )
+
+    // 입력이 변경될 때마다 LaunchedEffect를 사용하여 trigger하고 onToDestinationChanged 람다를 호출
+    /**
+     * snapshotFlow API를 사용하여 Compose State<T> 객체를 Flow로 변환
+     * snapshowFlow 내에서 읽은 상태가 변형되면 Flow는 새 값을 내보낸다.
+     * 이 경우 Flow 연산자를 사용하기 위해 상태를 Flow로 변환
+     * 결과적으로 text가 hint가 아닌 경우 filter 작업을 수행하고 내보낸 항목을 collect로 처리
+     * 현재 목적지가 변경되었음을 상위 요소에 알린다.
+     */
+    val currentOnDestinationChanged by rememberUpdatedState(onToDestinationChanged)
+    LaunchedEffect(editableUserInputState) {
+        snapshotFlow { editableUserInputState.text }
+            .filter { !editableUserInputState.isHint }
+            .collect {
+                currentOnDestinationChanged(editableUserInputState.text)
+            }
+    }
 }
 
 @Composable

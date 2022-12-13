@@ -21,7 +21,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.details.launchDetailsActivity
 import androidx.compose.samples.crane.ui.CraneTheme
 import androidx.core.view.WindowCompat
@@ -48,9 +48,17 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// 앱이 열릴때 Landing 화면 표시
+// 해당 Composable에서 Landing 화면이 표시 되어야 하는지 여부를 추적하는 내부 상태 추가 가능
+// LandingScreen = 보여지는건 일종의 SplashActivity 기능과 유사
 @Composable
 private fun MainScreen(onExploreItemClicked: OnExploreItemClicked) {
     Surface(color = MaterialTheme.colors.primary) {
-        CraneHome(onExploreItemClicked = onExploreItemClicked)
+        var showLandingScreen by remember { mutableStateOf(true) }
+        if (showLandingScreen) {
+            LandingScreen(onTimeout =  { showLandingScreen = false})
+        } else {
+            CraneHome(onExploreItemClicked = onExploreItemClicked)
+        }
     }
 }

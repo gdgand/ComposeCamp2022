@@ -23,11 +23,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.base.CraneDrawer
 import androidx.compose.samples.crane.base.CraneTabBar
 import androidx.compose.samples.crane.base.CraneTabs
@@ -37,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.statusBarsPadding
+import kotlinx.coroutines.launch
 
 typealias OnExploreItemClicked = (ExploreModel) -> Unit
 
@@ -51,18 +48,25 @@ fun CraneHome(
 ) {
     val scaffoldState = rememberScaffoldState()
     Scaffold(
+        // DrawerState가 포함된 scaffoldState, DrawerState에는 프로그래매틱 방식으로 창을 열고 닫는 메서드가 있음.
+        // But, open 함수는 정지 함수이기 때문에 drawerState.open() 사용시 오류 발생.
         scaffoldState = scaffoldState,
         modifier = Modifier.statusBarsPadding(),
         drawerContent = {
             CraneDrawer()
         }
     ) { padding ->
+        val scope = rememberCoroutineScope()
         CraneHomeContent(
             modifier = modifier.padding(padding),
             onExploreItemClicked = onExploreItemClicked,
+            // 탐색 창을 열어야 하는 위치
             openDrawer = {
                 // TODO Codelab: rememberCoroutineScope step - open the navigation drawer
                 // scaffoldState.drawerState.open()
+                scope.launch {
+                    scaffoldState.drawerState.open()
+                }
             }
         )
     }
@@ -77,7 +81,13 @@ fun CraneHomeContent(
     viewModel: MainViewModel = viewModel(),
 ) {
     // TODO Codelab: collectAsState step - consume stream of data from the ViewModel
-    val suggestedDestinations: List<ExploreModel> = remember { emptyList() }
+    /*
+    화면에 표시되는 빈 목록을 수정하고 MainViewModel이 노출하는 추천 목적지를 표시한다.
+    Composable 함수에서 collectAsState()는 StateFlow에서 값을 수집하고 Compose State API를 통해
+    최신 값을 나타낸다.
+    suggestDestinations 속성에 관한 collectAsState 호출로 바꾼다.
+     */
+    val suggestedDestinations by viewModel.suggestedDestinations.collectAsState()
 
     val onPeopleChanged: (Int) -> Unit = { viewModel.updatePeople(it) }
     var tabSelected by remember { mutableStateOf(CraneScreen.Fly) }

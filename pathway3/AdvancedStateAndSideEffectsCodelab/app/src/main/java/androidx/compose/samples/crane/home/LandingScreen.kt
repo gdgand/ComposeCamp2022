@@ -20,10 +20,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.samples.crane.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import kotlinx.coroutines.delay
 
 private const val SplashWaitTime: Long = 2000
 
@@ -32,6 +36,20 @@ fun LandingScreen(modifier: Modifier = Modifier, onTimeout: () -> Unit) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         // TODO Codelab: LaunchedEffect and rememberUpdatedState step
         // TODO: Make LandingScreen disappear after loading data
+        // 새 값으로 업데이트 하고 이를 보장하기 위해 rememberUpdatedState API 사용
+        val currentOnTimeout by rememberUpdatedState(onTimeout)
+
+
+
+
+        // Composable 내에서 안전하게 정지 함수를 호출하기 위해 Compose에서 코루틴 범위의 부작용을 trigger하는
+        // LaunchedEffect API를 사용한다.
+        LaunchedEffect(onTimeout) {
+            delay(SplashWaitTime)
+            onTimeout()
+        }
+
+
         Image(painterResource(id = R.drawable.ic_crane_drawer), contentDescription = null)
     }
 }
