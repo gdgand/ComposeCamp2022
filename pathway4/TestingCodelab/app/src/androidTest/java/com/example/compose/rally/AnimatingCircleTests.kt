@@ -33,7 +33,7 @@ import org.junit.Rule
 import org.junit.Test
 
 /**
- * Test to showcase [MainTestClock] present in [ComposeTestRule]. It allows for animation
+ * Test to showcase [MainTestClock] present in [TopAppBarTest]. It allows for animation
  * testing at specific points in time.
  *
  * For assertions, a simple screenshot testing framework is used. It requires SDK 26+ and to
