@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,7 +30,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun MyApp(modifier: Modifier = Modifier) {
 
-    var shouldShowOnBoarding by remember { mutableStateOf(true) }
+    // remember 함수는 composable이 composition에 유지되는 동안에만 작동함!
+    // 기기를 회전하면 Activity가 다시 시작되므로 모든 상태가 손실됨.
+    // 이 현상은 구성이 변경(어두운 모드 변경)되거나 프로세스가 중단될 때도 발생함.
+    // 따라서 remember 대신 rememberSaveable 사용!
+    var shouldShowOnBoarding by rememberSaveable { mutableStateOf(true) }
 
     Surface(modifier = modifier) {
         if (shouldShowOnBoarding) {
