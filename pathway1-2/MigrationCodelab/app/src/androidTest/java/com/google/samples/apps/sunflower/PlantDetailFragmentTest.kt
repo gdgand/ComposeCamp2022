@@ -20,6 +20,9 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.Navigation.findNavController
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -50,27 +53,15 @@ class PlantDetailFragmentTest {
 
     @Rule
     @JvmField
-    val activityTestRule = ActivityScenarioRule(GardenActivity::class.java)
+    val composeTestRule = createAndroidComposeRule<GardenActivity>()
+
 
     // Note that keeping these references is only safe if the activity is not recreated.
     private lateinit var activity: ComponentActivity
 
-    @Before
-    fun jumpToPlantDetailFragment() {
-        populateDatabase()
-
-        activityTestRule.scenario.onActivity { gardenActivity ->
-            activity = gardenActivity
-
-            val bundle = Bundle().apply { putString("plantId", "malus-pumila") }
-            findNavController(activity, R.id.nav_host).navigate(R.id.plant_detail_fragment, bundle)
-        }
-    }
-
     @Test
     fun testPlantName() {
-        onView(ViewMatchers.withText("Apple"))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        composeTestRule.onNodeWithText("Apple").assertIsDisplayed()
     }
 
     @Test
@@ -108,4 +99,18 @@ class PlantDetailFragmentTest {
             request.doWork()
         }
     }
+
+
+    @Before
+    fun jumpToPlantDetailFragment() {
+        populateDatabase()
+
+        composeTestRule.activityRule.scenario.onActivity { gardenActivity ->
+            activity = gardenActivity
+
+            val bundle = Bundle().apply { putString("plantId", "malus-pumila") }
+            findNavController(activity, R.id.nav_host).navigate(R.id.plant_detail_fragment, bundle)
+        }
+    }
+
 }
