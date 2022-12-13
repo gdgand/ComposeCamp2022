@@ -21,7 +21,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.details.launchDetailsActivity
 import androidx.compose.samples.crane.ui.CraneTheme
 import androidx.core.view.WindowCompat
@@ -39,9 +39,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             ProvideWindowInsets {
                 CraneTheme {
-                    MainScreen(
-                        onExploreItemClicked = { launchDetailsActivity(context = this, item = it) }
-                    )
+                    MainScreen(onExploreItemClicked = {
+                        launchDetailsActivity(context = this,
+                            item = it)
+                    })
                 }
             }
         }
@@ -51,6 +52,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun MainScreen(onExploreItemClicked: OnExploreItemClicked) {
     Surface(color = MaterialTheme.colors.primary) {
-        CraneHome(onExploreItemClicked = onExploreItemClicked)
+        var showLandingScreen by remember { mutableStateOf(true) }
+        if (showLandingScreen) {
+            LandingScreen(onTimeout = { showLandingScreen = false })
+        } else {
+            CraneHome(onExploreItemClicked = onExploreItemClicked)
+        }
     }
 }
