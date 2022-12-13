@@ -34,27 +34,37 @@ initialValue, targetValue, animationSpec 등의 인자를 전달하여 애니메
 animationSpec 을 사용해서 애니메이션 값 변화 속도를 조절할 수 있다.
 
 
-
-
+5. 동작기반 애니메이션
+Modifier.pointerInput 스코프에서 coroutineScope-while-awaitPointerEventScope 조합으로 유저 인풋을 기다릴 수 있다.
+awaitPointerEventScope 는 사용자 입력 이벤트를 기다렸다가 이에 응답할 수 있는 정지 함수
+pointerInput 에서 size 에도 접근할 수 있다. Animatable 의 updateBounds 와 같이 사용 가능
+터치다운 이벤트를 수신하면 현재 실행 중인 경우 애니메이션을 중단하기
+터치 이벤트의 위치를 애니메이션 값에 동기화하기 위해 Animatable 에서 snapTo를 사용
+TODO 6 이 어려워서 한 번 더 확인해야할 듯 하다.
 
 animationSpec 정리
-tween (지속시간, 시작 지연시간, 이징)
+
+1. tween (지속시간, 시작 지연시간, 이징)
 durationMillis: Int = DefaultDurationMillis,
 delayMillis: Int = 0,
 easing: Easing = FastOutSlowInEasing
 TweenSpec 은 DurationBasedAnimationSpec 상속
 DurationBasedAnimationSpec 은 FiniteAnimationSpec 상속
 
-spring (바운싱정도, 지속시간과부드러움정도, -)
+2. spring (바운싱정도, 지속시간과부드러움정도, -)
 dampingRatio: Float = Spring.DampingRatioNoBouncy,
 stiffness: Float = Spring.StiffnessMedium,
 visibilityThreshold: T? = null
 SpringSpec 은 FiniteAnimationSpec 상속
 
 
-keyframes (KeyframesSpecConfig 에서 지속시간이나 시간에 따른 값 '값 at ms' 설정)
+3. keyframes (KeyframesSpecConfig 에서 지속시간이나 시간에 따른 값 '값 at ms' 설정)
 init: KeyframesSpec.KeyframesSpecConfig<T>.() -> Unit
 KeyframesSpec 은 DurationBasedAnimationSpec 상속
 DurationBasedAnimationSpec 은 FiniteAnimationSpec 상속
 
+코드랩
+https://developer.android.com/codelabs/jetpack-compose-animation?continue=https%3A%2F%2Fdeveloper.android.com%2Fcourses%2Fpathways%2Fcompose%23codelab-https%3A%2F%2Fdeveloper.android.com%2Fcodelabs%2Fjetpack-compose-animation#0
+
+블로그
 https://proandroiddev.com/animate-with-jetpack-compose-animate-as-state-and-animation-specs-ffc708bb45f8
