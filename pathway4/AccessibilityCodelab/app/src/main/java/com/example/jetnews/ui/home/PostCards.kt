@@ -19,6 +19,7 @@ package com.example.jetnews.ui.home
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +31,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -47,6 +49,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,8 +65,22 @@ import com.example.jetnews.ui.theme.JetnewsTheme
 @Composable
 fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
     var openDialog by remember { mutableStateOf(false) }
+    val showFewerLabel = stringResource(id = R.string.cd_show_fewer)
     Row(
-        Modifier.clickable { navigateToArticle(post.id) }
+        Modifier
+            .clickable(
+                onClickLabel = stringResource(id = R.string.action_read_article)
+            ) {
+                navigateToArticle(post.id)
+            }
+            .semantics {
+                customActions = listOf(
+                    CustomAccessibilityAction(
+                        label = showFewerLabel,
+                        action = { openDialog = true; true }
+                    )
+                )
+            }
     ) {
         Image(
             painter = painterResource(post.imageThumbId),
@@ -91,13 +111,14 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
             }
         }
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = stringResource(R.string.cd_show_fewer),
-                modifier = Modifier
-                    .clickable { openDialog = true }
-                    .size(24.dp)
-            )
+            IconButton(
+                modifier = Modifier.clearAndSetSemantics { },
+                onClick = { openDialog = true }) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.cd_show_fewer),
+                )
+            }
         }
     }
     if (openDialog) {
@@ -138,9 +159,9 @@ fun PostCardPopular(
     modifier: Modifier = Modifier
 ) {
     Card(
+        onClick = { navigateToArticle(post.id) },
         shape = MaterialTheme.shapes.medium,
         modifier = modifier.size(280.dp, 240.dp),
-        onClick = { navigateToArticle(post.id) }
     ) {
         Column {
 
@@ -150,8 +171,9 @@ fun PostCardPopular(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .height(100.dp)
-                    .fillMaxWidth()
-            )
+                    .fillMaxWidth(),
+
+                )
 
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
