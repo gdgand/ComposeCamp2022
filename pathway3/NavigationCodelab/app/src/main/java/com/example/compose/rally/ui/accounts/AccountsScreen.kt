@@ -61,7 +61,7 @@ fun AccountsScreen(
  * Detail screen for a single account.
  */
 @Composable
-fun SingleAccountScreen(
+fun                                                                                                    SingleAccountScreen(
     accountType: String? = UserData.accounts.first().name
 ) {
     val account = remember(accountType) { UserData.getAccount(accountType) }
