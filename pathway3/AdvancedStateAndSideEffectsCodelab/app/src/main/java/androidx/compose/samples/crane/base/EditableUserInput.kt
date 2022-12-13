@@ -25,8 +25,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.samples.crane.R
 import androidx.compose.samples.crane.ui.captionTextStyle
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
 
 @Composable
 fun CraneEditableUserInput(
@@ -58,5 +64,57 @@ fun CraneEditableUserInput(
             },
             cursorBrush = SolidColor(LocalContentColor.current)
         )
+    }
+}
+
+
+@Composable
+fun rememberEditableUserInputState(hint: String): EditableUserInputState =
+    remember(hint) {
+        EditableUserInputState(hint, hint)
+    }
+
+@Composable
+fun CraneEditableUserInput(
+    state: EditableUserInputState = rememberEditableUserInputState(""),
+    caption: String? = null,
+    @DrawableRes vectorImageId: Int? = null
+) {
+    CraneBaseUserInput(
+        caption = caption,
+        tintIcon = { !state.isHint },
+        showCaption = { !state.isHint },
+        vectorImageId = vectorImageId
+    ) {
+        BasicTextField(
+            value = state.text,
+            onValueChange = { state.text = it },
+            textStyle = if (state.isHint) {
+                captionTextStyle.copy(color = LocalContentColor.current)
+            } else {
+                MaterialTheme.typography.body1.copy(color = LocalContentColor.current)
+            },
+            cursorBrush = SolidColor(LocalContentColor.current)
+        )
+    }
+}
+
+
+@Composable
+fun ToDestinationUserInput(onToDestinationChanged: (String) -> Unit) {
+    val editableUserInputState = rememberEditableUserInputState(hint = "Choose Destination")
+    CraneEditableUserInput(
+        state = editableUserInputState,
+        caption = "To",
+        vectorImageId = R.drawable.ic_plane
+    )
+
+    val currentOnDestinationChanged by rememberUpdatedState(onToDestinationChanged)
+    LaunchedEffect(editableUserInputState) {
+        snapshotFlow { editableUserInputState.text }
+            .filter { !editableUserInputState.isHint }
+            .collect {
+                currentOnDestinationChanged(editableUserInputState.text)
+            }
     }
 }
