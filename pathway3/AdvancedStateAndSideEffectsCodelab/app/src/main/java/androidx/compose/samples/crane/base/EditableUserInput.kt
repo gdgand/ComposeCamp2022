@@ -23,6 +23,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,8 +35,7 @@ import androidx.compose.ui.graphics.SolidColor
 fun CraneEditableUserInput(
     state: EditableUserInputState = rememberEditableUserInputState(""),
     caption: String? = null,
-    @DrawableRes vectorImageId: Int? = null,
-    onInputChanged: (String) -> Unit
+    @DrawableRes vectorImageId: Int? = null
 ) {
     CraneBaseUserInput(
         caption = caption,
@@ -45,10 +45,7 @@ fun CraneEditableUserInput(
     ) {
         BasicTextField(
             value = state.text,
-            onValueChange = {
-                state.text = it
-                if (!state.isHint) onInputChanged(state.text)
-            },
+            onValueChange = { state.text = it},
             textStyle = if (state.isHint) {
                 captionTextStyle.copy(color = LocalContentColor.current)
             } else {
@@ -59,10 +56,13 @@ fun CraneEditableUserInput(
     }
 }
 
-class EditableUserInputState(
-    private val hint: String,
-    initialText: String
-) {
+@Composable
+fun rememberEditableUserInputState(hint: String): EditableUserInputState =
+    rememberSaveable(hint, saver = EditableUserInputState.Saver) {
+        EditableUserInputState(hint, hint)
+    }
+
+class EditableUserInputState(private val hint: String, initialText: String) {
     var text by mutableStateOf(initialText)
 
     val isHint: Boolean
@@ -70,20 +70,13 @@ class EditableUserInputState(
 
     companion object {
         val Saver: Saver<EditableUserInputState, *> = listSaver(
-            save = { listOf(it.hint, it.hint) },
+            save = { listOf(it.hint, it.text) },
             restore = {
                 EditableUserInputState(
                     hint = it[0],
-                    initialText = it[1]
+                    initialText = it[1],
                 )
             }
         )
     }
 }
-
-@Composable
-fun rememberEditableUserInputState(hint: String): EditableUserInputState =
-    rememberSaveable(hint, saver = EditableUserInputState.Saver) {
-        EditableUserInputState(hint, hint)
-    }
-

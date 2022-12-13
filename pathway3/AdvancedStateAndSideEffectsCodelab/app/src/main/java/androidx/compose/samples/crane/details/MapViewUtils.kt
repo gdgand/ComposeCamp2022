@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleObserver
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
 
@@ -36,7 +35,6 @@ import com.google.android.libraries.maps.MapView
 @Composable
 fun rememberMapViewWithLifecycle(): MapView {
     val context = LocalContext.current
-    // TODO Codelab: DisposableEffect step. Make MapView follow the lifecycle
     val mapView = remember {
         MapView(context).apply {
             id = R.id.map
@@ -55,15 +53,7 @@ fun rememberMapViewWithLifecycle(): MapView {
     return mapView
 }
 
-fun GoogleMap.setZoom(
-    @FloatRange(from = MinZoom.toDouble(), to = MaxZoom.toDouble()) zoom: Float
-) {
-    resetMinMaxZoomPreference()
-    setMinZoomPreference(zoom)
-    setMaxZoomPreference(zoom)
-}
-
-private fun getMapLifecycleObserver(mapView: MapView): LifecycleObserver =
+private fun getMapLifecycleObserver(mapView: MapView): LifecycleEventObserver =
     LifecycleEventObserver { _, event ->
         when (event) {
             Lifecycle.Event.ON_CREATE -> mapView.onCreate(Bundle())
@@ -75,3 +65,11 @@ private fun getMapLifecycleObserver(mapView: MapView): LifecycleObserver =
             else -> throw IllegalStateException()
         }
     }
+
+fun GoogleMap.setZoom(
+    @FloatRange(from = MinZoom.toDouble(), to = MaxZoom.toDouble()) zoom: Float
+) {
+    resetMinMaxZoomPreference()
+    setMinZoomPreference(zoom)
+    setMaxZoomPreference(zoom)
+}

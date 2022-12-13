@@ -100,7 +100,7 @@ fun ArticleScreen(
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = stringResource(
-                                id = R.string.cd_navigate_up
+                                R.string.cd_navigate_up
                             )
                         )
                     }

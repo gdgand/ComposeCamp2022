@@ -25,16 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Card
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
@@ -66,16 +57,17 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
     var openDialog by remember { mutableStateOf(false) }
     val showFewerLabel = stringResource(R.string.cd_show_fewer)
     Row(
-        Modifier.clickable(
-            onClickLabel = stringResource(id = R.string.action_read_article)
-        ) {
-            navigateToArticle(post.id)
-        }
+        Modifier
+            .clickable(
+                onClickLabel = stringResource(R.string.action_read_article)
+            ) {
+                navigateToArticle(post.id)
+            }
             .semantics {
                 customActions = listOf(
                     CustomAccessibilityAction(
                         label = showFewerLabel,
-                        // 작업은 성공을 나타내기 위해 부울을 반환합니다.
+                        // action returns boolean to indicate success
                         action = { openDialog = true; true }
                     )
                 )
@@ -111,7 +103,7 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
         }
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
             IconButton(
-                modifier = Modifier.clearAndSetSemantics {  },
+                modifier = Modifier.clearAndSetSemantics { },
                 onClick = { openDialog = true }
             ) {
                 Icon(
@@ -161,7 +153,8 @@ fun PostCardPopular(
     Card(
         shape = MaterialTheme.shapes.medium,
         modifier = modifier.size(280.dp, 240.dp),
-        onClick = { navigateToArticle(post.id) }
+        onClick = { navigateToArticle(post.id) },
+        onClickLabel = stringResource(id = R.string.action_read_article)
     ) {
         Column {
 

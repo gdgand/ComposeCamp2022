@@ -1,4 +1,4 @@
-package com.codelab.theming.ui.start.theme
+package com.codelabs.basicstatecodelab.ui.theme
 
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape

@@ -1,4 +1,4 @@
-package com.codelab.theming.ui.start.theme
+package com.codelabs.basicstatecodelab.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
@@ -6,19 +6,8 @@ import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.codelab.theming.theme.JetnewsTypography
 
-@Composable
-fun JetnewsTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
-    MaterialTheme(
-        colors = if (darkTheme) DarkColors else LightColors,
-        typography = JetnewsTypography,
-        shapes = JetnewsShapes,
-        content = content
-    )
-}
 
 private val LightColors = lightColors(
     primary = Red700,
@@ -38,3 +27,16 @@ private val DarkColors = darkColors(
     onSecondary = Color.Black,
     error = Red200
 )
+
+@Composable
+fun JetnewsTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    MaterialTheme(
+        colors = if (darkTheme) DarkColors else LightColors,
+        typography = JetnewsTypography,
+        shapes = JetnewsShapes,
+        content = content
+    )
+}

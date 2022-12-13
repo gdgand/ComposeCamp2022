@@ -38,7 +38,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="rally" android:host="single_account" />
-                <!--adb shell am start -d "rally://single_account/Checking" -a android.intent.action.VIEW-->
             </intent-filter>
         </activity>
     </application>

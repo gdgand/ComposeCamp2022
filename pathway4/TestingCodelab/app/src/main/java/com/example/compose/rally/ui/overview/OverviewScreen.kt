@@ -16,13 +16,7 @@
 
 package com.example.compose.rally.ui.overview
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateValue
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -101,13 +95,18 @@ private fun AlertCard() {
         )
     }
 
+    var currentTargetElevation by remember { mutableStateOf(1.dp) }
+    LaunchedEffect(Unit) {
+        // Start the animation
+        currentTargetElevation = 8.dp
+    }
     val infiniteElevationAnimation = rememberInfiniteTransition()
     val animatedElevation: Dp by infiniteElevationAnimation.animateValue(
         initialValue = 1.dp,
         targetValue = 8.dp,
         typeConverter = Dp.VectorConverter,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 500),
+            animation = tween(500),
             repeatMode = RepeatMode.Reverse
         )
     )

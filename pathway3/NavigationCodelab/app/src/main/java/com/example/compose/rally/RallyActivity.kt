@@ -19,14 +19,19 @@ package com.example.compose.rally
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -59,18 +64,19 @@ class RallyActivity : ComponentActivity() {
 fun RallyApp() {
     RallyTheme {
         val navController = rememberNavController()
+
         val currentBackStack by navController.currentBackStackEntryAsState()
         val currentDestination = currentBackStack?.destination
 
+        val currentScreen = rallyTabRowScreens.find { it.route == currentDestination?.route } ?: Overview
         Scaffold(
             topBar = {
                 RallyTabRow(
                     allScreens = rallyTabRowScreens,
                     onTabSelected = { newScreen ->
-                        navController.navigateSingleTopTo(newScreen.route)
+                        navController.navigate(newScreen.route)
                     },
-                    currentScreen = rallyTabRowScreens.find { it.route == currentDestination?.route }
-                        ?: Overview
+                    currentScreen = currentScreen
                 )
             }
         ) { innerPadding ->
@@ -105,7 +111,6 @@ fun RallyNavHost(
                 }
             )
         }
-
         composable(route = Accounts.route) {
             AccountsScreen(
                 onAccountClick = { accountType ->
@@ -113,17 +118,14 @@ fun RallyNavHost(
                 }
             )
         }
-
         composable(route = Bills.route) {
             BillsScreen()
         }
-
         composable(
             route = SingleAccount.routeWithArgs,
             arguments = SingleAccount.arguments,
             deepLinks = SingleAccount.deepLinks
         ) { navBackStackEntry ->
-            // 전달된 인수 검색
             val accountType = navBackStackEntry.arguments?.getString(SingleAccount.accountTypeArg)
             SingleAccountScreen(accountType)
         }

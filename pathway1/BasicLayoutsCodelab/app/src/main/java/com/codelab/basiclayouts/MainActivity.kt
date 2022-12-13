@@ -22,35 +22,17 @@ import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
@@ -60,13 +42,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,7 +73,7 @@ fun SearchBar(
             backgroundColor = MaterialTheme.colors.surface
         ),
         placeholder = {
-            Text(stringResource(id = R.string.placeholder_search))
+            Text(stringResource(R.string.placeholder_search))
         },
         modifier = modifier
             .fillMaxWidth()
@@ -109,11 +89,11 @@ fun AlignYourBodyElement(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
     ) {
         Image(
-            painter = painterResource(id = drawable),
+            painter = painterResource(drawable),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -121,13 +101,11 @@ fun AlignYourBodyElement(
                 .clip(CircleShape)
         )
         Text(
-            text = stringResource(id = text),
+            text = stringResource(text),
             style = MaterialTheme.typography.h3,
-            modifier = Modifier
-                .paddingFromBaseline(
-                    top = 24.dp,
-                    bottom = 8.dp
-                )
+            modifier = Modifier.paddingFromBaseline(
+                top = 24.dp, bottom = 8.dp
+            )
         )
     }
 }
@@ -173,7 +151,7 @@ fun AlignYourBodyRow(
         modifier = modifier
     ) {
         items(alignYourBodyData) { item ->
-            AlignYourBodyElement(drawable = item.drawable, text = item.text)
+            AlignYourBodyElement(item.drawable, item.text)
         }
     }
 }
@@ -207,35 +185,28 @@ fun HomeSection(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    Column(
-        modifier = modifier
-    ) {
+    Column(modifier) {
         Text(
-            text = stringResource(id = title).toUpperCase(Locale.current),
+            text = stringResource(title).uppercase(Locale.getDefault()),
             style = MaterialTheme.typography.h2,
             modifier = Modifier
-                .paddingFromBaseline(
-                    top = 40.dp,
-                    bottom = 8.dp
-                )
+                .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
                 .padding(horizontal = 16.dp)
         )
         content()
     }
+
 }
 
 // Step: Home screen - Scrolling
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-
     Column(
-        modifier = modifier
+        modifier
             .verticalScroll(rememberScrollState())
             .padding(vertical = 16.dp)
     ) {
-        SearchBar(
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
+        SearchBar(Modifier.padding(horizontal = 16.dp))
         HomeSection(title = R.string.align_your_body) {
             AlignYourBodyRow()
         }
@@ -260,10 +231,10 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
                 )
             },
             label = {
-                Text(stringResource(id = R.string.bottom_navigation_home))
+                Text(stringResource(R.string.bottom_navigation_home))
             },
             selected = true,
-            onClick = {  }
+            onClick = {}
         )
         BottomNavigationItem(
             icon = {
@@ -273,10 +244,10 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
                 )
             },
             label = {
-                Text(stringResource(id = R.string.bottom_navigation_profile))
+                Text(stringResource(R.string.bottom_navigation_profile))
             },
             selected = false,
-            onClick = {  }
+            onClick = {}
         )
     }
 }
@@ -287,7 +258,7 @@ fun MySootheApp() {
     MySootheTheme {
         Scaffold(
             bottomBar = { SootheBottomNavigation() }
-        ) { padding ->  
+        ) { padding ->
             HomeScreen(Modifier.padding(padding))
         }
     }
@@ -327,8 +298,8 @@ fun SearchBarPreview() {
 fun AlignYourBodyElementPreview() {
     MySootheTheme {
         AlignYourBodyElement(
-            drawable = R.drawable.ab1_inversions,
             text = R.string.ab1_inversions,
+            drawable = R.drawable.ab1_inversions,
             modifier = Modifier.padding(8.dp)
         )
     }
@@ -339,8 +310,8 @@ fun AlignYourBodyElementPreview() {
 fun FavoriteCollectionCardPreview() {
     MySootheTheme {
         FavoriteCollectionCard(
-            drawable = R.drawable.fc2_nature_meditations,
             text = R.string.fc2_nature_meditations,
+            drawable = R.drawable.fc2_nature_meditations,
             modifier = Modifier.padding(8.dp)
         )
     }
