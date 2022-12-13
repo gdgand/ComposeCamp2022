@@ -134,13 +134,13 @@ private fun PostHeaderImage(post: Post) {
 @Composable
 private fun PostMetadata(metadata: Metadata) {
     val typography = MaterialTheme.typography
-    Row {
+    Row(Modifier.semantics(mergeDescendants = true) { }) {
         Image(
             imageVector = Icons.Filled.AccountCircle,
             contentDescription = null,
             modifier = Modifier.size(40.dp),
             colorFilter = ColorFilter.tint(LocalContentColor.current),
-            contentScale = ContentScale.Fit
+            contentScale = ContentScale.Fit,
         )
         Spacer(Modifier.width(8.dp))
         Column {
@@ -183,7 +183,8 @@ private fun Paragraph(paragraph: Paragraph) {
             )
             ParagraphType.Header -> {
                 Text(
-                    modifier = Modifier.padding(4.dp)
+                    modifier = Modifier
+                        .padding(4.dp)
                         .semantics { heading() },
                     text = annotatedString,
                     style = textStyle.merge(paragraphStyle)
@@ -202,7 +203,7 @@ private fun Paragraph(paragraph: Paragraph) {
 private fun CodeBlockParagraph(
     text: AnnotatedString,
     textStyle: TextStyle,
-    paragraphStyle: ParagraphStyle
+    paragraphStyle: ParagraphStyle,
 ) {
     Surface(
         color = MaterialTheme.colors.codeBlockBackground,
@@ -221,7 +222,7 @@ private fun CodeBlockParagraph(
 private fun BulletParagraph(
     text: AnnotatedString,
     textStyle: TextStyle,
-    paragraphStyle: ParagraphStyle
+    paragraphStyle: ParagraphStyle,
 ) {
     Row {
         with(LocalDensity.current) {
@@ -249,7 +250,7 @@ private fun BulletParagraph(
 private data class ParagraphStyling(
     val textStyle: TextStyle,
     val paragraphStyle: ParagraphStyle,
-    val trailingPadding: Dp
+    val trailingPadding: Dp,
 )
 
 @Composable
@@ -292,7 +293,7 @@ private fun ParagraphType.getTextAndParagraphStyle(): ParagraphStyling {
 private fun paragraphToAnnotatedString(
     paragraph: Paragraph,
     typography: Typography,
-    codeBlockBackground: Color
+    codeBlockBackground: Color,
 ): AnnotatedString {
     val styles: List<AnnotatedString.Range<SpanStyle>> = paragraph.markups
         .map { it.toAnnotatedStringItem(typography, codeBlockBackground) }
@@ -301,7 +302,7 @@ private fun paragraphToAnnotatedString(
 
 fun Markup.toAnnotatedStringItem(
     typography: Typography,
-    codeBlockBackground: Color
+    codeBlockBackground: Color,
 ): AnnotatedString.Range<SpanStyle> {
     return when (this.type) {
         MarkupType.Italic -> {
