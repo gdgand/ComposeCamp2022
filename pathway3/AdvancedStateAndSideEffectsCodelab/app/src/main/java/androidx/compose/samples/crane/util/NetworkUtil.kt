@@ -19,8 +19,6 @@ package androidx.compose.samples.crane.util
 import coil.annotation.ExperimentalCoilApi
 import coil.intercept.Interceptor
 import coil.request.ImageResult
-import coil.size.Size
-import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 /**
