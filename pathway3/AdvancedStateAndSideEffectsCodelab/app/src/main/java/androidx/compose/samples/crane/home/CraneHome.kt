@@ -23,11 +23,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.base.CraneDrawer
 import androidx.compose.samples.crane.base.CraneTabBar
 import androidx.compose.samples.crane.base.CraneTabs
@@ -37,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.statusBarsPadding
+import kotlinx.coroutines.launch
 
 typealias OnExploreItemClicked = (ExploreModel) -> Unit
 
@@ -57,12 +54,24 @@ fun CraneHome(
             CraneDrawer()
         }
     ) { padding ->
+        val scope = rememberCoroutineScope()
         CraneHomeContent(
             modifier = modifier.padding(padding),
             onExploreItemClicked = onExploreItemClicked,
             openDrawer = {
                 // TODO Codelab: rememberCoroutineScope step - open the navigation drawer
                 // scaffoldState.drawerState.open()
+
+
+                // openDrawer 콜백에 scaffoldState.drawerState.open()을 쓰려고 하면 오류가 발생합니다. open 함수가 정지 함수이기 때문
+                // scaffoldState.drawerState.open()은 코루틴 내에서 호출되어야 합니다.
+                // openDrawer가 코루틴의 컨텍스트에서 실행되지 않으므로 여기서 정지 함수를 호출할 수 없습니다.
+                // openDrawer에서 컴포저블을 호출할 수 없으므로 이전과 같이 LaunchedEffect를 사용할 수 없습니다. 컴포지션 내에 있지 않습니다.
+                // 호출 사이트의 수명 주기를 따르는 CoroutineScope를 사용하는 것이 좋습니다. 이렇게 하려면 rememberCoroutineScope API를 사용합니다.
+                // 컴포지션을 종료하면 범위가 자동으로 취소됩니다. 이 범위를 사용하면 컴포지션에 있지 않을 때 코루틴이 시작될 수 있습니다
+                scope.launch {
+                    scaffoldState.drawerState.open()
+                }
             }
         )
     }
@@ -77,7 +86,8 @@ fun CraneHomeContent(
     viewModel: MainViewModel = viewModel(),
 ) {
     // TODO Codelab: collectAsState step - consume stream of data from the ViewModel
-    val suggestedDestinations: List<ExploreModel> = remember { emptyList() }
+//    val suggestedDestinations: List<ExploreModel> = remember { emptyList() }
+    val suggestedDestinations by viewModel.suggestedDestinations.collectAsState()
 
     val onPeopleChanged: (Int) -> Unit = { viewModel.updatePeople(it) }
     var tabSelected by remember { mutableStateOf(CraneScreen.Fly) }
