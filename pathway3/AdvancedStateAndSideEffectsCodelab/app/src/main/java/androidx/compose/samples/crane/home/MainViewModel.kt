@@ -67,7 +67,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val newDestinations = withContext(defaultDispatcher) {
                 destinationsRepository.destinations
-                    .filter { it.city.nameToDisplay.contains(newDestination) }
+                    .filter { it.city.nameToDisplay.contains(newDestination, ignoreCase = true) }
             }
             _suggestedDestinations.value = newDestinations
         }
