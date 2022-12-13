@@ -35,8 +35,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.jetnews.R
 import com.example.jetnews.data.posts.PostsRepository
 import com.example.jetnews.data.posts.impl.post3
 import com.example.jetnews.model.Post
@@ -56,7 +58,7 @@ import com.example.jetnews.utils.supportWideScreen
 fun ArticleScreen(
     postId: String?,
     postsRepository: PostsRepository,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     val postData = postsRepository.getPost(postId)!!
 
@@ -75,7 +77,7 @@ fun ArticleScreen(
 @Composable
 fun ArticleScreen(
     post: Post,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
 
     var showDialog by rememberSaveable { mutableStateOf(false) }
@@ -97,7 +99,7 @@ fun ArticleScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = stringResource(R.string.cd_navigate_up)
                         )
                     }
                 }
