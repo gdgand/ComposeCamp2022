@@ -22,27 +22,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.samples.crane.base.Result
 import androidx.compose.samples.crane.data.ExploreModel
 import androidx.compose.samples.crane.ui.CraneTheme
@@ -89,12 +72,10 @@ class DetailsActivity : ComponentActivity() {
             ProvideWindowInsets {
                 CraneTheme {
                     Surface {
-                        DetailsScreen(
-                            onErrorLoading = { finish() },
+                        DetailsScreen(onErrorLoading = { finish() },
                             modifier = Modifier
                                 .statusBarsPadding()
-                                .navigationBarsPadding()
-                        )
+                                .navigationBarsPadding())
                     }
                 }
             }
@@ -102,40 +83,66 @@ class DetailsActivity : ComponentActivity() {
     }
 }
 
+data class DetailsUiState(
+    val cityDetails: ExploreModel? = null,
+    val isLoading: Boolean = false,
+    val throwError: Boolean = false,
+)
+
 @Composable
 fun DetailsScreen(
     onErrorLoading: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: DetailsViewModel = viewModel()
+    viewModel: DetailsViewModel = viewModel(),
 ) {
-    // TODO Codelab: produceState step - Show loading screen while fetching city details
-    val cityDetails = remember(viewModel) { viewModel.cityDetails }
-    if (cityDetails is Result.Success<ExploreModel>) {
-        DetailsContent(cityDetails.data, modifier.fillMaxSize())
-    } else {
-        onErrorLoading()
+    val uiState by produceState(initialValue = DetailsUiState(isLoading = true)) {
+        val cityDetailsResult = viewModel.cityDetails
+        value = if (cityDetailsResult is Result.Success<ExploreModel>) {
+            DetailsUiState(cityDetailsResult.data)
+        } else {
+            DetailsUiState(throwError = true)
+        }
     }
+
+    when {
+        uiState.cityDetails != null -> {
+            DetailsContent(uiState.cityDetails!!, modifier.fillMaxSize())
+        }
+        uiState.isLoading -> {
+            Box(modifier.fillMaxSize()) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colors.onSurface,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+        }
+        else -> {
+            onErrorLoading()
+        }
+    }
+//    val cityDetails = remember(viewModel) { viewModel.cityDetails }
+//    if (cityDetails is Result.Success<ExploreModel>) {
+//        DetailsContent(cityDetails.data, modifier.fillMaxSize())
+//    } else {
+//        onErrorLoading()
+//    }
 }
 
 @Composable
 fun DetailsContent(
     exploreModel: ExploreModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
         Spacer(Modifier.height(32.dp))
-        Text(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+        Text(modifier = Modifier.align(Alignment.CenterHorizontally),
             text = exploreModel.city.nameToDisplay,
             style = MaterialTheme.typography.h4,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+            textAlign = TextAlign.Center)
+        Text(modifier = Modifier.align(Alignment.CenterHorizontally),
             text = exploreModel.description,
             style = MaterialTheme.typography.h6,
-            textAlign = TextAlign.Center
-        )
+            textAlign = TextAlign.Center)
         Spacer(Modifier.height(16.dp))
         CityMapView(exploreModel.city.latitude, exploreModel.city.longitude)
     }
@@ -155,7 +162,7 @@ private fun CityMapView(latitude: String, longitude: String) {
 private fun MapViewContainer(
     map: MapView,
     latitude: String,
-    longitude: String
+    longitude: String,
 ) {
     val cameraPosition = remember(latitude, longitude) {
         LatLng(latitude.toDouble(), longitude.toDouble())
@@ -189,7 +196,7 @@ private fun MapViewContainer(
 @Composable
 private fun ZoomControls(
     zoom: Float,
-    onZoomChanged: (Float) -> Unit
+    onZoomChanged: (Float) -> Unit,
 ) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         ZoomButton("-", onClick = { onZoomChanged(zoom * 0.8f) })
@@ -199,14 +206,10 @@ private fun ZoomControls(
 
 @Composable
 private fun ZoomButton(text: String, onClick: () -> Unit) {
-    Button(
-        modifier = Modifier.padding(8.dp),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.onPrimary,
-            contentColor = MaterialTheme.colors.primary
-        ),
-        onClick = onClick
-    ) {
+    Button(modifier = Modifier.padding(8.dp),
+        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.onPrimary,
+            contentColor = MaterialTheme.colors.primary),
+        onClick = onClick) {
         Text(text = text, style = MaterialTheme.typography.h5)
     }
 }
