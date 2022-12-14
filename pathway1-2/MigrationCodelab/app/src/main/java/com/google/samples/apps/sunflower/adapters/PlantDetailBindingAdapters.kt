@@ -16,9 +16,12 @@
 
 package com.google.samples.apps.sunflower.adapters
 
+import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
 import androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT
 import androidx.databinding.BindingAdapter
@@ -30,10 +33,8 @@ import com.google.samples.apps.sunflower.R
 @BindingAdapter("imageFromUrl")
 fun bindImageFromUrl(view: ImageView, imageUrl: String?) {
     if (!imageUrl.isNullOrEmpty()) {
-        Glide.with(view.context)
-            .load(imageUrl)
-            .transition(DrawableTransitionOptions.withCrossFade())
-            .into(view)
+        Glide.with(view.context).load(imageUrl)
+            .transition(DrawableTransitionOptions.withCrossFade()).into(view)
     }
 }
 
@@ -56,12 +57,12 @@ fun bindRenderHtml(view: TextView, description: String?) {
     }
 }
 
+
 @BindingAdapter("wateringText")
 fun bindWateringText(textView: TextView, wateringInterval: Int) {
     val resources = textView.context.resources
     val quantityString = resources.getQuantityString(
-        R.plurals.watering_needs_suffix,
-        wateringInterval, wateringInterval
+        R.plurals.watering_needs_suffix, wateringInterval, wateringInterval
     )
 
     textView.text = quantityString
