@@ -91,11 +91,13 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
             }
         }
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = stringResource(R.string.cd_show_fewer),
                 modifier = Modifier
                     .clickable { openDialog = true }
+                    .padding(12.dp)
                     .size(24.dp)
             )
         }
