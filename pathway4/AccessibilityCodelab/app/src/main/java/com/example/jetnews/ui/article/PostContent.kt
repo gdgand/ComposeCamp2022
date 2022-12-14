@@ -52,6 +52,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -181,7 +183,9 @@ private fun Paragraph(paragraph: Paragraph) {
             )
             ParagraphType.Header -> {
                 Text(
-                    modifier = Modifier.padding(4.dp),
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .semantics { heading() },
                     text = annotatedString,
                     style = textStyle.merge(paragraphStyle)
                 )
@@ -199,7 +203,7 @@ private fun Paragraph(paragraph: Paragraph) {
 private fun CodeBlockParagraph(
     text: AnnotatedString,
     textStyle: TextStyle,
-    paragraphStyle: ParagraphStyle
+    paragraphStyle: ParagraphStyle,
 ) {
     Surface(
         color = MaterialTheme.colors.codeBlockBackground,
@@ -218,7 +222,7 @@ private fun CodeBlockParagraph(
 private fun BulletParagraph(
     text: AnnotatedString,
     textStyle: TextStyle,
-    paragraphStyle: ParagraphStyle
+    paragraphStyle: ParagraphStyle,
 ) {
     Row {
         with(LocalDensity.current) {
@@ -246,7 +250,7 @@ private fun BulletParagraph(
 private data class ParagraphStyling(
     val textStyle: TextStyle,
     val paragraphStyle: ParagraphStyle,
-    val trailingPadding: Dp
+    val trailingPadding: Dp,
 )
 
 @Composable
@@ -289,7 +293,7 @@ private fun ParagraphType.getTextAndParagraphStyle(): ParagraphStyling {
 private fun paragraphToAnnotatedString(
     paragraph: Paragraph,
     typography: Typography,
-    codeBlockBackground: Color
+    codeBlockBackground: Color,
 ): AnnotatedString {
     val styles: List<AnnotatedString.Range<SpanStyle>> = paragraph.markups
         .map { it.toAnnotatedStringItem(typography, codeBlockBackground) }
@@ -298,7 +302,7 @@ private fun paragraphToAnnotatedString(
 
 fun Markup.toAnnotatedStringItem(
     typography: Typography,
-    codeBlockBackground: Color
+    codeBlockBackground: Color,
 ): AnnotatedString.Range<SpanStyle> {
     return when (this.type) {
         MarkupType.Italic -> {
