@@ -49,11 +49,18 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
+import com.example.compose.rally.Accounts
+import com.example.compose.rally.Bills
+import com.example.compose.rally.Overview
 import com.example.compose.rally.R
 import com.example.compose.rally.SingleAccount
 import com.example.compose.rally.data.UserData
 import com.example.compose.rally.navigateSingleTopTo
+import com.example.compose.rally.ui.accounts.AccountsScreen
+import com.example.compose.rally.ui.accounts.SingleAccountScreen
+import com.example.compose.rally.ui.bills.BillsScreen
 import com.example.compose.rally.ui.components.AccountRow
 import com.example.compose.rally.ui.components.BillRow
 import com.example.compose.rally.ui.components.RallyAlertDialog
@@ -296,6 +303,58 @@ private fun SeeAllButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
   ) {
     Text(stringResource(R.string.see_all))
   }
+}
+
+@Composable
+fun RallyNavHost(
+  navController: NavHostController,
+  modifier: Modifier = Modifier
+) {
+  NavHost(
+    navController = navController,
+    startDestination = Overview.route,
+    modifier = modifier
+  ) {
+    composable(route = Overview.route) {
+      OverviewScreen(
+        onClickSeeAllAccounts = {
+          navController.navigateSingleTopTo(Accounts.route)
+        },
+        onClickSeeAllBills = {
+          navController.navigateSingleTopTo(Bills.route)
+        },
+        onAccountClick = { accountType ->
+          navController.navigateToSingleAccount(accountType)
+        }
+      )
+    }
+    composable(route = Accounts.route) {
+      AccountsScreen(
+        onAccountClick = { accountType ->
+          navController.navigateToSingleAccount(accountType)
+        }
+      )
+    }
+    composable(route = Bills.route) {
+      BillsScreen()
+    }
+    composable(
+      route = SingleAccount.routeWithArgs,
+      arguments = SingleAccount.arguments,
+      deepLinks = SingleAccount.deepLinks
+    ) { navBackStackEntry ->
+      val accountType =
+        navBackStackEntry.arguments?.getString(SingleAccount.accountTypeArg)
+      SingleAccountScreen(accountType)
+    }
+  }
+}
+
+fun NavHostController.navigateSingleTopTo(route: String) =
+  this.navigate(route) { launchSingleTop = true }
+
+private fun NavHostController.navigateToSingleAccount(accountType: String) {
+  this.navigateSingleTopTo("${SingleAccount.route}/$accountType")
 }
 
 private val RallyDefaultPadding = 12.dp
