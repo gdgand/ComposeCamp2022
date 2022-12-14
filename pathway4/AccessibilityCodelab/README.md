@@ -5,6 +5,7 @@ the [Accessibility in Jetpack Compose Codelab](https://developer.android.com/cod
 
 ## License
 
+
 ```
 Copyright 2021 The Android Open Source Project
 
