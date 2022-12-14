@@ -13,12 +13,12 @@ fun WaterCounter(modifier: Modifier = Modifier) {
     var count by rememberSaveable { mutableStateOf(0) }
     Column(modifier = modifier.padding(16.dp)) {
         if (count > 0) {
-            var showTask by rememberSaveable { mutableStateOf(true) }
-            if (showTask) {
-                WellnessTaskItem(
-                    taskName = "Have you taken your 15 minute walk today?"
-                )
-            }
+//            var showTask by rememberSaveable { mutableStateOf(true) }
+//            if (showTask) {
+//                WellnessTaskItem(
+//                    taskName = "Have you taken your 15 minute walk today?"
+//                )
+//            }
             Text(
                 text = "You've had $count glasses."
             )
