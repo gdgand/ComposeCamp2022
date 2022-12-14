@@ -157,7 +157,7 @@ fun InterestsScreen(
  * @param selected (state) is topic currently selected
  * @param onToggle (event) toggle selection for topic
  */
-@Composable
+@Composable 
 private fun TopicItem(itemTitle: String, selected: Boolean, onToggle: () -> Unit) {
     val image = painterResource(R.drawable.placeholder_1_1)
     val stateNotSubscribed = stringResource(R.string.state_not_subscribed)
