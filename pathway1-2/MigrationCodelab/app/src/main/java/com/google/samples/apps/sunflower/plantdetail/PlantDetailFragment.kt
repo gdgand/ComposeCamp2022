@@ -69,6 +69,13 @@ class PlantDetailFragment : Fragment() {
                 }
             }
 
+            composeView.setContent {
+                // You're in Compose world!
+                MaterialTheme {
+                    PlantDetailDescription()
+                }
+            }
+
             var isToolbarShown = false
 
             // scroll change listener begins at Y = 0 when image is fully collapsed
