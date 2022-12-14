@@ -18,17 +18,42 @@ package com.google.samples.apps.sunflower.plantdetail
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
+import androidx.core.text.HtmlCompat
 import androidx.core.widget.NestedScrollView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.samples.apps.sunflower.R
@@ -65,6 +90,16 @@ class PlantDetailFragment : Fragment() {
                         plantDetailViewModel.addPlantToGarden()
                         Snackbar.make(root, R.string.added_plant_to_garden, Snackbar.LENGTH_LONG)
                             .show()
+                    }
+                }
+            }
+            composeView.apply {
+                setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+                setContent {
+                    MdcTheme {
+                        PlantDetailDescription(plantDetailViewModel)
                     }
                 }
             }
@@ -144,5 +179,85 @@ class PlantDetailFragment : Fragment() {
 
     interface Callback {
         fun add(plant: Plant?)
+    }
+
+    // Stateful Compose
+    @Composable
+    fun PlantDetailDescription(plantDetailViewModel: PlantDetailViewModel) {
+        val plant by plantDetailViewModel.plant.observeAsState()
+        plant?.let {
+            PlantDetailContents(it)
+        }
+    }
+
+    // Stateless Compose
+    @Composable
+    fun PlantDetailContents(plant: Plant) {
+        Surface {
+            Column(Modifier.padding(dimensionResource(R.dimen.margin_normal))) {
+                PlantName(plant.name)
+                PlantWatering(plant.wateringInterval)
+                PlantDescription(plant.description)
+            }
+        }
+    }
+
+    @Composable
+    private fun PlantName(name: String) {
+        LazyVerticalGrid(columns = , content = )
+        Text(
+            text = name,
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(id = R.dimen.margin_small))
+                .wrapContentWidth(Alignment.CenterHorizontally)
+        )
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Composable
+    private fun PlantWatering(wateringInterval: Int) {
+        Column(Modifier.fillMaxWidth()) {
+            // Same modifier used by both Texts
+            val centerWithPaddingModifier = Modifier
+                .padding(horizontal = dimensionResource(R.dimen.margin_small))
+                .align(Alignment.CenterHorizontally)
+
+            val normalPadding = dimensionResource(R.dimen.margin_normal)
+
+            Text(
+                text = stringResource(R.string.watering_needs_prefix),
+                color = MaterialTheme.colors.primaryVariant,
+                fontWeight = FontWeight.Bold,
+                modifier = centerWithPaddingModifier.padding(top = normalPadding)
+            )
+
+            val wateringIntervalText = pluralStringResource(
+                R.plurals.watering_needs_suffix, wateringInterval, wateringInterval
+            )
+            Text(
+                text = wateringIntervalText,
+                modifier = centerWithPaddingModifier.padding(bottom = normalPadding)
+            )
+        }
+    }
+
+    @Composable
+    private fun PlantDescription(description: String) {
+        val htmlDescription = remember(description) {
+            HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_COMPACT)
+        }
+
+        AndroidView(
+            factory = { context ->
+                TextView(context).apply {
+                    movementMethod = LinkMovementMethod.getInstance()
+                }
+            },
+            update = {
+                it.text = htmlDescription
+            }
+        )
     }
 }
