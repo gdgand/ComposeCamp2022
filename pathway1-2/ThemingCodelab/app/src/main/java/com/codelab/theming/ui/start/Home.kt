@@ -17,9 +17,9 @@
 package com.codelab.theming.ui.start
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
@@ -43,7 +45,7 @@ import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -112,18 +114,44 @@ fun Header(
   Surface(
     color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
     contentColor = MaterialTheme.colors.primary,
-    modifier = modifier
+    modifier = modifier.semantics { heading() }
   ) {
     Text(
       text = text,
       style = MaterialTheme.typography.subtitle2,
-      modifier = modifier
+      modifier = Modifier
         .fillMaxWidth()
-        .background(Color.LightGray)
-        .semantics { heading() }
         .padding(horizontal = 16.dp, vertical = 8.dp)
     )
   }
+}
+
+@Composable
+fun LoginButton(
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+  content: @Composable RowScope.() -> Unit,
+) {
+  Button(
+    colors = ButtonConstants.defaultButtonColors(
+      backgroundColor = MaterialTheme.colors.secondary
+    ),
+    onClick = onClick,
+    modifier = modifier
+  ) {
+  }
+}
+
+@Composable
+fun AcmeButton(
+  // expose Button params consumers should be able to change
+) {
+  val acmeButtonShape: Shape = RoundedCornerShape(4.dp)
+  Button(shape = acmeButtonShape, onClick = {
+
+  }, content = {
+
+  })
 }
 
 @Composable
