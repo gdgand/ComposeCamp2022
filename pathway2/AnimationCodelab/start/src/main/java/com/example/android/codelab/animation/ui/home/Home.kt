@@ -268,14 +268,14 @@ private fun HomeFloatingActionButton(
                 contentDescription = null
             )
             // Toggle the visibility of the content with animation.
-            // TODO 2-1: Animate this visibility change.
-            if (extended) {
-                Text(
-                    text = stringResource(R.string.edit),
-                    modifier = Modifier
-                        .padding(start = 8.dp, top = 3.dp)
-                )
-            }
+                AnimatedVisibility(extended) {
+                    Text(
+                        text = stringResource(R.string.edit),
+                        modifier = Modifier
+                            .padding(start = 8.dp, top = 3.dp)
+                    )
+                }
+
         }
     }
 }
