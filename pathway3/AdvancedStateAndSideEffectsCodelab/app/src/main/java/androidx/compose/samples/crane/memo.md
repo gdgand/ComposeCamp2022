@@ -15,3 +15,8 @@ LaunchedEffect가 컴포지션을 종료하면 코루틴이 취소됩니다.
 
 LaunchedEffect와 같은 일부 부작용 API는 다양한 수의 키를 매개변수로 사용하여 이러한 키 중 하나가 변경될 때마다 효과를 다시 시작합니다.
 컴포저블의 수명 주기 동안 한 번만 부작용을 트리거하려면 상수를 키로 사용합니다(예: LaunchedEffect(true) { ... }).
+
+***
+부작용이 진행되는 동안 onTimeout이 변경되면 효과가 끝날 때 마지막 onTimeout이 호출된다는 보장이 없습니다. 캡처하고 새 값으로 업데이트하여 이를 보장하려면 rememberUpdatedState API를 사용합니다.
+즉 부작용이 인자로 전달된 onTimeout 이 변경될 때마다 재 실행되는 것은 좋지 않으니 상수값으로 마지막 컴포지션까지 한번만 런치하려는 것
+근데 onTimeout 이 부작용 내에서 최신화되어 실행하게하기 위해 사용하는 것이 rememberUpdatedState 라는 것
