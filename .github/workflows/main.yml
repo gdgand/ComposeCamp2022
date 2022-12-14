@@ -1,0 +1,24 @@
+name: Extract Version Name
+run-name: Run "${{ github.ref_name }}" by ${{ github.actor }}👮‍♂️
+on:
+  push:
+    branches:
+      - 'release/**'
+      - 'hotfix/**'
+
+jobs:
+  update-version-name:
+    if: github.event.created == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Split branch name
+        env:
+          BRANCH: ${{ github.ref_name }}
+        id: split
+        run: echo "::set-output name=version::${BRANCH##*/}"
+          
+      - name: Check version name
+        run: echo ${{ steps.split.outputs.version }}
