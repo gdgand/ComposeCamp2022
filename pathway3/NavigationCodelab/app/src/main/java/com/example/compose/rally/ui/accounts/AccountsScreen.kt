@@ -17,12 +17,14 @@
 package com.example.compose.rally.ui.accounts
 
 import androidx.compose.foundation.clickable
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.compose.rally.R
 import com.example.compose.rally.data.UserData
 import com.example.compose.rally.ui.components.AccountRow
@@ -80,3 +82,4 @@ fun SingleAccountScreen(
         )
     }
 }
+
