@@ -29,6 +29,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.samples.apps.sunflower.R
@@ -65,6 +67,18 @@ class PlantDetailFragment : Fragment() {
                         plantDetailViewModel.addPlantToGarden()
                         Snackbar.make(root, R.string.added_plant_to_garden, Snackbar.LENGTH_LONG)
                             .show()
+                    }
+                }
+            }
+
+            componseView.apply {
+                this.setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+
+                this.setContent {
+                    MdcTheme {
+                        PlantDetailDescription(plantDetailViewModel)
                     }
                 }
             }

@@ -92,6 +92,7 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$rootProject.composeVersion"
     implementation "androidx.activity:activity-compose:$rootProject.activityComposeVersion"
     implementation "androidx.navigation:navigation-compose:$rootProject.navigationComposeVersion"
+    implementation "androidx.navigation:navigation-testing:$rootProject.navigationComposeVersion"
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
 
     // Testing dependencies
