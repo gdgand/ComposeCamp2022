@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ // ktlint-disable filename
 
 package androidx.compose.samples.crane.base
 
@@ -23,35 +23,49 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.samples.crane.ui.captionTextStyle
 import androidx.compose.ui.graphics.SolidColor
 
+class EditableUserInputState(private val hint: String, initialText: String) {
+    var text by mutableStateOf(initialText)
+
+    val isHint: Boolean
+        get() = text == hint
+
+    companion object { // EditableUserInputState의 인스턴스를 저장하고 복원하는 구현 세부정보로 listSaver 사용
+        val Saver: Saver<EditableUserInputState, *> = listSaver(
+            save = { listOf(it.hint, it.text) },
+            restore = {
+                EditableUserInputState(
+                    hint = it[0],
+                    initialText = it[1]
+                )
+            }
+        )
+    }
+}
+
 @Composable
 fun CraneEditableUserInput(
-    hint: String,
+    state: EditableUserInputState = rememberEditableUserInputState(""),
     caption: String? = null,
-    @DrawableRes vectorImageId: Int? = null,
-    onInputChanged: (String) -> Unit
+    @DrawableRes vectorImageId: Int? = null
 ) {
-    // TODO Codelab: Encapsulate this state in a state holder
-    var textState by remember { mutableStateOf(hint) }
-    val isHint = { textState == hint }
-
+    // Encapsulate this state in a state holder
     CraneBaseUserInput(
         caption = caption,
-        tintIcon = { !isHint() },
-        showCaption = { !isHint() },
+        tintIcon = { !state.isHint },
+        showCaption = { !state.isHint },
         vectorImageId = vectorImageId
     ) {
         BasicTextField(
-            value = textState,
-            onValueChange = {
-                textState = it
-                if (!isHint()) onInputChanged(textState)
-            },
-            textStyle = if (isHint()) {
+            value = state.text,
+            onValueChange = { state.text = it },
+            textStyle = if (state.isHint) {
                 captionTextStyle.copy(color = LocalContentColor.current)
             } else {
                 MaterialTheme.typography.body1.copy(color = LocalContentColor.current)
@@ -60,3 +74,10 @@ fun CraneEditableUserInput(
         )
     }
 }
+
+// 상태 홀더를 기억 -> 컴포지션에서 유지 => 매번 새로 만들 필요가 없음
+@Composable
+fun rememberEditableUserInputState(hint: String): EditableUserInputState =
+    rememberSaveable(hint, saver = EditableUserInputState.Saver) {
+        EditableUserInputState(hint, hint)
+    }
