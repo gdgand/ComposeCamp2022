@@ -19,42 +19,32 @@ package com.codelab.theming.ui.start
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.ListItem
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.theming.R
 import com.codelab.theming.data.Post
 import com.codelab.theming.data.PostRepo
-import java.util.Locale
+import java.util.*
 
 @Composable
 fun Home() {
@@ -99,7 +89,7 @@ private fun AppBar() {
         title = {
             Text(text = stringResource(R.string.app_title))
         },
-        backgroundColor = MaterialTheme.colors.primary
+        backgroundColor = MaterialTheme.colors.primarySurface
     )
 }
 
@@ -108,14 +98,19 @@ fun Header(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = text,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color.LightGray)
-            .semantics { heading() }
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    )
+    Surface(
+        color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
+        contentColor = MaterialTheme.colors.primary,
+        modifier = modifier.semantics { heading() }
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.subtitle2,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+    }
 }
 
 @Composable
@@ -166,18 +161,25 @@ private fun PostMetadata(
         append(divider)
         append(stringResource(R.string.read_time, post.metadata.readTimeMinutes))
         append(divider)
+        val tagStyle = MaterialTheme.typography.overline.toSpanStyle().copy(
+            background = MaterialTheme.colors.primary.copy(alpha = 0.1f)
+        )
         post.tags.forEachIndexed { index, tag ->
             if (index != 0) {
                 append(tagDivider)
             }
-            append(" ${tag.uppercase(Locale.getDefault())} ")
+            withStyle(tagStyle) {
+                append(" ${tag.uppercase(Locale.getDefault())} ")
+            }
         }
     }
-    Text(
-        text = text,
-        modifier = modifier
-    )
-}
+    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+        Text(
+            text = text,
+            modifier = modifier
+        )
+    }
+} // End of PostMetadata
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -190,9 +192,12 @@ fun PostItem(
             .clickable { /* todo */ }
             .padding(vertical = 8.dp),
         icon = {
+            // PostItem에 표시된 이미지에 도형 테마 설정
+            // 테마의 small 도형을 clip Modifier로 적용하여 왼쪽 상단 모서리를 잘라낸다.
             Image(
-                painter = painterResource(post.imageThumbId),
-                contentDescription = null
+                painter = painterResource(id = post.imageThumbId),
+                contentDescription = null,
+                modifier = Modifier.clip(shape = MaterialTheme.shapes.small)
             )
         },
         text = {
@@ -200,9 +205,9 @@ fun PostItem(
         },
         secondaryText = {
             PostMetadata(post)
-        }
+        },
     )
-}
+} // End of PostItem
 
 @Preview("Post Item")
 @Composable
@@ -213,10 +218,9 @@ private fun PostItemPreview() {
             PostItem(post = post)
         }
     }
-}
+} // End of PostItemPreview
 
-
-// 미리보기
+// 일반 미리 보기
 @Preview("Featured Post")
 @Composable
 private fun FeaturedPostPreview() {
@@ -224,10 +228,20 @@ private fun FeaturedPostPreview() {
     JetnewsTheme {
         FeaturedPost(post = post)
     }
-}
+} // End of FeaturedPostPreview
+
+// 다크 모드 미리보기
+@Preview("Featured Post • Dark")
+@Composable
+private fun FeaturedPostDarkPreview() {
+    val post = remember { PostRepo.getFeaturedPost() }
+    JetnewsTheme(darkTheme = true) {
+        FeaturedPost(post = post)
+    }
+} // End of FeaturedPostDarkPreview
 
 @Preview("Home")
 @Composable
 private fun HomePreview() {
     Home()
-}
+} // End of HomePreview
