@@ -1,5 +1,10 @@
 package com.example.compose.rally
 
+import androidx.compose.material.Scaffold
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.example.compose.rally.ui.components.RallyTopAppBar
@@ -47,5 +52,22 @@ class TopAppBarTest {
                 useUnmergedTree = true
             )
             .assertExists()
+    }
+
+    @Test
+    fun rallyTopAppBarTest_exercise() {
+        val allScreens = RallyScreen.values().toList()
+        composeTestRule.setContent {
+            var currentScreen by rememberSaveable { mutableStateOf(RallyScreen.Overview) }
+            RallyTopAppBar(
+                allScreens = allScreens,
+                onTabSelected = { screen -> currentScreen = screen },
+                currentScreen = currentScreen
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription(RallyScreen.Bills.name)
+            .performClick()
+            .assertIsSelected()
     }
 }
