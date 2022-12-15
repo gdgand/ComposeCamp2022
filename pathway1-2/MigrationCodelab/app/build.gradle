@@ -93,7 +93,6 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
 
     implementation "com.google.android.material:compose-theme-adapter:$rootProject.materialComposeAdapterVersion"
-    implementation "com.google.android.material:compose-theme-adapter:$rootProject.composeVersion"
 
     // Testing dependencies
     androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
