@@ -43,9 +43,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.compose.rally.Overview
 import com.example.compose.rally.RallyDestination
+import com.example.compose.rally.ui.theme.RallyTheme
 import java.util.Locale
 
 @Composable
@@ -124,3 +127,11 @@ private const val InactiveTabOpacity = 0.60f
 private const val TabFadeInAnimationDuration = 150
 private const val TabFadeInAnimationDelay = 100
 private const val TabFadeOutAnimationDuration = 100
+
+@Preview
+@Composable
+fun DefaultRallyTab() {
+    RallyTheme {
+        RallyTab(Overview.route, Overview.icon, {}, true)
+    }
+}

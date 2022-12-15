@@ -17,26 +17,24 @@
 package androidx.compose.samples.crane.home
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BackdropScaffold
-import androidx.compose.material.BackdropValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberBackdropScaffoldState
-import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.base.CraneDrawer
 import androidx.compose.samples.crane.base.CraneTabBar
 import androidx.compose.samples.crane.base.CraneTabs
 import androidx.compose.samples.crane.base.ExploreSection
+import androidx.compose.samples.crane.data.DestinationsLocalDataSource
+import androidx.compose.samples.crane.data.DestinationsRepository
 import androidx.compose.samples.crane.data.ExploreModel
+import androidx.compose.samples.crane.ui.CraneTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.statusBarsPadding
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 typealias OnExploreItemClicked = (ExploreModel) -> Unit
 
@@ -57,12 +55,14 @@ fun CraneHome(
             CraneDrawer()
         }
     ) { padding ->
+        val scope = rememberCoroutineScope()
         CraneHomeContent(
             modifier = modifier.padding(padding),
             onExploreItemClicked = onExploreItemClicked,
             openDrawer = {
-                // TODO Codelab: rememberCoroutineScope step - open the navigation drawer
-                // scaffoldState.drawerState.open()
+                scope.launch {
+                    scaffoldState.drawerState.open()
+                }
             }
         )
     }
@@ -76,8 +76,7 @@ fun CraneHomeContent(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = viewModel(),
 ) {
-    // TODO Codelab: collectAsState step - consume stream of data from the ViewModel
-    val suggestedDestinations: List<ExploreModel> = remember { emptyList() }
+    val suggestedDestinations by viewModel.suggestedDestinations.collectAsState()
 
     val onPeopleChanged: (Int) -> Unit = { viewModel.updatePeople(it) }
     var tabSelected by remember { mutableStateOf(CraneScreen.Fly) }
@@ -161,5 +160,35 @@ private fun SearchContent(
         CraneScreen.Eat -> EatSearchContent(
             onPeopleChanged = onPeopleChanged
         )
+    }
+}
+
+@Preview
+@Composable
+fun DefaultCraneHome() {
+    CraneTheme {
+        val scaffoldState = rememberScaffoldState()
+        Scaffold(
+            scaffoldState = scaffoldState,
+            modifier = Modifier.statusBarsPadding(),
+            drawerContent = {
+                CraneDrawer()
+            }
+        ) { padding ->
+            val scope = rememberCoroutineScope()
+            CraneHomeContent(
+                modifier = Modifier,
+                onExploreItemClicked = { },
+                openDrawer = {
+                    scope.launch {
+                        scaffoldState.drawerState.open()
+                    }
+                },
+                viewModel = MainViewModel(
+                    DestinationsRepository(DestinationsLocalDataSource()),
+                    Dispatchers.Main
+                )
+            )
+        }
     }
 }
