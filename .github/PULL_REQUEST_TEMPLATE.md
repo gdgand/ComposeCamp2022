@@ -12,7 +12,7 @@
 - [x] Pathway2/AnimationCodelab
 - [x] Pathway3/AdvancedStateAndSideEffectsCodelab
 - [x] Pathway3/NavigationCodelab
-- [ ] Pathway4/AccessibilityCodelab
+- [x] Pathway4/AccessibilityCodelab
 - [x] Pathway4/TestingCodelab
 - Pathway5는 Optional :)
 
