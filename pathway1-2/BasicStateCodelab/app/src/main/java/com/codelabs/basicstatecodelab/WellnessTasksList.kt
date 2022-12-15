@@ -5,13 +5,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 
 @Composable
-fun WellnessTaskList(
+fun WellnessTasksList(
     modifier: Modifier = Modifier,
     list: List<WellnessTask> = remember { getWellnessTasks() },
+    onCheckedTask: (WellnessTask, Boolean) -> Unit,
     onCloseTask: (WellnessTask) -> Unit
 ) {
     LazyColumn(
@@ -24,7 +24,13 @@ fun WellnessTaskList(
         ) { task ->
             WellnessTaskItem(
                 taskName = task.label,
-                onClose = { onCloseTask(task) }
+                checked = task.checked,
+                onCheckedChange = { checked ->
+                    onCheckedTask.invoke(task, checked)
+                },
+                onClose = {
+                    onCloseTask(task)
+                }
             )
         }
     }
@@ -35,4 +41,4 @@ internal fun getWellnessTasks() = List(size = 30) { i ->
         id = i,
         label = "Task # $i"
     )
-}.toMutableStateList()
+}
