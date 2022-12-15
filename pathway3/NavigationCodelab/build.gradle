@@ -21,6 +21,7 @@ buildscript {
         compileSdkVersion = 32
         minSdkVersion = 21
         targetSdkVersion = 32
+        composeNavigationVersion = '2.5.0-rc01'
 
         // App dependencies
         appCompatVersion = '1.4.2'

@@ -39,6 +39,7 @@ import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -52,6 +53,8 @@ import com.example.jetnews.data.posts.PostsRepository
 import com.example.jetnews.model.Post
 import com.example.jetnews.ui.components.InsetAwareTopAppBar
 import com.example.jetnews.ui.theme.JetnewsTheme
+import com.google.accompanist.insets.LocalWindowInsets
+import com.google.accompanist.insets.rememberInsetsPaddingValues
 import kotlinx.coroutines.launch
 
 /**
@@ -139,6 +142,7 @@ private fun PostList(
     val postsHistory = posts.subList(0, 3)
     val postsPopular = posts.subList(3, 5)
     val contentPadding = rememberContentPaddingForScreen(additionalTop = 8.dp)
+
     LazyColumn(
         modifier = modifier,
         contentPadding = contentPadding
@@ -204,7 +208,6 @@ fun rememberContentPaddingForScreen(additionalTop: Dp = 0.dp) =
         .only(WindowInsetsSides.Bottom)
         .add(WindowInsets(top = additionalTop))
         .asPaddingValues()
-
 @Preview("Home screen")
 @Preview("Home screen (dark)", uiMode = UI_MODE_NIGHT_YES)
 @Preview("Home screen (big font)", fontScale = 1.5f)
