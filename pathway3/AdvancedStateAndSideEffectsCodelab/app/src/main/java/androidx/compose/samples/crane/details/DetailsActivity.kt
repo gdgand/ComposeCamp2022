@@ -22,27 +22,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.samples.crane.base.Result
 import androidx.compose.samples.crane.data.ExploreModel
 import androidx.compose.samples.crane.ui.CraneTheme
@@ -108,12 +91,28 @@ fun DetailsScreen(
     modifier: Modifier = Modifier,
     viewModel: DetailsViewModel = viewModel()
 ) {
-    // TODO Codelab: produceState step - Show loading screen while fetching city details
-    val cityDetails = remember(viewModel) { viewModel.cityDetails }
-    if (cityDetails is Result.Success<ExploreModel>) {
-        DetailsContent(cityDetails.data, modifier.fillMaxSize())
-    } else {
-        onErrorLoading()
+    val uiState by produceState(initialValue = DetailsUiState(isLoading = true)) {
+        val cityDetailsResult = viewModel.cityDetails
+        value = if (cityDetailsResult is Result.Success<ExploreModel>) {
+            DetailsUiState(cityDetailsResult.data)
+        } else {
+            DetailsUiState(throwError = true)
+        }
+    }
+
+    when {
+        uiState.cityDetails != null -> {
+            DetailsContent(uiState.cityDetails!!, modifier.fillMaxSize())
+        }
+        uiState.isLoading -> {
+            Box(modifier.fillMaxSize()) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colors.onSurface,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+        else -> { onErrorLoading() }
     }
 }
 
@@ -214,3 +213,9 @@ private fun ZoomButton(text: String, onClick: () -> Unit) {
 private const val InitialZoom = 5f
 const val MinZoom = 2f
 const val MaxZoom = 20f
+
+data class DetailsUiState(
+    val cityDetails: ExploreModel? = null,
+    val isLoading: Boolean = false,
+    val throwError: Boolean = false
+)
