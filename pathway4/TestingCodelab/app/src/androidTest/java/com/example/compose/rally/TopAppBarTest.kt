@@ -3,6 +3,7 @@ package com.example.compose.rally
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.example.compose.rally.ui.components.RallyTopAppBar
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -11,8 +12,8 @@ class TopAppBarTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    @Test
-    fun rallyTopAppBarTest() {
+    @Before
+    fun setupRallyTopAppBar() {
         val allScreens = RallyScreen.values().toList()
         composeTestRule.setContent {
             RallyTopAppBar(
@@ -21,7 +22,10 @@ class TopAppBarTest {
                 currentScreen = RallyScreen.Accounts
             )
         }
+    }
 
+    @Test
+    fun rallyTopAppBarTest() {
         composeTestRule
             .onNodeWithContentDescription(RallyScreen.Accounts.name)
             .assertIsDisplayed()
@@ -29,15 +33,6 @@ class TopAppBarTest {
 
     @Test
     fun rallyTopAppBarTest_currentLabelExists() {
-        val allScreens = RallyScreen.values().toList()
-        composeTestRule.setContent {
-            RallyTopAppBar(
-                allScreens = allScreens,
-                onTabSelected = { },
-                currentScreen = RallyScreen.Accounts
-            )
-        }
-
         composeTestRule.onRoot(useUnmergedTree = true).printToLog("currentLabelExists")
 
         composeTestRule
@@ -47,5 +42,27 @@ class TopAppBarTest {
                 useUnmergedTree = true
             )
             .assertExists()
+    }
+
+    @Test
+    fun rallyTopAppBarTest_clickOverview_navigationToOverview() {
+        composeTestRule
+            .onNodeWithContentDescription(RallyScreen.Overview.name)
+            .performClick()
+
+        composeTestRule
+            .onNodeWithContentDescription(RallyScreen.Overview.name)
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun rallyTopAppBarTest_clickBills_navigationToBills() {
+        composeTestRule
+            .onNodeWithContentDescription(RallyScreen.Bills.name)
+            .performClick()
+
+        composeTestRule
+            .onNodeWithContentDescription(RallyScreen.Bills.name)
+            .assertIsDisplayed()
     }
 }
