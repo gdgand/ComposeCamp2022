@@ -23,11 +23,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.base.CraneDrawer
 import androidx.compose.samples.crane.base.CraneTabBar
 import androidx.compose.samples.crane.base.CraneTabs
@@ -37,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.statusBarsPadding
+import kotlinx.coroutines.launch
 
 typealias OnExploreItemClicked = (ExploreModel) -> Unit
 
@@ -44,6 +41,10 @@ enum class CraneScreen {
     Fly, Sleep, Eat
 }
 
+
+// 일부 Compose API는 suspend 함수
+// -> 창을 열기 위한 시간, 움직임, 잠재적 애니메이션이 필요하므로 정지함수에 완벽하게 반영
+//    완료되고 실행을 재개할 때까지 호출되는 코루틴의 실행을 정지함
 @Composable
 fun CraneHome(
     onExploreItemClicked: OnExploreItemClicked,
@@ -56,13 +57,15 @@ fun CraneHome(
         drawerContent = {
             CraneDrawer()
         }
-    ) { padding ->
+    ) {
+        val scope = rememberCoroutineScope()
         CraneHomeContent(
-            modifier = modifier.padding(padding),
+            modifier = modifier,
             onExploreItemClicked = onExploreItemClicked,
             openDrawer = {
-                // TODO Codelab: rememberCoroutineScope step - open the navigation drawer
-                // scaffoldState.drawerState.open()
+                scope.launch {
+                    scaffoldState.drawerState.open()
+                }
             }
         )
     }
@@ -77,7 +80,9 @@ fun CraneHomeContent(
     viewModel: MainViewModel = viewModel(),
 ) {
     // TODO Codelab: collectAsState step - consume stream of data from the ViewModel
-    val suggestedDestinations: List<ExploreModel> = remember { emptyList() }
+    // val suggestedDestinations: List<ExploreModel> = remember { emptyList() }
+    // composable 함수에 사용된 collectAsState() : StateFlow에서 값을 수집하고 State API를 통해 최신값 나타냄
+    val suggestedDestinations by viewModel.suggestedDestinations.collectAsState()
 
     val onPeopleChanged: (Int) -> Unit = { viewModel.updatePeople(it) }
     var tabSelected by remember { mutableStateOf(CraneScreen.Fly) }
