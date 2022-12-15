@@ -32,11 +32,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.samples.crane.R
 import androidx.compose.samples.crane.base.CraneEditableUserInput
 import androidx.compose.samples.crane.base.CraneUserInput
+import androidx.compose.samples.crane.base.rememberEditableUserInputState
 import androidx.compose.samples.crane.home.PeopleUserInputAnimationState.Invalid
 import androidx.compose.samples.crane.home.PeopleUserInputAnimationState.Valid
 import androidx.compose.samples.crane.ui.CraneTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.filter
 
 enum class PeopleUserInputAnimationState { Valid, Invalid }
 
@@ -97,12 +102,21 @@ fun FromDestination() {
 
 @Composable
 fun ToDestinationUserInput(onToDestinationChanged: (String) -> Unit) {
+    val editableUserInputState = rememberEditableUserInputState(hint = "Choose Destination")
     CraneEditableUserInput(
-        hint = "Choose Destination",
+        state = editableUserInputState,
         caption = "To",
-        vectorImageId = R.drawable.ic_plane,
-        onInputChanged = onToDestinationChanged
+        vectorImageId = R.drawable.ic_plane
     )
+
+    val currentOnDestinationChanged by rememberUpdatedState(onToDestinationChanged)
+    LaunchedEffect(editableUserInputState) {
+        snapshotFlow { editableUserInputState.text }
+            .filter { !editableUserInputState.isHint }
+            .collect {
+                currentOnDestinationChanged(editableUserInputState.text)
+            }
+    }
 }
 
 @Composable
