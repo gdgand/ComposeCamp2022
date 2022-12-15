@@ -47,6 +47,7 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -62,7 +63,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,6 +117,7 @@ fun AlignYourBodyElement(
         Text(
             text = stringResource(id = textRes),
             style = MaterialTheme.typography.body2,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.paddingFromBaseline(
                 top = 24.dp, bottom = 8.dp
             )
@@ -144,6 +149,7 @@ fun FavoriteCollectionCard(
             Text(
                 text = stringResource(id = textRes),
                 style = MaterialTheme.typography.body2,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
         }
@@ -203,7 +209,12 @@ fun HomeSection(
     content: @Composable () -> Unit
 ) {
     Column(modifier = modifier) {
-        Text(stringResource(id = title))
+        Text(
+            text = stringResource(id = title).uppercase(locale = Locale.getDefault()),
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 8.dp)
+        )
         content()
     }
 }
@@ -217,13 +228,14 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             .padding(vertical = 16.dp)
     ) {
         SearchBar(modifier = Modifier.padding(horizontal = 16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         HomeSection(title = R.string.align_your_body) {
             AlignYourBodyRow()
         }
+        Spacer(modifier = Modifier.height(16.dp))
         HomeSection(title = R.string.favorite_collections) {
             FavoriteCollectionsGrid()
         }
-        SootheBottomNavigation()
     }
 }
 
@@ -265,7 +277,15 @@ private fun SootheBottomNavigation(modifier: Modifier = Modifier) {
 // Step: MySoothe App - Scaffold
 @Composable
 fun MySootheApp() {
-    HomeScreen()
+    MySootheTheme {
+        Scaffold(
+            bottomBar = {
+                SootheBottomNavigation()
+            }
+        ) { padding ->
+            HomeScreen(Modifier.padding(padding))
+        }
+    }
 }
 
 private val alignYourBodyData = listOf(
