@@ -194,7 +194,7 @@ private fun <T> OverviewScreenCard(
                 data.take(SHOWN_ITEMS).forEach { row(it) }
                 SeeAllButton(
                     modifier = Modifier.clearAndSetSemantics {
-                        contentDescription = "All $title"
+                        contentDescription = "All! $title"
                     },
                     onClick = onClickSeeAll,
                 )
