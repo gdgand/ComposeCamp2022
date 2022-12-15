@@ -16,6 +16,7 @@
 
 package com.codelab.theming.ui.start
 
+import JetNewsTheme
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -60,7 +61,7 @@ import java.util.Locale
 fun Home() {
     val featured = remember { PostRepo.getFeaturedPost() }
     val posts = remember { PostRepo.getPosts() }
-    MaterialTheme {
+    JetNewsTheme {
         Scaffold(
             topBar = { AppBar() }
         ) { innerPadding ->
@@ -217,7 +218,9 @@ private fun PostItemPreview() {
 @Composable
 private fun FeaturedPostPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    FeaturedPost(post = post)
+    JetNewsTheme {
+        FeaturedPost(post = post)
+    }
 }
 
 @Preview("Home")
