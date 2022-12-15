@@ -61,3 +61,8 @@ snapshotFlow API를 사용하여 Compose State<T> 객체를 Flow로 변환합니
 필요한 부작용 API는 DisposableEffect입니다.
 DisposableEffect는 키가 변경되거나 컴포저블이 컴포지션을 종료하면 정리되어야 하는 부작용을 위한 것입니다.
 . 현재 LifecycleOwner를 LocalLifecycleOwner 컴포지션 로컬과 함께 사용해 이 관찰자를 가져올 수 있습니다
+
+
+## produceState를
+produceState를 사용하면 Compose가 아닌 상태를 Compose 상태로 변환할 수 있습니다. value 속성을 사용하여 반환된 State에 값을 푸시할 수 있는 컴포지션으로 범위가 지정된 코루틴을 실행합니다.
+LaunchedEffect와 마찬가지로 produceState 역시 키를 가져와 계산을 취소하고 다시 시작합니다.
