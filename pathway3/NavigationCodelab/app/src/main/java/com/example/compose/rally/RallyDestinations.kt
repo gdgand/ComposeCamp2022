@@ -23,6 +23,9 @@ import androidx.compose.material.icons.filled.MoneyOff
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.compose.rally.ui.accounts.AccountsScreen
 import com.example.compose.rally.ui.accounts.SingleAccountScreen
 import com.example.compose.rally.ui.bills.BillsScreen
@@ -63,8 +66,16 @@ object SingleAccount : RallyDestination {
     // part of the RallyTabRow selection
     override val icon = Icons.Filled.Money
     override val route = "single_account"
-    override val screen: @Composable () -> Unit = { SingleAccountScreen() }
     const val accountTypeArg = "account_type"
+    val routeWithArgs = "${route}/{${accountTypeArg}}"
+    val arguments = listOf(
+        navArgument(accountTypeArg) {type = NavType.StringType}
+    )
+    val deepLinks = listOf(
+        navDeepLink { uriPattern = "rally://$route/{$accountTypeArg}"}
+    )
+    override val screen: @Composable () -> Unit = { SingleAccountScreen() }
+
 }
 
 // Screens to be displayed in the top RallyTabRow
