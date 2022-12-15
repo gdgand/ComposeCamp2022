@@ -13,7 +13,7 @@
 - [x] Pathway3/AdvancedStateAndSideEffectsCodelab
 - [x] Pathway3/NavigationCodelab
 - [ ] Pathway4/AccessibilityCodelab
-- [ ] Pathway4/TestingCodelab
+- [x] Pathway4/TestingCodelab
 - Pathway5는 Optional :)
 
 ## 체크사항
