@@ -28,6 +28,36 @@ import androidx.compose.runtime.setValue
 import androidx.compose.samples.crane.ui.captionTextStyle
 import androidx.compose.ui.graphics.SolidColor
 
+
+@Composable
+fun rememberEditableUserInputState(hint: String): EditableUserInputState =
+    remember(hint) {
+        EditableUserInputState(hint, hint)
+    }
+@Composable
+fun CraneEditableUserInput(
+    state: EditableUserInputState = rememberEditableUserInputState(""),
+    caption: String? = null,
+    @DrawableRes vectorImageId: Int? = null
+) {
+    CraneBaseUserInput(
+        caption = caption,
+        tintIcon = { !state.isHint },
+        showCaption = { !state.isHint },
+        vectorImageId = vectorImageId
+    ) {
+        BasicTextField(
+            value = state.text,
+            onValueChange = { state.text = it },
+            textStyle = if (state.isHint) {
+                captionTextStyle.copy(color = LocalContentColor.current)
+            } else {
+                MaterialTheme.typography.body1.copy(color = LocalContentColor.current)
+            },
+            cursorBrush = SolidColor(LocalContentColor.current)
+        )
+    }
+}
 @Composable
 fun CraneEditableUserInput(
     hint: String,
@@ -36,6 +66,7 @@ fun CraneEditableUserInput(
     onInputChanged: (String) -> Unit
 ) {
     // TODO Codelab: Encapsulate this state in a state holder
+
     var textState by remember { mutableStateOf(hint) }
     val isHint = { textState == hint }
 
