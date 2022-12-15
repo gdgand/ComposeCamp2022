@@ -93,7 +93,7 @@ private fun RallyTab(
         animationSpec = animSpec
     )
     Row(
-        modifier = Modifier
+        modifier = Modifier.clearAndSetSemantics { contentDescription = text }
             .padding(16.dp)
             .animateContentSize()
             .height(TabHeight)
