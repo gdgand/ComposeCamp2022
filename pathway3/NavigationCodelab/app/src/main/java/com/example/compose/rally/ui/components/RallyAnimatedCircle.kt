@@ -16,12 +16,7 @@
 
 package com.example.compose.rally.ui.components
 
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,7 +45,7 @@ fun AnimatedCircle(
             .apply { targetState = AnimatedCircleProgress.END }
     }
     val stroke = with(LocalDensity.current) { Stroke(5.dp.toPx()) }
-    val transition = updateTransition(currentState)
+    val transition = updateTransition(currentState, label = "")
     val angleOffset by transition.animateFloat(
         transitionSpec = {
             tween(
@@ -58,7 +53,7 @@ fun AnimatedCircle(
                 durationMillis = 900,
                 easing = LinearOutSlowInEasing
             )
-        }
+        }, label = ""
     ) { progress ->
         if (progress == AnimatedCircleProgress.START) {
             0f
@@ -73,7 +68,7 @@ fun AnimatedCircle(
                 durationMillis = 900,
                 easing = CubicBezierEasing(0f, 0.75f, 0.35f, 0.85f)
             )
-        }
+        }, label = ""
     ) { progress ->
         if (progress == AnimatedCircleProgress.START) {
             0f
@@ -106,4 +101,5 @@ fun AnimatedCircle(
         }
     }
 }
+
 private enum class AnimatedCircleProgress { START, END }
