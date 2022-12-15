@@ -92,6 +92,8 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$rootProject.composeVersion"
     implementation "androidx.activity:activity-compose:$rootProject.activityComposeVersion"
     implementation "androidx.navigation:navigation-compose:$rootProject.composeNavigationVersion"
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'junit:junit:4.12'
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
 
     // Testing dependencies
@@ -101,6 +103,7 @@ dependencies {
 
     // Compose testing dependencies
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$rootProject.composeVersion"
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.composeNavigationVersion"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$rootProject.composeVersion"
 }
 
