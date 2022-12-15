@@ -13,6 +13,19 @@ class TopAppBarTest {
     val composeTestRule = createComposeRule()
 
     @Test
+    fun rallyTopAppBarTest() {
+        val allScreens = RallyScreen.values().toList()
+        composeTestRule.setContent {
+            RallyTopAppBar(
+                allScreens = allScreens,
+                onTabSelected = { },
+                currentScreen = RallyScreen.Accounts
+            )
+        }
+        Thread.sleep(5000)
+    }
+
+    @Test
     fun rallyTopAppBarTest_currentLabelExists() {
         val allScreens = RallyScreen.values().toList()
         composeTestRule.setContent {
@@ -30,5 +43,18 @@ class TopAppBarTest {
                 useUnmergedTree = true
             )
             .assertExists()
+    }
+
+    @Test
+    fun rallyTopAppBarTest_currentTabSelected() {
+        val allScreen = RallyScreen.values().toList()
+        composeTestRule.setContent {
+            RallyTopAppBar(
+                allScreens = allScreen,
+                onTabSelected = { },
+                currentScreen = RallyScreen.Accounts
+            )
+        }
+        composeTestRule.onNodeWithContentDescription(RallyScreen.Accounts.name).assertIsSelected()
     }
 }
