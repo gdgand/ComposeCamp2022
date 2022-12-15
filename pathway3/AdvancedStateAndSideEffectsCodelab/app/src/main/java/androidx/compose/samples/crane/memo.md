@@ -30,3 +30,25 @@ Composable 을 호출할 수 없는 곳이라서 LaunchedEffect 를 사용할 �
 LaunchedEffect vs rememberCoroutineScope
 LandingScreen의 본문에 rememberCoroutineScope 및 scope.launch를 사용하는 경우 코루틴은 호출이 컴포지션으로 향하는지 여부와 무관하게 Compose에서 LandingScreen을 호출할 때마다 실행됩니다. 
 따라서 리소스를 낭비하게 되며 제어된 환경에서 이 부작용을 실행하지 않게 됩니다.
+
+컴포저블의 내부 상태를 담당하는 상태 홀더를 만들어 모든 상태 변경사항을 한 곳으로 중앙화할 수 있습니다. 
+이렇게 하면 상태가 쉽게 동기화되고 관련 로직도 모두 단일 클래스로 그룹화됩니다. 
+또한 이 상태는 쉽게 끌어올릴 수 있으며 이 컴포저블의 호출자로부터 사용될 수 있습니다.
+
+앱의 다른 부분에서 재사용할 수 있는 하위 수준의 UI 구성요소이므로 상태를 끌어올리는 것이 좋습니다. 
+따라서 유연성과 제어 가능성이 높을수록 좋습니다.
+
+상태를 오직remember 처리하기만 하면 활동을 다시 만들 때 유지되지 않습니다. 
+이를 달성하기 위해 remember와 유사하게 동작하는 rememberSaveable API를 대신 사용할 수 있지만 저장된 값은 활동 및 프로세스 재생성에서도 유지됩니다. 
+내부적으로 저장된 인스턴스 상태 메커니즘을 사용합니다.
+
+rememberSaveable은 Bundle 내에 저장할 수 있는 객체에 대한 추가 작업 없이 이 작업을 모두 수행합니다.
+프로젝트에서 만든 커스텀 클래스는 그렇지 않습니다.
+따라서 Saver를 사용하여 이 클래스의 인스턴스를 저장 및 복원하는 방법을 rememberSaveable에 알려야 합니다.
+
+Saver 정의를 함께 작동하는 클래스와 가깝게 배치하는 것이 좋습니다. 
+정적으로 액세스해야 하기 때문에 companion object에 EditableUserInputState의 Saver를 추가해 보겠습니다.
+
+커스텀 ~State클래스의 프로퍼티 값 변화를 다른 인자 전달없이 감지하려면 LaunchedEffect 와 snapshotFlow 를 사용하는 방법이 있다.
+snapshotFlow API를 사용하여 Compose State<T> 객체를 Flow로 변환합니다. snapshotFlow 내에서 읽은 상태가 변형되면 Flow는 수집기에 새 값을 내보냅니다. 
+이 경우 Flow 연산자를 사용하기 위해 상태를 Flow로 변환합니다. 
