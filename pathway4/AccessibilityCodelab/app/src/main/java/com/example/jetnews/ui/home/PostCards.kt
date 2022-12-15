@@ -25,15 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Card
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
@@ -79,6 +71,12 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
             Row(Modifier.padding(top = 4.dp)) {
                 CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
                     val textStyle = MaterialTheme.typography.body2
+                    IconButton(onClick = { openDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.cd_show_fewer)
+                        )
+                    }
                     Text(
                         text = post.metadata.author.name,
                         style = textStyle
