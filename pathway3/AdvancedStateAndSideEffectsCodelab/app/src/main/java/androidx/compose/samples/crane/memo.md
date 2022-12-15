@@ -66,3 +66,13 @@ DisposableEffect는 키가 변경되거나 컴포저블이 컴포지션을 종�
 ## produceState를
 produceState를 사용하면 Compose가 아닌 상태를 Compose 상태로 변환할 수 있습니다. value 속성을 사용하여 반환된 State에 값을 푸시할 수 있는 컴포지션으로 범위가 지정된 코루틴을 실행합니다.
 LaunchedEffect와 마찬가지로 produceState 역시 키를 가져와 계산을 취소하고 다시 시작합니다.
+
+## derivedStateOf는
+derivedStateOf는 다른 State에서 파생된 Compose State를 원하는 경우에 사용됩니다.
+이 함수를 사용하면 계산에서 사용되는 상태 중 하나가 변경될 때만 계산이 실행됩니다.
+
+// DO NOT DO THIS - It's executed on every recomposition
+val showButton = listState.firstVisibleItemIndex > 0
+
+내가 많이 했던 실수
+매 listState 마다 실행되게하지말고 derivedStateOf 를 사용해서 firstVisibleItemIndex 가 바뀔때만 실행되게 하라는 뜻이다.
