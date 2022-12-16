@@ -35,8 +35,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.jetnews.R
 import com.example.jetnews.data.posts.PostsRepository
 import com.example.jetnews.data.posts.impl.post3
 import com.example.jetnews.model.Post
@@ -50,6 +52,7 @@ import com.example.jetnews.utils.supportWideScreen
  * @param postId (state) the post to show
  * @param postsRepository data source for this screen
  * @param onBack (event) request back navigation
+ * 현재 버튼을 활성화 할 경우 어떤 작업이 실행되는지 사용자에게 아무런 정보도 제공되지 않기 때문에 이를 수정
  */
 @Suppress("DEPRECATION") // allow ViewModelLifecycleScope call
 @Composable
@@ -95,9 +98,16 @@ fun ArticleScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
+                        // 콘텐츠 설명을 추가
+                        /**
+                         * 이것과 별개로 이 앱의 또다른 시각적 요소는 헤더 이미지
+                         * 이미지는 장식용 이기때문에 별다른 콘텐츠 설명이 필요없으므로 null 처리 해준다.
+                         */
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = stringResource(
+                                R.string.cd_navigate_up
+                            )
                         )
                     }
                 }

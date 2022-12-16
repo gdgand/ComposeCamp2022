@@ -52,6 +52,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -129,10 +131,16 @@ private fun PostHeaderImage(post: Post) {
     Spacer(Modifier.height(defaultSpacerSize))
 }
 
+/**
+ * 화면에 포커스 가능한 요소가 너무 많으면 사용자가 하나씩 탐색할 때 혼란스러울 수 있음
+ * 대신 Composable을 semantics 와 mergeDescendants 속성을 사용하여 서로 병합할 수 있음.
+ *
+ */
 @Composable
 private fun PostMetadata(metadata: Metadata) {
     val typography = MaterialTheme.typography
-    Row {
+    // 최상위 행에 하위 요소를 병합하도록 한다.
+    Row(Modifier.semantics(mergeDescendants = true) {  }) {
         Image(
             imageVector = Icons.Filled.AccountCircle,
             contentDescription = null,
@@ -158,6 +166,9 @@ private fun PostMetadata(metadata: Metadata) {
     }
 }
 
+/**
+ * 기본적으로 Composable은 제목으로 표시되지 않기 때문에 탐색이 불가능. 따라서 기사 화면에서 제목 탐색을 통해 제목을 제공.
+ */
 @Composable
 private fun Paragraph(paragraph: Paragraph) {
     val (textStyle, paragraphStyle, trailingPadding) = paragraph.type.getTextAndParagraphStyle()
@@ -179,9 +190,14 @@ private fun Paragraph(paragraph: Paragraph) {
                 textStyle = textStyle,
                 paragraphStyle = paragraphStyle
             )
+            /*
+             여기서 Header는 간단한 Text Composable로 정의 되어 있음. 따라서 제목임을 나타내기 위해 heading
+             semantics 속성 설정
+             */
             ParagraphType.Header -> {
                 Text(
-                    modifier = Modifier.padding(4.dp),
+                    modifier = Modifier.padding(4.dp)
+                        .semantics { heading() },
                     text = annotatedString,
                     style = textStyle.merge(paragraphStyle)
                 )
