@@ -46,7 +46,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.compose.rally.RallyScreen
-import java.util.Locale
+import java.util.*
 
 @Composable
 fun RallyTopAppBar(
