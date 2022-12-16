@@ -62,9 +62,8 @@ class PlantDetailFragment : Fragment() {
         ).apply {
             // ...
             composeView.setContent {
-                // You're in Compose world!
                 MaterialTheme {
-                    PlantDetailDescription()
+                    PlantDetailDescription(plantDetailViewModel)
                 }
             }
         }
