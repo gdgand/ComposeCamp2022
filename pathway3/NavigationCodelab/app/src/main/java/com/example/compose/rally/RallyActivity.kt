@@ -88,6 +88,7 @@ fun RallyApp() {
 }
 
 @Composable
+
 fun RallyNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier
