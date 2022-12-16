@@ -11,12 +11,13 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 @Composable
 fun WaterCounter(modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(16.dp)) {
-        var count by remember { mutableStateOf(0) }
+        var count by rememberSaveable { mutableStateOf(0) }
         if (count > 0) {
             Text("You've had $count glasses.")
         }
