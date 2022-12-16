@@ -98,6 +98,7 @@ dependencies {
     androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$rootProject.espressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.espressoVersion"
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.navigationComposeVersion"
 
     // Compose testing dependencies
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$rootProject.composeVersion"
