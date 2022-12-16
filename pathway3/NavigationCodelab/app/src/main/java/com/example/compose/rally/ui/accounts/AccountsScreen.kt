@@ -62,7 +62,7 @@ fun AccountsScreen(
  */
 @Composable
 fun SingleAccountScreen(
-    accountType: String? = UserData.accounts.first().name
+    accountType: String? = UserData.accounts.first().name,
 ) {
     val account = remember(accountType) { UserData.getAccount(accountType) }
     StatementBody(
