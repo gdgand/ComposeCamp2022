@@ -15,18 +15,20 @@
  */
 
 buildscript {
-    ext.composeCompiler_version = '1.3.0'
-    ext.compose_version = '1.2.1'
+    dependencies {
+        classpath(libs.bundles.gradlePlugins)
+    }
     repositories {
         google()
         mavenCentral()
     }
-}// Top-level build file where you can add configuration options common to all sub-projects/modules.
+}
+
 plugins {
-    id 'com.android.application' version '7.2.2' apply false
-    id 'com.android.library' version '7.2.2' apply false
-    id 'org.jetbrains.kotlin.android' version '1.7.10' apply false
-    id 'com.diffplug.spotless' version '6.7.0'
+    id("com.android.application") version libs.versions.androidGradlePlugin.get() apply false
+    id("com.android.library") version libs.versions.androidGradlePlugin.get() apply false
+    id("org.jetbrains.kotlin.android") version libs.versions.kotlin.get() apply false
+    id("com.diffplug.spotless") version libs.versions.spotless.get()
 }
 
 subprojects {
@@ -35,15 +37,16 @@ subprojects {
         mavenCentral()
     }
 
-    apply plugin: 'com.diffplug.spotless'
+    apply(plugin = "com.diffplug.spotless")
+
     spotless {
         kotlin {
-            target '**/*.kt'
+            target("**/*.kt")
             targetExclude("$buildDir/**/*.kt")
-            targetExclude('bin/**/*.kt')
+            targetExclude("bin/**/*.kt")
 
-            ktlint("0.45.2").userData([android: "true"])
-            licenseHeaderFile rootProject.file('spotless/copyright.kt')
+            ktlint("0.45.2").userData(mapOf("android" to "true"))
+            licenseHeaderFile(rootProject.file("spotless/copyright.kt"))
         }
     }
 }

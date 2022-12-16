@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "BasicsCodelab"
-include ':app'
+rootProject.name = "MigrationCodelab"
+include(":app")

@@ -41,7 +41,7 @@ class MaskedCardView @JvmOverloads constructor(
     private val path: Path = Path()
     private val shapeAppearance: ShapeAppearanceModel =
         ShapeAppearanceModel.builder(
-            context, attrs, defStyle, R.style.Widget_MaterialComponents_CardView
+            context, attrs, defStyle, R.style.Widget_Material3_CardView_Filled
         ).build()
 
     private val rectF = RectF(0f, 0f, 0f, 0f)
