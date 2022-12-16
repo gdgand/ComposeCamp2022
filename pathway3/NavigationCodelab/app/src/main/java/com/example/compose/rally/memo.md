@@ -48,3 +48,6 @@ Navigation Compose는 암시적 딥 링크를 지원합니다.
 ## 자체 컴포저블로 추출 (깔끔함)
 RallyApp은 navController로 직접 사용할 수 있는 유일한 컴포저블입니다. 
 앞서 언급했듯이 다른 모든 중첩된 컴포저블 화면은 navController 자체가 아닌 탐색 콜백만 받아야 합니다
+
+## 테스트는 기본사항을 체크한 후 다시 한 번 더 보자
+https://developer.android.com/jetpack/compose/testing?authuser=1
