@@ -19,15 +19,15 @@ package com.example.compose.rally
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.MainTestClock
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import com.example.compose.rally.ui.components.AnimatedCircle
+import com.example.compose.rally.ui.components.RallyTopAppBar
 import com.example.compose.rally.ui.theme.RallyTheme
 import org.junit.Rule
 import org.junit.Test
@@ -94,11 +94,76 @@ class AnimatingCircleTests {
         composeTestRule.setContent {
             RallyTheme {
                 AnimatedCircle(
-                    modifier = Modifier.background(Color.White).size(320.dp),
+                    modifier = Modifier
+                        .background(Color.White)
+                        .size(320.dp),
                     proportions = listOf(0.25f, 0.5f, 0.25f),
                     colors = listOf(Color.Red, Color.DarkGray, Color.Black)
                 )
             }
         }
+    }
+}
+
+class TopAppBarTest {
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Test
+    fun myTest() {
+        composeTestRule.setContent {
+            Text("You can set any compose content!")
+        }
+    }
+
+    @Test
+    fun rallyTopAppBarTest() {
+        val allScreens = RallyScreen.values().toList()
+        composeTestRule.setContent {
+            RallyTopAppBar(
+                allScreens = allScreens,
+                onTabSelected = { },
+                currentScreen = RallyScreen.Accounts
+            )
+        }
+        Thread.sleep(5000)
+    }
+
+    @Test
+    fun rallyTopAppBarTest_currentTabSelected() {
+        val allScreens = RallyScreen.values().toList()
+        composeTestRule.setContent {
+            RallyTopAppBar(
+                allScreens = allScreens,
+                onTabSelected = { },
+                currentScreen = RallyScreen.Accounts
+            )
+        }
+
+        composeTestRule
+            .onNodeWithContentDescription(RallyScreen.Accounts.name)
+            .assertIsSelected()
+    }
+
+    @Test
+    fun rallyTopAppBarTest_currentLabelExists() {
+        val allScreens = RallyScreen.values().toList()
+        composeTestRule.setContent {
+            RallyTopAppBar(
+                allScreens = allScreens,
+                onTabSelected = { },
+                currentScreen = RallyScreen.Accounts
+            )
+        }
+
+        composeTestRule
+            .onNode(
+                hasText(RallyScreen.Accounts.name.uppercase()) and
+                        hasParent(
+                            hasContentDescription(RallyScreen.Accounts.name)
+                        ),
+                useUnmergedTree = true
+            )
+            .assertExists()
     }
 }
