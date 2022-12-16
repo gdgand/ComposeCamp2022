@@ -16,13 +16,136 @@
 
 package com.google.samples.apps.sunflower.plantdetail
 
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import android.content.res.Configuration
+import android.text.method.LinkMovementMethod
+import android.widget.TextView
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.*
+import androidx.compose.ui.res.*
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.text.HtmlCompat
+import com.google.android.material.composethemeadapter.MdcTheme
+import com.google.samples.apps.sunflower.R
+import com.google.samples.apps.sunflower.data.Plant
+import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
 
 @Composable
-fun PlantDetailDescription() {
+fun PlantDetailDescription(plantDetailViewModel: PlantDetailViewModel) {
+    val plant by plantDetailViewModel.plant.observeAsState()
+    plant?.let { PlantDetailContent(plant = it) }
+}
+
+@Composable
+fun PlantDetailContent(plant: Plant) {
     Surface {
-        Text("Hello Compose")
+        Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.margin_normal))) {
+            PlantName(plant.name)
+            PlantWatering(wateringInterval = plant.wateringInterval)
+            PlantDescription(description = plant.description)
+        }
+    }
+}
+
+@Composable
+fun PlantName(name: String) {
+    Text(
+        text = name,
+        style = MaterialTheme.typography.h5,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = dimensionResource(R.dimen.margin_small))
+            .wrapContentWidth(Alignment.CenterHorizontally)
+    )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun PlantWatering(wateringInterval: Int) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        val centerWithPaddingModifier = Modifier
+            .padding(horizontal = dimensionResource(id = R.dimen.margin_small))
+            .align(Alignment.CenterHorizontally)
+
+        val normalPadding = dimensionResource(R.dimen.margin_normal)
+
+        Text(
+            text = stringResource(id = R.string.watering_needs_prefix),
+            color = MaterialTheme.colors.primaryVariant,
+            modifier = centerWithPaddingModifier.padding(top = normalPadding),
+            fontWeight = FontWeight.Bold
+        )
+
+        val wateringIntervalText =
+            pluralStringResource(id = R.plurals.watering_needs_suffix, wateringInterval, wateringInterval)
+
+        Text(
+            text = wateringIntervalText,
+            modifier = centerWithPaddingModifier.padding(bottom = normalPadding)
+        )
+    }
+}
+
+@Composable
+private fun PlantDescription(description: String) {
+    val htmlDescription = remember(description) {
+        HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_COMPACT)
+    }
+
+    AndroidView(
+        factory = { context ->
+            TextView(context).apply {
+                movementMethod = LinkMovementMethod.getInstance()
+            }
+        },
+        update = {
+            it.text = htmlDescription
+        }
+    )
+}
+
+@Preview
+@Composable
+private fun PlantDetailContentPreview() {
+    val plant = Plant("id", "Apple", "HTML<br><br>description", 3, 30, "")
+    MdcTheme {
+        PlantDetailContent(plant)
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PlantDetailContentDarkPreview() {
+    val plant = Plant("id", "Apple", "HTML<br><br>description", 3, 30, "")
+    MdcTheme {
+        PlantDetailContent(plant)
+    }
+}
+
+@Preview
+@Composable
+private fun PlantNamePreview() {
+    MdcTheme {
+        PlantName("Apple")
+    }
+}
+
+@Preview
+@Composable
+private fun PlantWateringPreview() {
+    MdcTheme {
+        PlantWatering(7)
+    }
+}
+
+@Preview
+@Composable
+private fun PlantDescriptionPreview() {
+    MdcTheme {
+        PlantDescription("HTML<br><br>description")
     }
 }
