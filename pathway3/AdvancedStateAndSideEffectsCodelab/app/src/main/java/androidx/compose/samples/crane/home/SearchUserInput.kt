@@ -16,6 +16,7 @@
 
 package androidx.compose.samples.crane.home
 
+import android.util.Log
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -23,20 +24,17 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.R
 import androidx.compose.samples.crane.base.CraneEditableUserInput
 import androidx.compose.samples.crane.base.CraneUserInput
+import androidx.compose.samples.crane.base.rememberEditableUserInputState
 import androidx.compose.samples.crane.home.PeopleUserInputAnimationState.Invalid
 import androidx.compose.samples.crane.home.PeopleUserInputAnimationState.Valid
 import androidx.compose.samples.crane.ui.CraneTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.flow.filter
 
 enum class PeopleUserInputAnimationState { Valid, Invalid }
 
@@ -97,12 +95,28 @@ fun FromDestination() {
 
 @Composable
 fun ToDestinationUserInput(onToDestinationChanged: (String) -> Unit) {
+    val editableUserInputState = rememberEditableUserInputState(hint = "Choose Destination")
     CraneEditableUserInput(
-        hint = "Choose Destination",
+        state = editableUserInputState,
         caption = "To",
         vectorImageId = R.drawable.ic_plane,
-        onInputChanged = onToDestinationChanged
     )
+
+    val currentOnToDestinationChanged by rememberUpdatedState(newValue = onToDestinationChanged)
+    LaunchedEffect(editableUserInputState) {
+        // ToDestinationUserInput Composable이 관리하는 State를 더 높은 레벨로 올리고 싶지않다.
+        // 동시에 이 State의 변경이 있을 때 인자로 전달된 콜백을 호출하고 싶다 어떻게 할까?
+        // 컴포저블 내부에서 관리하는 state의 변경을 Flow로 구독하고
+        // 새로운 값이 emit 될 때마다 인자로 넘어온 이벤트를 발생시킨다.
+        // 컴포저블 내부에 Flow 구독을 만들어야 한다. -> LaunchedEffect
+        // LaunchedEffect는 Composition Scope에 구독이다.
+        snapshotFlow { editableUserInputState.text }
+            .filter { !editableUserInputState.isHint }
+            .collect {
+                Log.d("ToDestinationUserInput", it)
+                currentOnToDestinationChanged(editableUserInputState.text)
+            }
+    }
 }
 
 @Composable
