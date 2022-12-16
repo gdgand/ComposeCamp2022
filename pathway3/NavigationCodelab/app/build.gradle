@@ -79,7 +79,7 @@ android {
 }
 
 dependencies {
-
+    implementation "androidx.navigation:navigation-compose:$rootProject.composeVersion"
     implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
     implementation "androidx.core:core-ktx:$rootProject.ktxVersion"
     implementation "com.google.android.material:material:$rootProject.materialVersion"
@@ -93,15 +93,20 @@ dependencies {
     implementation "androidx.activity:activity-compose:$rootProject.activityComposeVersion"
     implementation "androidx.navigation:navigation-compose:$rootProject.navigationComposeVersion"
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.composeVersion"
-
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.navigationComposeVersion"
     // Testing dependencies
     androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$rootProject.espressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.espressoVersion"
-
+    testImplementation('junit:junit:4.13')
     // Compose testing dependencies
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$rootProject.composeVersion"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$rootProject.composeVersion"
+// Test rules and transitive dependencies:
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
+// Needed for createAndroidComposeRule, but not createComposeRule:
+    debugImplementation("androidx.compose.ui:ui-test-manifest:$composeVersion")
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.composeNavigationVersion"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
