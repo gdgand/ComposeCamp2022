@@ -106,11 +106,4 @@ class PlantDetailFragment : Fragment() {
     interface Callback {
         fun add(plant: Plant?)
     }
-
-    @Composable
-    fun PlantDetailDescription() {
-        Surface {
-            Text("Hello Compose")
-        }
-    }
 }
