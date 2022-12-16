@@ -98,10 +98,10 @@ fun FromDestination() {
 @Composable
 fun ToDestinationUserInput(onToDestinationChanged: (String) -> Unit) {
     CraneEditableUserInput(
-        hint = "Choose Destination",
+//        hint = "Choose Destination",
         caption = "To",
-        vectorImageId = R.drawable.ic_plane,
-        onInputChanged = onToDestinationChanged
+        vectorImageId = R.drawable.ic_plane
+//        onInputChanged = onToDestinationChanged
     )
 }
 
