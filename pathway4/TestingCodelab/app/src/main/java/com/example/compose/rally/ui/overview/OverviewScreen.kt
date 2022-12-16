@@ -16,8 +16,7 @@
 
 package com.example.compose.rally.ui.overview
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.compose.rally.R
 import com.example.compose.rally.RallyScreen
@@ -98,20 +98,37 @@ private fun AlertCard() {
     var currentTargetElevation by remember { mutableStateOf(1.dp) }
     LaunchedEffect(Unit) {
         // Start the animation
+        /**
+         * 이 코드는 기본적으로 애니메이션이 완료될 때까지 기다린 다음 finishedListener를 다시 실행
+         * 해당 테스트를 수정하는 한가지 방법은 개발자 옵션에서 애니메이션을 비활성화 하는 것이다. -> 많이 사용하는 방법 중 하나
+         * Compose에서 애니메이션 API는 테스트 가능성을 염두에 두고 설계되었기 때문에 문제 해결이 가능
+         * animateDpAsState 애니메이션을 다시 시작하는 대신 무한 애니메이션을 사용
+         */
         currentTargetElevation = 8.dp
     }
-    val animatedElevation = animateDpAsState(
-        targetValue = currentTargetElevation,
-        animationSpec = tween(durationMillis = 500),
-        finishedListener = {
-            currentTargetElevation = if (currentTargetElevation > 4.dp) {
-                1.dp
-            } else {
-                8.dp
-            }
-        }
+//    val animatedElevation = animateDpAsState(
+//        targetValue = currentTargetElevation,
+//        animationSpec = tween(durationMillis = 500),
+//        finishedListener = {
+//            currentTargetElevation = if (currentTargetElevation > 4.dp) {
+//                1.dp
+//            } else {
+//                8.dp
+//            }
+//        }
+//    )
+    // 무한 애니메이션으로
+    val infiniteElevationAnimation = rememberInfiniteTransition()
+    val animatedElevation: Dp by infiniteElevationAnimation.animateValue(
+        initialValue = 1.dp,
+        targetValue = 8.dp,
+        typeConverter = Dp.VectorConverter,
+        animationSpec = infiniteRepeatable(
+            animation = tween(500),
+            repeatMode = RepeatMode.Reverse
+        )
     )
-    Card(elevation = animatedElevation.value) {
+    Card(elevation = animatedElevation) {
         Column {
             AlertHeader {
                 showDialog = true
