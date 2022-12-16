@@ -84,7 +84,5 @@ class TopAppBarTest {
         }
 
         composeTestRule.onRoot(useUnmergedTree = true).printToLog("currentLabelExists")
-
-
     }
 }
