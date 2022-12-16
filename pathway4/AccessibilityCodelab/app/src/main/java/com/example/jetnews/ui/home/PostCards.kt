@@ -42,7 +42,11 @@ import com.example.jetnews.ui.theme.JetnewsTheme
 fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
     var openDialog by remember { mutableStateOf(false) }
     Row(
-        Modifier.clickable { navigateToArticle(post.id) }
+        Modifier.clickable(
+            onClickLabel = stringResource(R.string.action_read_article)
+        ) {
+            navigateToArticle(post.id)
+        }
     ) {
         Image(
             painter = painterResource(post.imageThumbId),
@@ -118,10 +122,17 @@ fun PostCardPopular(
     navigateToArticle: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    // onClickLabel을 사용하는 Card Composable 함수가 Deprecated 되어 modifier의 clickable로 수정
     Card(
         shape = MaterialTheme.shapes.medium,
-        modifier = modifier.size(280.dp, 240.dp),
-        onClick = { navigateToArticle(post.id) }
+        modifier = modifier
+            .size(280.dp, 240.dp)
+            .clickable(
+                onClickLabel = stringResource(id = R.string.action_read_article)
+            ) {
+                navigateToArticle(post.id)
+            }
     ) {
         Column {
 
