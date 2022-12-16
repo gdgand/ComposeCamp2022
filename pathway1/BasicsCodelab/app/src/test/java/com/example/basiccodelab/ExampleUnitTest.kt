@@ -1,4 +1,4 @@
-package com.codelab.basics
+package com.example.basiccodelab
 
 import org.junit.Test
 
