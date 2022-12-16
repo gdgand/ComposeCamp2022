@@ -60,7 +60,7 @@ import java.util.Locale
 fun Home() {
     val featured = remember { PostRepo.getFeaturedPost() }
     val posts = remember { PostRepo.getPosts() }
-    MaterialTheme {
+    JetnewsTheme {
         Scaffold(
             topBar = { AppBar() }
         ) { innerPadding ->
@@ -99,7 +99,7 @@ private fun AppBar() {
         title = {
             Text(text = stringResource(R.string.app_title))
         },
-        backgroundColor = MaterialTheme.colors.primary
+        backgroundColor = MaterialTheme.colors.primarySurface
     )
 }
 
@@ -108,14 +108,20 @@ fun Header(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = text,
+    Surface(
+        color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
+        contentColor = MaterialTheme.colors.primary,
         modifier = modifier
-            .fillMaxWidth()
-            .background(Color.LightGray)
-            .semantics { heading() }
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    )
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.subtitle2,
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics { heading() }
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+    }
 }
 
 @Composable
@@ -161,6 +167,9 @@ private fun PostMetadata(
 ) {
     val divider = "  •  "
     val tagDivider = "  "
+    val tagStyle = MaterialTheme.typography.overline.toSpanStyle().copy(
+        background = MaterialTheme.colors.primary.copy(alpha = 0.1f)
+    )
     val text = buildAnnotatedString {
         append(post.metadata.date)
         append(divider)
@@ -170,13 +179,17 @@ private fun PostMetadata(
             if (index != 0) {
                 append(tagDivider)
             }
-            append(" ${tag.uppercase(Locale.getDefault())} ")
+            withStyle(tagStyle) {
+                append(" ${tag.uppercase(Locale.getDefault())} ")
+            }
         }
     }
-    Text(
-        text = text,
-        modifier = modifier
-    )
+    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+        Text(
+            text = text,
+            modifier = modifier
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -192,7 +205,8 @@ fun PostItem(
         icon = {
             Image(
                 painter = painterResource(post.imageThumbId),
-                contentDescription = null
+                contentDescription = null,
+                modifier = Modifier.clip(MaterialTheme.shapes.small)
             )
         },
         text = {
@@ -217,7 +231,18 @@ private fun PostItemPreview() {
 @Composable
 private fun FeaturedPostPreview() {
     val post = remember { PostRepo.getFeaturedPost() }
-    FeaturedPost(post = post)
+    JetnewsTheme {
+        FeaturedPost(post = post)
+    }
+}
+
+@Preview("Featured Post • Dark")
+@Composable
+private fun FeaturedPostDarkPreview() {
+    val post = remember { PostRepo.getFeaturedPost() }
+    JetnewsTheme(darkTheme = true) {
+        FeaturedPost(post = post)
+    }
 }
 
 @Preview("Home")
