@@ -17,17 +17,8 @@
 package androidx.compose.samples.crane.home
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BackdropScaffold
-import androidx.compose.material.BackdropValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberBackdropScaffoldState
-import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.samples.crane.base.CraneDrawer
 import androidx.compose.samples.crane.base.CraneTabBar
 import androidx.compose.samples.crane.base.CraneTabs
@@ -37,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.statusBarsPadding
+import kotlinx.coroutines.launch
 
 typealias OnExploreItemClicked = (ExploreModel) -> Unit
 
@@ -50,21 +42,20 @@ fun CraneHome(
     modifier: Modifier = Modifier,
 ) {
     val scaffoldState = rememberScaffoldState()
-    Scaffold(
-        scaffoldState = scaffoldState,
+    Scaffold(scaffoldState = scaffoldState,
         modifier = Modifier.statusBarsPadding(),
         drawerContent = {
             CraneDrawer()
-        }
-    ) { padding ->
-        CraneHomeContent(
-            modifier = modifier.padding(padding),
+        }) { padding ->
+        val scope = rememberCoroutineScope()
+        CraneHomeContent(modifier = modifier.padding(padding),
             onExploreItemClicked = onExploreItemClicked,
             openDrawer = {
                 // TODO Codelab: rememberCoroutineScope step - open the navigation drawer
-                // scaffoldState.drawerState.open()
-            }
-        )
+                scope.launch {
+                    scaffoldState.drawerState.open()
+                }
+            })
     }
 }
 
@@ -77,13 +68,11 @@ fun CraneHomeContent(
     viewModel: MainViewModel = viewModel(),
 ) {
     // TODO Codelab: collectAsState step - consume stream of data from the ViewModel
-    val suggestedDestinations: List<ExploreModel> = remember { emptyList() }
-
+    val suggestedDestinations by viewModel.suggestedDestinations.collectAsState()
     val onPeopleChanged: (Int) -> Unit = { viewModel.updatePeople(it) }
     var tabSelected by remember { mutableStateOf(CraneScreen.Fly) }
 
-    BackdropScaffold(
-        modifier = modifier,
+    BackdropScaffold(modifier = modifier,
         scaffoldState = rememberBackdropScaffoldState(BackdropValue.Revealed),
         frontLayerScrimColor = Color.Unspecified,
         appBar = {
@@ -91,9 +80,7 @@ fun CraneHomeContent(
         },
         backLayerContent = {
             SearchContent(
-                tabSelected,
-                viewModel,
-                onPeopleChanged
+                tabSelected, viewModel, onPeopleChanged
             )
         },
         frontLayerContent = {
@@ -120,8 +107,7 @@ fun CraneHomeContent(
                     )
                 }
             }
-        }
-    )
+        })
 }
 
 @Composable
@@ -132,29 +118,22 @@ private fun HomeTabBar(
     modifier: Modifier = Modifier
 ) {
     CraneTabBar(
-        modifier = modifier,
-        onMenuClicked = openDrawer
+        modifier = modifier, onMenuClicked = openDrawer
     ) { tabBarModifier ->
-        CraneTabs(
-            modifier = tabBarModifier,
+        CraneTabs(modifier = tabBarModifier,
             titles = CraneScreen.values().map { it.name },
             tabSelected = tabSelected,
-            onTabSelected = { newTab -> onTabSelected(CraneScreen.values()[newTab.ordinal]) }
-        )
+            onTabSelected = { newTab -> onTabSelected(CraneScreen.values()[newTab.ordinal]) })
     }
 }
 
 @Composable
 private fun SearchContent(
-    tabSelected: CraneScreen,
-    viewModel: MainViewModel,
-    onPeopleChanged: (Int) -> Unit
+    tabSelected: CraneScreen, viewModel: MainViewModel, onPeopleChanged: (Int) -> Unit
 ) {
     when (tabSelected) {
-        CraneScreen.Fly -> FlySearchContent(
-            onPeopleChanged = onPeopleChanged,
-            onToDestinationChanged = { viewModel.toDestinationChanged(it) }
-        )
+        CraneScreen.Fly -> FlySearchContent(onPeopleChanged = onPeopleChanged,
+            onToDestinationChanged = { viewModel.toDestinationChanged(it) })
         CraneScreen.Sleep -> SleepSearchContent(
             onPeopleChanged = onPeopleChanged
         )
