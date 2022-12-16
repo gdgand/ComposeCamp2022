@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.codelabs.basicstatecodelab.ui.WellnessScreen
 import com.codelabs.basicstatecodelab.ui.theme.BasicStateCodelabTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    WellnessScreen()
                 }
             }
         }
@@ -39,5 +40,13 @@ fun Greeting(name: String) {
 fun DefaultPreview() {
     BasicStateCodelabTheme {
         Greeting("Android")
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WellnessScreenPreview() {
+    BasicStateCodelabTheme {
+        WellnessScreen()
     }
 }
