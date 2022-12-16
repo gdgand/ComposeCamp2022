@@ -48,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.compose.rally.R
 import com.example.compose.rally.data.UserData
@@ -56,7 +57,16 @@ import com.example.compose.rally.ui.components.BillRow
 import com.example.compose.rally.ui.components.RallyAlertDialog
 import com.example.compose.rally.ui.components.RallyDivider
 import com.example.compose.rally.ui.components.formatAmount
+import com.example.compose.rally.ui.theme.RallyTheme
 import java.util.Locale
+
+@Preview(showBackground = true)
+@Composable
+fun OverviewScreenPreview() {
+    RallyTheme {
+        OverviewScreen()
+    }
+}
 
 @Composable
 fun OverviewScreen(
@@ -68,7 +78,7 @@ fun OverviewScreen(
         modifier = Modifier
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
-            .semantics { contentDescription = "Overview Screen" }
+            .semantics { contentDescription = "Overview Screen" } // for testing!
     ) {
         AlertCard()
         Spacer(Modifier.height(RallyDefaultPadding))
