@@ -51,7 +51,6 @@ import java.util.Locale
 
 /*
 - Theme CodeLab Start
-
  */
 @Composable
 fun Home() {

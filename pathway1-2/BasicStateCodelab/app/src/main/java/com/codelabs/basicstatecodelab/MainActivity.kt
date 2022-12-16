@@ -101,7 +101,6 @@ fun StatefulCounter(modifier: Modifier = Modifier) {
     /*
     Stateless 재사용 테스트를 위한 임시 코드
     물과 주스의 잔 개수 , 독립 상태를 표시
-
     var waterCount by remember { mutableStateOf(0) }
     var juiceCount by remember { mutableStateOf(0) }
     StatelessCounter(waterCount, {waterCount++})
