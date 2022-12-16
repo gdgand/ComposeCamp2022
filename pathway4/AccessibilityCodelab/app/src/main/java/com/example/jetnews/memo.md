@@ -27,4 +27,11 @@ clearAndSetSemantics 수정자를 사용하여, 접근성 서비스에 이 Icon�
 Image 및 Icon 같은 시각적 컴포저블에는 contentDescription 매개변수가 포함됩니다.
 여기서 이 시각적 요소의 현지화된 설명 또는 null(요소가 완전히 장식용인 경우)을 전달할 수 있습니다.
 
-## 
+## 제목
+Modifier.semantics { heading() }
+
+## 맞춤병합
+최상위 행에 하위 요소를 병합하도록 지시
+Modifier.semantics(mergeDescendants = true) {}
+
+## toggleable 사용하여 CheckBox 토글 콜백을 상위요소로 상향하기
