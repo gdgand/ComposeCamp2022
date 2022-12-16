@@ -21,6 +21,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -29,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.samples.apps.sunflower.R
@@ -56,6 +59,28 @@ class PlantDetailFragment : Fragment() {
         val binding = DataBindingUtil.inflate<FragmentPlantDetailBinding>(
             inflater, R.layout.fragment_plant_detail, container, false
         ).apply {
+            // (Compose는 ComposeView가 창에서 분리될 때마다 컴포지션을 삭제합니다.
+            // 여러 가지 이유로 프래그먼트에서 ComposeView가 사용될 때에는 바람직하지 않습니다.
+            composeView.apply {
+                // Dispose the Composition when the view's LifecycleOwner
+                // is destroyed
+                setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+            }
+
+            composeView.setContent {
+//                MaterialTheme {
+//                    // Compose Part
+//                    PlantDetailDescription(plantDetailViewModel)
+//                }
+
+//                상호 운용성 테마 설정을 위해서
+                MdcTheme {
+                    PlantDetailDescription(plantDetailViewModel)
+                }
+            }
+
             viewModel = plantDetailViewModel
             lifecycleOwner = viewLifecycleOwner
             callback = object : Callback {
