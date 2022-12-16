@@ -162,3 +162,87 @@ val showButton by remember {
 
 <br>
 
+# NavigationCodeLab
+
+## Compose Navigation
+- NavController
+- NavGraph
+- NavHost
+
+<br>
+
+### NavController : 백 스택 컴포저블 항목 추적, 스택 관리, 화면 이동 역할
+```kotlin
+@Composable
+fun RallyApp() {
+    RallyTheme {
+        var currentScreen: RallyDestination by remember { mutableStateOf(Overview) }
+        val navController = rememberNavController()
+        Scaffold(
+            // ...
+        ) {
+            // ...
+       }
+}
+```
+- ``rememberNavController`` 를 사용하여 Configuration Change가 되어도 유지되도록 함
+- NavController는 컴포저블 계층 구조의 최상위에 만들고 배치해야 모든 하위 컴포저블이 액세스 가능, 상태 호이스팅 원칙 준수
+<br>
+
+### NavHost : 컨테이너 역할을 하며 그래프의 현재 UI를 보여주는 역할
+```kotlin
+caffold(...) { innerPadding ->
+    NavHost(
+        navController = navController,
+        startDestination = Overview.route,
+        modifier = Modifier.padding(innerPadding)
+    ) {
+       // builder parameter will be defined here as the graph
+    }
+}
+```
+- 여러 컴포저블 간 이동하는 과정에서 NavHost 콘텐츠가 자동 리컴포지션 수행
+- NavController와 NavHost간에는 1:1 매핑
+- 앱이 시작될떄 어느 대상을 표시할 지 알기 위해 ``startDestination`` 설정
+<br>
+
+### NavGraph : NavHost와 NavController가 이동할 수 있는 대상 컴포저블을 정의하는 역할
+```kotlin
+NavHost(
+    navController = navController,
+    startDestination = Overview.route,
+    modifier = Modifier.padding(innerPadding)
+) {
+    composable(route = Overview.route) {
+        Overview.screen()
+    }
+    composable(route = Accounts.route) {
+        Accounts.screen()
+    }
+    composable(route = Bills.route) {
+        Bills.screen()
+    }
+}
+```
+- 이전 NavHost를 생성 시에 마지막 매개변수로 NavGraphBuilder를 리시버로 하는 함수 필요, 해당 매개변수는 탐색 그래프를 정의하고 빌드하는 일 담당
+- Navigation Compose에서는 개별 컴포저블을 쉽게 추가하고 탐색 정보를 정의하는 ``NavGraphBuilder.composable`` 확장함수 제공
+
+<br>
+
+## Navigation with TabRow
+> 테스트 및 재사용성을 높이기 위해 컴포저블에 navController 자체를 전달하기 보다는 트리거하려는 콜백을 사용하여 전달
+
+- ``NavContoller.navigate(route)`` API를 사용하여 탐색 동작 실행
+- 백 스택에서 중복이 없도록 하기 위해서는 Compose Navigation API의 ``launchSingleTop`` 플래그를 전달 ex) navContoller.navigate(route) { launchSingleTop = true }
+- ``popUpTo(StartDestination)`` : 백스택에 추가하지 않고 이전키 입력 시 항상 StartDestinatino으로 이동, 이 때 Bundle 형태의 상태 저장 가능
+- ``restoreState = true`` 속성 사용 시 popUpTo 사용될 떄 저장되있는 상태 복원
+
+<br>
+
+## args를 활용한 Navigation
+- https://developer.android.com/jetpack/compose/navigation#nav-with-args 참고
+<br>
+
+## deeplink 지원 Navigation
+- ANdroidManifest.xml에 딥링크 추가, 새로운 intent-filter 추가 후 data 태그를 사용하여 schme 및 host 를 추가해서 구체적인 딥 링크 정의
+- args랑 마찬가지로 composeable 함수의 매개변수에 deeLinks 매개변수 추가하면 가능
