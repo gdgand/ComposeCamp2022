@@ -64,8 +64,9 @@ fun ExploreSection(
                 val listState = rememberLazyListState()
                 ExploreList(exploreList, onItemClicked, listState = listState)
 
-                val showButton by
+                val showButton by remember{
                     derivedStateOf { listState.firstVisibleItemIndex > 0 }
+                }
 
                 if (showButton) {
                     val coroutineScope = rememberCoroutineScope()
