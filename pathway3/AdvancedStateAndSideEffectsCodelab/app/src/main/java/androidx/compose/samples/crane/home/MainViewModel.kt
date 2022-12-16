@@ -19,6 +19,7 @@ package androidx.compose.samples.crane.home
 import androidx.compose.samples.crane.data.DestinationsRepository
 import androidx.compose.samples.crane.data.ExploreModel
 import androidx.compose.samples.crane.di.DefaultDispatcher
+import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -67,7 +69,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val newDestinations = withContext(defaultDispatcher) {
                 destinationsRepository.destinations
-                    .filter { it.city.nameToDisplay.contains(newDestination) }
+                    .filter { it.city.nameToDisplay.lowercase().contains(newDestination.lowercase()) }
             }
             _suggestedDestinations.value = newDestinations
         }

@@ -21,6 +21,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -29,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.samples.apps.sunflower.R
@@ -103,7 +106,21 @@ class PlantDetailFragment : Fragment() {
                         createShareIntent()
                         true
                     }
+
                     else -> false
+                }
+            }
+            composeView.apply {
+                setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+                // Compsition 전략을 사용해야하는 이유
+                // - 컴포지션은 Compose UI View 유형을 위한 프래그먼트의 뷰 수명 주기에 따라 상태를 저장해야 합니다.
+                // - 전환 또는 창 전환이 발생할 때 화면에 Compose UI 요소를 유지합니다. 전환 중에는 ComposeView가 창에서 분리된 후에도 계속 표시됩니다.
+                setContent {
+                    MdcTheme {
+                        PlantDetailDescription(plantDetailViewModel = plantDetailViewModel)
+                    }
                 }
             }
         }
