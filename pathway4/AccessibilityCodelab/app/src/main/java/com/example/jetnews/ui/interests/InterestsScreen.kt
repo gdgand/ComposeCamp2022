@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Divider
@@ -158,6 +159,10 @@ private fun TopicItem(itemTitle: String, selected: Boolean, onToggle: () -> Unit
     val image = painterResource(R.drawable.placeholder_1_1)
     Row(
         modifier = Modifier
+            .toggleable(
+                value = selected,
+                onValueChange = { _ -> onToggle() }
+            )
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Image(
@@ -178,7 +183,7 @@ private fun TopicItem(itemTitle: String, selected: Boolean, onToggle: () -> Unit
         Spacer(Modifier.weight(1f))
         Checkbox(
             checked = selected,
-            onCheckedChange = { onToggle() },
+            onCheckedChange = null,
             modifier = Modifier.align(Alignment.CenterVertically)
         )
     }
