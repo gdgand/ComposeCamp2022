@@ -84,6 +84,8 @@ dependencies {
     implementation "androidx.core:core-ktx:$rootProject.ktxVersion"
     implementation "com.google.android.material:material:$rootProject.materialVersion"
 
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.navigationComposeVersion"
+
     // Compose
     implementation "androidx.compose.runtime:runtime:$rootProject.composeVersion"
     implementation "androidx.compose.ui:ui:$rootProject.composeVersion"
