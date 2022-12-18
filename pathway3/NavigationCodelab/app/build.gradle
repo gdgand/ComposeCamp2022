@@ -99,9 +99,13 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$rootProject.espressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.espressoVersion"
 
+    androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.composeNavigationVersion"
+
     // Compose testing dependencies
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$rootProject.composeVersion"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$rootProject.composeVersion"
+
+    implementation "androidx.navigation:navigation-compose:$rootProject.composeNavigationVersion"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
