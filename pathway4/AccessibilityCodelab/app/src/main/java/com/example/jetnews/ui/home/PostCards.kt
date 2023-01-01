@@ -25,15 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Card
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
@@ -47,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,11 +49,39 @@ import com.example.jetnews.data.posts.impl.post3
 import com.example.jetnews.model.Post
 import com.example.jetnews.ui.theme.JetnewsTheme
 
+
+/**
+ * 터치 영역 크기
+ * 사용자가 클릭, 터치 등의 방법으로 상호작용할 수 있는 화면상의 요소는 안정적으로 상호작용할 수 있도록 충분히 커야 한다.
+ * 해당 요소의 너비와 높이가 최소 48dp인지 확인해야 한다.
+ * 살펴보면 기본적으로 Row와 IconButton Composable은 모두 클릭 가능하고, 결과적으로 음성 안내 지원을 통해 focus를 받음.
+ * 이러한 상황은 각 항목마다 발생.
+ * 따라서, IconButton과 관련된 작업을 목록 항목의 맞춤 작업으로 포함시켜야한다.
+ * 그러므로, 접근성 서비스에 이 Icon과 상호작용하지 않도록 지시할 수 있음.
+ * 하지만, IconButton의 semantics를 삭제하면 그 작업을 실행할 수 없기 때문에 목록 항목에 그 작업을 추가하려면 대신
+ * semantics 에 맞춤 작업을 추가한다.
+ */
 @Composable
 fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
     var openDialog by remember { mutableStateOf(false) }
+    val showFewerLabel = stringResource(R.string.cd_show_fewer)
     Row(
-        Modifier.clickable { navigateToArticle(post.id) }
+        Modifier
+            .clickable(
+            // 클릭 label 설정을 위해 onClickLable 매개 변수를 설정
+            // 이제 실행시 음성 안내 지원에서 올바르게 "Double tap to read article"이라고 알린다.
+            onClickLabel = stringResource(R.string.action_read_article)
+        ) {
+            navigateToArticle(post.id)
+        }.semantics {
+            customActions = listOf(
+                CustomAccessibilityAction(
+                    label = showFewerLabel,
+                    // action returns boolean to indicate success
+                    action = { openDialog = true; true}
+                )
+            )
+            }
     ) {
         Image(
             painter = painterResource(post.imageThumbId),
@@ -91,13 +112,22 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
             }
         }
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = stringResource(R.string.cd_show_fewer),
-                modifier = Modifier
-                    .clickable { openDialog = true }
-                    .size(24.dp)
-            )
+            // 터치 영역을 최소 48dp로 만드는 더 쉬운 방법은: 이를 자동으로 처리해주는 머티리얼 구성요소 사용
+            // IconButton -> 클릭시 ripple(물결) 효과도 추가되어 사용자가 요소를 클릭 가능함을 알 수 있게 한다.
+            IconButton(
+                modifier = Modifier.clearAndSetSemantics {  },
+                onClick = { openDialog = true}
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.cd_show_fewer),
+                    modifier = Modifier
+                        // Icon의 터치 영역 크기를 늘리기 위해 패딩 추가
+                        .clickable { openDialog = true }
+                        .padding(12.dp)
+                        .size(24.dp)
+                )
+            }
         }
     }
     if (openDialog) {
@@ -130,6 +160,8 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
     }
 }
 
+
+// 클릭 label 업데이트
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostCardPopular(
@@ -137,13 +169,15 @@ fun PostCardPopular(
     navigateToArticle: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val readArticleLabel = stringResource(id = R.string.action_read_article)
     Card(
         shape = MaterialTheme.shapes.medium,
-        modifier = modifier.size(280.dp, 240.dp),
-        onClick = { navigateToArticle(post.id) }
+        modifier = modifier
+            .size(280.dp, 240.dp)
+            .semantics { onClick(label = readArticleLabel, action = null) },
+        onClick = { navigateToArticle(post.id) },
     ) {
         Column {
-
             Image(
                 painter = painterResource(post.imageId),
                 contentDescription = null, // decorative

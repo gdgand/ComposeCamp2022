@@ -58,6 +58,10 @@ import com.example.compose.rally.ui.components.RallyDivider
 import com.example.compose.rally.ui.components.formatAmount
 import java.util.Locale
 
+
+/**
+ * 해당 Composable을 보면 콜백이 상응 하는 onClick 매개변수로 설정 되어 있음.
+ */
 @Composable
 fun OverviewScreen(
     onClickSeeAllAccounts: () -> Unit = {},

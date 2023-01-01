@@ -22,27 +22,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.samples.crane.base.Result
 import androidx.compose.samples.crane.data.ExploreModel
 import androidx.compose.samples.crane.ui.CraneTheme
@@ -77,6 +60,14 @@ fun createDetailsActivityIntent(context: Context, item: ExploreModel): Intent {
     return intent
 }
 
+
+// 화면에 표시할 데이터, 로드 및 오류 신호와 같은 모든 가능성을 다루는 클래스
+data class DetailsUiState(
+    val cityDetails: ExploreModel? = null,
+    val isLoading: Boolean = false,
+    val throwError: Boolean = false
+)
+
 @AndroidEntryPoint
 class DetailsActivity : ComponentActivity() {
 
@@ -102,18 +93,40 @@ class DetailsActivity : ComponentActivity() {
     }
 }
 
+/**
+ * 세부정보 화면 시작 방식: DetailsScreen Composable이 cityDetails를 viewModel에서 동기식으로 가져오고 결과가
+ * 성공일 경우 DetailContent를 호출.
+ * But, cityDetails는 UI 스레드를 로드하는 데 더 많은 비용이 들 수 있고, 코루틴을 사용하여 데이터 로드를 다른 스레드로 옮길
+ * 수 있음. 코드 개선을 통해 load화면을 추가하고 DetailsContent를 표시.
+ * 그 후 uiState에 따라 데이터를 표시하거나 로드 화면을 표시하거나, 오류를 보고한다.
+ */
 @Composable
 fun DetailsScreen(
     onErrorLoading: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DetailsViewModel = viewModel()
 ) {
-    // TODO Codelab: produceState step - Show loading screen while fetching city details
-    val cityDetails = remember(viewModel) { viewModel.cityDetails }
-    if (cityDetails is Result.Success<ExploreModel>) {
-        DetailsContent(cityDetails.data, modifier.fillMaxSize())
-    } else {
-        onErrorLoading()
+    val uiState by produceState(initialValue = DetailsUiState(isLoading = true)) {
+        val cityDetailsResult = viewModel.cityDetails
+        value = if (cityDetailsResult is Result.Success<ExploreModel>) {
+            DetailsUiState(cityDetailsResult.data)
+        }else {
+            DetailsUiState(throwError = true)
+        }
+    }
+    when {
+        uiState.cityDetails != null -> {
+            DetailsContent(uiState.cityDetails!!, modifier.fillMaxSize())
+        }
+        uiState.isLoading -> {
+            Box(modifier.fillMaxSize()) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colors.onSurface,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+        else -> {onErrorLoading}
     }
 }
 
@@ -140,6 +153,7 @@ fun DetailsContent(
         CityMapView(exploreModel.city.latitude, exploreModel.city.longitude)
     }
 }
+
 
 @Composable
 private fun CityMapView(latitude: String, longitude: String) {
