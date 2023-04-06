@@ -7,10 +7,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.navigation.compose.ComposeNavigator
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.testing.TestNavHostController
-import org.junit.Before
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -20,9 +19,9 @@ class NavigationTest {
     lateinit var navController: TestNavHostController
 
     @Before
-    fun setupRallyNavHost(){
+    fun setupRallyNavHost() {
         composeTestRule.setContent {
-            navController=
+            navController =
                 TestNavHostController(LocalContext.current)
             navController.navigatorProvider.addNavigator(
                 ComposeNavigator()
@@ -30,8 +29,9 @@ class NavigationTest {
             RallyNavHost(navController = navController)
         }
     }
+
     @Test
-    fun rallyNavHost_verityOverviewStartDestination(){
+    fun rallyNavHost_verityOverviewStartDestination() {
         composeTestRule
             .onNodeWithContentDescription("All Accounts")
             .assertIsDisplayed()
@@ -39,11 +39,12 @@ class NavigationTest {
             .onNodeWithContentDescription("Accounts Screen")
             .assertIsDisplayed()
     }
+
     @Test
-    fun rallyNavHost_clickAllBills_navigateToBills(){
+    fun rallyNavHost_clickAllBills_navigateToBills() {
         composeTestRule.onNodeWithContentDescription("All Bills")
             .performScrollTo().performClick()
-        val route=navController.currentBackStackEntry?.destination?.route
-        assertEquals(route,"bills")
+        val route = navController.currentBackStackEntry?.destination?.route
+        assertEquals(route, "bills")
     }
 }
