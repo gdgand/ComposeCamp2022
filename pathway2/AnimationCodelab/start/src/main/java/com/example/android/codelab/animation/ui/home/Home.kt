@@ -704,11 +704,13 @@ private fun Modifier.swipeToDismiss(
 @Preview
 @Composable
 private fun PreviewHomeTabBar() {
-    HomeTabBar(
-        backgroundColor = Purple100,
-        tabPage = TabPage.Home,
-        onTabSelected = {}
-    )
+    AnimationCodelabTheme {
+        HomeTabBar(
+            backgroundColor = Purple100,
+            tabPage = TabPage.Home,
+            onTabSelected = {}
+        )
+    }
 }
 
 @Preview
