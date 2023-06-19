@@ -28,7 +28,7 @@ Compose는 이러한 문제들을 지능적인 재구성을 통해 해결합니�
 재구성(recomposition)은 Composable의 입력이 변경될 때 발생하는 과정입니다.   
 Compose는 새로운 입력을 기반으로 재구성할 때 변경될 수 있는 함수나 람다만 호출하고 나머지는 건너뜁니다. 이를 통해 가능한 많은 Composable과 람다를 건너뛰어 효율적으로 재구성합니다.
 
-### [Side-Effect](../../study/Compose의 Side-Effect.md) 관리
+### [Side-Effect](../UI%20Architecture/Compose의%20Side-Effect.md) 관리
 
 Composable의 실행으로 인해 발생하는 Side-Effect에 의존해서는 안 됩니다.   
 이런 Side-Effect들은 공유 객체에 write 작업을 수행하거나, ViewModel에서 Observable을 업데이트하거나, SharedPreferences를 업데이트하는 것 등이 있습니다.
