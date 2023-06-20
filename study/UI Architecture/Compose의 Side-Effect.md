@@ -156,3 +156,53 @@ fun LandingScreen(onTimeout: () -> Unit) {
 
 > 👀 경고: LaunchedEffect(true)는 그 특성상 필요한 경우가 아니라면 
 > **무한 루프**를 만들 수 있는 동작을 하므로 사용을 자제해야 합니다.
+
+
+### DisposableEffect: Effect API 정리
+
+`DisposableEffect`는 `Key`가 변경되거나 composable이 Composition에서 제거된 후에 정리해야 하는 Side-Effect를 처리하기 위해 사용합니다.   
+
+`DisposableEffect`의 `Key`가 변경되면, composable은 현재의 Effect를 정리하고(즉, **cleanup을 수행**하고), Effect를 다시 호출함으로써 리셋해야 합니다.
+
+예를 들어, `LifecycleObserver`를 사용하여 `Lifecycle` 이벤트에 기반한 분석 이벤트를 보냅니다.   
+Compose에서 이러한 이벤트를 수신하기 위해, 필요할 때 `observer`를 등록하고 해제하는 `DisposableEffect`를 사용할 수 있습니다.
+
+```kotlin
+@Composable
+fun HomeScreen(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    onStart: () -> Unit, // 'started' 분석 이벤트를 보냄
+    onStop: () -> Unit // 'stopped' 분석 이벤트를 보냄
+) {
+    // 새로운 람다가 제공될 때 안전하게 현재 람다를 업데이트
+    val currentOnStart by rememberUpdatedState(onStart)
+    val currentOnStop by rememberUpdatedState(onStop)
+
+    // lifecycleOwner 변경 시 Effect를 제거하고 리셋
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START) {
+                currentOnStart()
+            } else if (event == Lifecycle.Event.ON_STOP) {
+                currentOnStop()
+            }
+        }
+
+        // observer를 lifecycle에 추가
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        // effect가 Composition을 떠날 때 observer를 제거
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+}
+```
+
+위의 코드에서 Effect는 `observer`를 `lifecycleOwner`에 추가합니다. 
+`lifecycleOwner`가 변경되면, Effect는 제거되고 새 `lifecycleOwner`로 재시작됩니다.
+
+`DisposableEffect`는 반드시 그 코드 블록의 마지막 문장으로 `onDispose` 절을 포함해야 합니다.
+
+> `onDispose`에 빈 블록을 두는 것은 좋은 방법이 아닙니다.  
+> 항상 다시 확인하여 사용 사례에 더 적합한 Effect가 있는지 확인해야 합니다.
