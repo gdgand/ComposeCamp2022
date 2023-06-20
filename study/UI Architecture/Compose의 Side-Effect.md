@@ -206,3 +206,30 @@ fun HomeScreen(
 
 > `onDispose`에 빈 블록을 두는 것은 좋은 방법이 아닙니다.  
 > 항상 다시 확인하여 사용 사례에 더 적합한 Effect가 있는지 확인해야 합니다.
+
+### SideEffect: Compose와 Non-Compose 코드 간 상태 공유
+
+App은 UI 외에도 여러 가지 다른 요소들을 갖고 있습니다. 
+예를 들어, 네트워크 라이브러리, 데이터베이스, 분석 도구 등이 있습니다. 
+이러한 요소들은 Compose 시스템이 아닌 외부 시스템입니다.
+
+Compose는 변경된 상태를 시스템 외부와 공유하기 위해서 `SideEffect` Composable을 사용합니다.
+Composable 내부에 `SideEffect` 호출 시 상태가 변경되어 재구성 될 때마다 호출됩니다.
+
+예를 들어, 분석 라이브러리는 사용자를 세분화하기 위해 사용자 정의 메타데이터를 첨부하는 기능을 제공할 수 있습니다. 
+사용자의 사용자 유형을 분석 라이브러리에 전달하기 위해 `SideEffect`를 사용하여 그 값을 업데이트합니다.
+```kotlin
+@Composable
+fun rememberFirebaseAnalytics(user: User): FirebaseAnalytics {
+    val analytics: FirebaseAnalytics = remember {
+        FirebaseAnalytics()
+    }
+
+    // userType Firebase Analytics 업데이트
+    SideEffect {
+        analytics.setUserProperty("userType", user.userType)
+    }
+    return analytics
+}
+```
+이 코드는 Composable이 성공적으로 구현될 때 마다 `SideEffect`가 `FirebaseAnalytics`의 "userType" 사용자 속성을 현재 `User`의 `userType`으로 업데이트합니다.
