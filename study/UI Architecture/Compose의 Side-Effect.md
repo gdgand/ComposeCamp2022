@@ -233,3 +233,78 @@ fun rememberFirebaseAnalytics(user: User): FirebaseAnalytics {
 }
 ```
 이 코드는 Composable이 성공적으로 구현될 때 마다 `SideEffect`가 `FirebaseAnalytics`의 "userType" 사용자 속성을 현재 `User`의 `userType`으로 업데이트합니다.
+
+
+### produceState: Non-Compose 상태를 Compose 상태로 변환
+
+`produceState`는 반환된 `State`에 값을 푸시할 수 있는 Composition 범위의 코루틴을 실행합니다.   
+이는 Non-Compose 상태를 Compose 상태로 변환하는 데 사용될 수 있으며, 
+예를 들어 `Flow`, `LiveData`, `RxJava`와 같은 외부 구독 기반 상태를 Composition으로 가져올 때 사용할 수 있습니다.
+
+생산자(producer)는 `produceState`가 Composition에 진입 시 실행되며, Composition에서 빠져나갈 때 취소됩니다.   
+반환된 `State`는 누산(conflate)되며, 이를 통해 동일한 값을 설정해도 재구성(recomposition)을 트리거하지 않습니다.
+
+`produceState`가 코루틴을 생성하는 것이지만, Non-suspend 데이터 소스를 관찰하는 데도 사용할 수 있습니다.   
+해당 소스에 대한 구독을 제거하려면 `awaitDispose` 함수를 사용합니다.
+
+아래 예제는 `produceState`를 사용하여 네트워크에서 이미지를 로드하는 방법을 보여줍니다.   
+`loadNetworkImage` composable 함수는 다른 composables에서 사용할 수 있는 `State`를 반환합니다.
+
+```kotlin
+@Composable
+fun loadNetworkImage(
+    url: String,
+    imageRepository: ImageRepository = ImageRepository()
+): State<Result<Image>> {
+
+    // Result.Loading을 초기값으로 가지는 State<T> 생성
+    // 'url'이나 'imageRepository'가 변경되면, 실행 중인 producer는 취소되고
+    // 새 입력값으로 재실행
+    return produceState<Result<Image>>(
+        initialValue = Result.Loading,
+        url, 
+        imageRepository
+    ) {
+
+        // 코루틴 내에서는 suspend 호출을 할 수 있음
+        val image = imageRepository.load(url)
+
+        // Error 또는 Success 결과를 가진 State 업데이트
+        // 이 State를 읽는 Composable에 재구성을 트리거
+        value = if (image == null) {
+            Result.Error
+        } else {
+            Result.Success(image)
+        }
+    }
+}
+```
+
+> 반환 타입을 가진 Composables은 일반적인 Kotlin 함수와 같이 소문자로 시작하는 이름을 사용해야 합니다.
+> 반환 타입을 가지지 않은 Composable은 Class와 같이 대문자로 시작하는 이름을 사용해야 했습니다.
+
+
+#### `produceState`의 내부 동작
+```kotlin
+@Composable
+fun <T> produceState(
+    initialValue: T,
+    producer: suspend ProduceStateScope<T>.() -> Unit
+): State<T> {
+    val result = remember { mutableStateOf(initialValue) }
+    LaunchedEffect(Unit) {
+        ProduceStateScopeImpl(result, coroutineContext).producer()
+    }
+    return result
+}
+```
+1. `remember` 함수를 사용하여 `mutableStateOf(initialValue)`의 결과를 저장합니다.   
+여기서 `mutableStateOf(initialValue)`는 초기값이 `initialValue`인 변경 가능한 상태를 생성합니다.
+`remember` 함수는 이 상태를 저장하여 Compose 라이프사이클 내에서 이 상태를 유지합니다. 
+이렇게 하면 이 상태가 변경되면 관련된 UI를 자동으로 다시 그릴 수 있습니다.  
+
+2. `LaunchedEffect`는 `produceState`에서 주어진 `producer 블록`(즉, 상태를 업데이트하는 데 사용되는 코드 블록)를 실행하는 코루틴을 실행합니다.  
+이 코루틴은 새로운 상태를 계산하고 이 상태를 `mutableStateOf`로 저장된 상태에 저장합니다.
+
+3. `producer 블록`에서 `value`를 업데이트하면, 이 값이 `mutableStateOf`에 저장된 상태로 설정되고, 이로 인해 관련된 UI가 자동으로 다시 그려집니다.
+ 
