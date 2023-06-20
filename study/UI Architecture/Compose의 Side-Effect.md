@@ -351,3 +351,31 @@ fun TodoList(highPriorityKeywords: List<String> = listOf("Review", "Unblock", "C
 마지막으로, 이 코드는 `highPriorityKeywords`가 `todoTasks`보다 훨씬 덜 자주 변경된다고 가정하고 있습니다. 
 만약 그렇지 않다면, `remember(todoTasks, highPriorityKeywords)`를 사용하여 
 두 상태가 모두 변경될 때마다 `highPriorityTasks`를 다시 계산하도록 할 수 있습니다.
+
+### snapshotFlow: convert Compose's State into Flows
+`snapshotFlow`는 Compose의 `State<T>` 객체를 `Cold Flow`로 변환하는 데 사용됩니다.  
+`snapshotFlow`는 `Collect`시 실행되고, 그 안에서 읽히는 `State` 객체의 결과를 `emit` 합니다.   
+`snapshotFlow` 블록 내에서 읽히는 `State` 객체 중 하나가 변경되면, `Flow`는 새 값을 수집기에 `emit` 합니다.   
+이 새 값이 이전에 `emit` 된 값과 **같지 않은 경우에만 이런 동작이 발생**합니다 (`Flow.distinctUntilChanged`의 동작과 유사합니다).
+
+다음 예는 사용자가 리스트의 첫 번째 아이템을 스크롤하여 지나갈 때 analytics에 이를 기록하는 `Side-Effect`를 보여줍니다:
+
+```kotlin
+val listState = rememberLazyListState()
+
+LazyColumn(state = listState) {
+    // ...
+}
+
+LaunchedEffect(listState) {
+    snapshotFlow { listState.firstVisibleItemIndex }
+        .map { index -> index > 0 }
+        .distinctUntilChanged()
+        .filter { it == true }
+        .collect {
+            MyAnalyticsService.sendScrolledPastFirstItemEvent()
+        }
+}
+```
+
+위의 코드에서 `listState.firstVisibleItemIndex`는 `Flow`의 연산자의 확장 함수들을 활용할 수 있는 `Flow`로 변환됩니다.
