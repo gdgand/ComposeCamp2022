@@ -119,3 +119,40 @@ fun MoviesScreen(snackbarHostState: SnackbarHostState) {
     }
 }
 ```
+### rememberUpdatedState: 값이 변경되어도 재시작하면 안 되는 효과 내에서의 값을 참조
+
+`LaunchedEffect`는 `키(key)` 매개 변수가 변경될 때마다 `lambda`를 재시작합니다.  
+그런데 어떤 상황에서는 특정 값이 변경되더라도 그에 따라 `Effect`가 재시작되는 것을 원하지 않을 수 있습니다. 
+예를 들어, 긴 시간이 소요되는 작업이나 비용이 많이 드는 작업을 수행하는 경우에는 값의 변화에도 불구하고 작업을 재시작하고 싶지 않는 상황이 있을겁니다.
+ 
+`rememberUpdatedState`를 사용하면 값을 `기억(remember)`하게 되며, 해당 값이 변경되어도 `Effect`를 재시작하지 않습니다. 
+이는 `Effect` 내부에서 사용되는 값이 최신 상태를 유지하면서도, 값의 변화에 따라 `Effect`가 재시작되는 것을 방지할 수 있습니다.
+
+> 보통의 Effect API는 **Effect의 값의 변화 -> Effect 재시작** 이라는 일반적인 흐름을 가지지만,  
+> `rememberUpdatedState`는 **값의 변화 -> 값만 업데이트, Effect 그대로 유지**라는 흐름을 가지도록 돕는 API입니다.   
+> 이를 통해 비용이 많이 드는 작업을 효율적으로 관리할 수 있습니다.
+
+예를 들어, 앱에 일정 시간 후 사라지는 `LandingScreen`이 있다고 가정해 보겠습니다.   
+`LandingScreen`이 재구성 되더라도 타이머 기능이 재시작 되어서는 안 됩니다.
+
+```kotlin
+@Composable
+fun LandingScreen(onTimeout: () -> Unit) {
+
+    // LandingScreen이 재구성되더라도 항상 최신 onTimeout 함수 참조
+    val currentOnTimeout by rememberUpdatedState(onTimeout)
+
+    LaunchedEffect(true) {
+        delay(SplashWaitTimeMillis)
+        currentOnTimeout()
+    }
+    
+}
+```
+
+특정 경우에는 이 `LaunchedEffect`가 해당 composable의 생명주기 동안 단 한 번만 실행되기를 원할 수 있습니다.  
+그런 경우에는 변하지 않는 값(예: `true`나 `Unit`과 같은 상수)를 `LaunchedEffect`의 `Key` 값으로 사용합니다.   
+이렇게 하면, 이 composable이 재구성되더라도 `Key` 값이 변하지 않으므로 `LaunchedEffect` 내의 코드 블록이 재실행되지 않습니다.
+
+> 👀 경고: LaunchedEffect(true)는 그 특성상 필요한 경우가 아니라면 
+> **무한 루프**를 만들 수 있는 동작을 하므로 사용을 자제해야 합니다.
