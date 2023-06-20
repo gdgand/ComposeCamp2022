@@ -308,3 +308,46 @@ fun <T> produceState(
 
 3. `producer 블록`에서 `value`를 업데이트하면, 이 값이 `mutableStateOf`에 저장된 상태로 설정되고, 이로 인해 관련된 UI가 자동으로 다시 그려집니다.
  
+### derivedStateOf: 하나 이상의 상태 객체를 다른 상태로 변환
+`derivedStateOf`는 특정한 상태가 다른 상태 객체들로부터 계산되거나 파생될 때 사용되는 함수입니다. 
+이 함수를 사용하면 계산에 사용되는 상태 중 어느 하나가 변경될 때 마다 계산이 이루어진다는 것을 보장할 수 있습니다.
+
+다음 예제는 사용자가 정의한 고 우선순위 키워드를 가진 작업이 먼저 나타나는 기본적인 TODO List를 보여줍니다.
+```kotlin
+@Composable
+fun TodoList(highPriorityKeywords: List<String> = listOf("Review", "Unblock", "Compose")) {
+
+    val todoTasks = remember { mutableStateListOf<String>() }
+
+    // todoTasks 또는 highPriorityKeywords가 변경될 때만 고 우선순위 작업을 계산하고, 매번 재구성할 때마다 계산하지 않음
+    val highPriorityTasks by remember(highPriorityKeywords) {
+        derivedStateOf {
+            todoTasks.filter { task ->
+                highPriorityKeywords.any { keyword ->
+                    task.contains(keyword)
+                }
+            }
+        }
+    }
+
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn {
+            items(highPriorityTasks) { /* ... */ }
+            items(todoTasks) { /* ... */ }
+        }
+        /* 사용자가 목록에 요소를 추가할 수 있는 나머지 UI */
+    }
+}
+```
+위 코드는 `derivedStateOf`는 `todoTasks`가 변경될 때마다 `highPriorityTasks` 계산이 이루어지고 UI가 그에 따라 업데이트됨을 보장하고 있습니다.
+
+`derivedStateOf`를 사용하는 것은 `todoTasks` 또는 `highPriorityKeywords`가 변경될 때만 `highPriorityTasks`를 계산하게 하기 위함입니다. 
+만약 이런 최적화를 하지 않으면, 매번 화면이 다시 그려질 때마다 (즉, 매번 재구성될 때마다) `highPriorityTasks`가 계산될 것입니다. 이는 비효율적입니다.
+
+또한 `derivedStateOf`에 의해 생성된 상태의 업데이트는 그것이 선언된 Composable 함수가 다시 Compose되게 만들지 않습니다.   
+이는 `derivedStateOf`로 생성된 상태가 변경되어도, 이 상태를 사용하는 UI가 모두 업데이트되는 것이 아닌, 이 상태를 실제로 읽는 UI만 업데이트되도록 하기 위함입니다. 
+위 예제에서는 `LazyColumn`이 해당됩니다.
+
+마지막으로, 이 코드는 `highPriorityKeywords`가 `todoTasks`보다 훨씬 덜 자주 변경된다고 가정하고 있습니다. 
+만약 그렇지 않다면, `remember(todoTasks, highPriorityKeywords)`를 사용하여 
+두 상태가 모두 변경될 때마다 `highPriorityTasks`를 다시 계산하도록 할 수 있습니다.
