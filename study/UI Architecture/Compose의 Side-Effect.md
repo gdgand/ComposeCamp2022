@@ -379,3 +379,45 @@ LaunchedEffect(listState) {
 ```
 
 위의 코드에서 `listState.firstVisibleItemIndex`는 `Flow`의 연산자의 확장 함수들을 활용할 수 있는 `Flow`로 변환됩니다.
+
+---
+
+## Effects 재실행
+`LaunchedEffect`, `produceState`, `DisposableEffect`와 같은 몇몇 `Effect API`들은 실행 중인 작업을 취소하고, 
+새로운 `Key`와 함께 새 작업을 시작하기 위해 `숫자 타입의 가변 인자`나 `Key`를 받습니다.
+
+일반적으로, 위에서 언급한 `Effect API`들의 형태는 다음과 같습니다.
+
+```kotlin
+EffectName(ifThisKeyChanges, orThisKeyChanges, orThisKeyChanges, ...) { block }
+```
+
+`EffectName`은 실행하려는 `Effect`이고 뒤이어 나오는 매개변수들은 이 `Effect`가 변경되어 재실행되어야 할 때를 지정합니다.  
+이러한 변경은 `ifThisKeyChanges`, `orThisKeyChanges`등의 `key`가 변화할 때 발생합니다.
+
+그러나 위 방식은 아래와 같은 문제점이 발생할 수 있습니다.
+
+### Effect 재실행 시 발생 할 수 있는 문제점
+- 필요한 만큼 `Effect`가 재실행되지 않으면 앱에서 버그가 발생할 수 있습니다. 
+  예를 들어, UI가 적절하게 업데이트 되지 않을 수 있습니다.  
+- 필요한 것 보다 `Effect`더 자주 재실행되면 비효율적일 수 있습니다. 
+  예를 들어, 네트워크 호출을 불필요하게 많이 발생시킬 수 있습니다.
+
+이를 위해 다음과 같은 규칙들이 제안되었습니다.
+
+### Effect 재실행 규칙
+- `Effect` 코드 블록 내에서 사용되는 모든 `mutable` 또는 `immutable` 변수는 `Effect` Composable의 매개변수로 추가되어야 합니다.
+  - 이를 통해, 이 변수들의 변화가 `Effect`의 재실행을 적절히 트리거 할 수 있습니다.
+- `Effect`를 강제로 재실행하고 싶은 경우에는, 더 많은 `Key`를 매개변수로 추가 할 수 있습니다.
+  - 이는 특정 `Effect`가 필요한 시점보다 덜 실행되는 상황을 방지하는데 사용됩니다.
+- 만약 변수의 변경이 `Effect`를 재실행시킬 필요가 없다면, 이 변수는 `rememberUpdatedState`를 사용하여 감싸야 합니다.
+  - 이는 `Effect`가 불필요하게 재실행되는 것을 방지하는데 사용됩니다.
+- 변수가 `remember`함수에 의해 감싸져 있고, `key`가 없어 변하지 않는다면, 이 변수를 `Effect`의 `Key`로 전달할 필요는 없습니다.
+  - 이는 `Effect`가 불필요하게 재실행되는 것을 방지하는 또 다른 방법입니다. 
+
+> `Effect`에서 사용되는 모든 변수들은 `Effect` Composable 함수의 매개변수로 추가되거나, `rememberUpdatedState`로 감싸져야 합니다.
+> 이렇게 하면, `Effect`의 재실행이 적절히 관리되어 앱의 성능과 정확성이 향상될 수 있습니다.
+
+## 상수를 키로 사용하기
+호출 위치의 `Lifecycle`을 따르게 하려면 상수를 `Effect`의 `Key`로 사용할 수 있습니다.   
+그러나 이렇게 실행하기 전에 두 번 생각하고 그것이 정말 필요한지 확인하십시오.
