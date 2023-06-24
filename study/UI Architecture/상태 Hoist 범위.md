@@ -136,3 +136,56 @@ UI Element State를 다른 Composable과 공유하여 다른 곳에서도 UI 로
 > 상태를 가장 가까운 공통 조상(Lowest Common Ancestor)에 호이스팅하고, 상태를 필요로 하지 않은 Composable에는 전달 하지마세요.
 
 <img src="../../resource/state-hoisting-lca.png" width="50%" height="auto">
+
+### plain state holder class를 상태 소유자로 사용
+
+Composable이 UI Element에 하나 or 여러 상태 필드를 포함하는 복잡한 UI 로직을 포함하고 있는 경우,   
+`State Holder`인 plain state holder class에 책임을 위임하여 사용해야 합니다.
+
+이러한 접근법은 '관심사 분리 원칙'을 지키며 Composable의 로직을 격리하여 더 쉽게 테스트할 수 있고, 복잡성을 줄일 수 있습니다.
+    
+- Composabe : UI Element를 내보내는 것을 담당
+- State Holder : UI 로직과 UI Element 상태를 포함
+
+Compose에서 제공되는 plain state holder class에는 다음과 같은 특징이 있습니다.
+- 기본적으로 제공되는 로직이 있어 일반 Composable 함수는 제공되는 로직을 사용하면 되기에 직접 코드를 작성할 필요가 없습니다.
+- Composable 생명주기를 따르기 때문에 Composition에서 생성되고 기억됩니다.
+- Compose 라이브러리에서 제공하는 `rememberNavController()` 또는 `rememberLazyListState()`와 같은 타입을 사용 수 있습니다.
+
+예시로 `LazyColumn` 또는 `LazyRow`의 UI 복잡성을 제어하기 위해 Compose에서 구현된 `LazyListState` plain state holder class가 있습니다.
+
+```kotlin
+@Stable
+class LazyListState constructor(
+    firstVisibleItemIndex: Int = 0,
+    firstVisibleItemScrollOffset: Int = 0
+) : ScrollableState {
+    
+    private val scrollPosition = LazyListScrollPosition(
+        firstVisibleItemIndex, firstVisibleItemScrollOffset
+    )
+
+    suspend fun scrollToItem(/*...*/) { /*...*/ }
+
+    override suspend fun scroll() { /*...*/ }
+
+    suspend fun animateScrollToItem() { /*...*/ }
+}
+```
+
+`LazyListState`는 `LazyColumn`의 상태를 캡슐화하고, UI Element를 위한 `scrollPosition`을 저장합니다.   
+또한 주어진 항목으로 스크롤하는 등 스크롤 위치를 수정하는 방법을 제공합니다.
+
+
+애플리케이션의 복잡성을 관리하는 데 중요한 역할을 하는 'plain state holder class'는 
+글로벌하거나 애플리케이션 수준의 상태를 캡슐화하고, N개의 Composable에서 참조하거나 업데이트해야 하는 복잡한 로직을 캡슐화합니다. 
+이러한 클래스는 앱의 Root Composable에서 '네비게이션 상태'나 '기기 방향' 같은 앱 전체의 상태를 관리하는 것을 단순화 할 수 있습니다.
+
+이런 클래스는 Compose에서 제공하는 `remember()` 함수를 사용하여 만들어지고, Composable 생명주기에 따라 생존합니다.
+만약 Activity 또는 Process가 다시 생성된 후에도 상태를 유지되게 하려면 `rememberSaveable()`을 사용하면 됩니다.
+
+이러한 클래스는 앱의 Root Composable 뿐만 아니라 다른 Composable에서도 사용될 수 있습니다.
+이렇게 하면 여러 Composable에서 동일한 로직을 반복 작성하는 대신 한 곳에 집중할 수 있으므로 코드의 재사용성이 향상됩니다.
+
+이상적으로, state holder class는 모든 상태 변경 로직을 캡슐화하고, Composable은 오직 UI를 그리는 데 집중하게 할 수 있습니다.
+이렇게 하면 Composable은 간결하고 가독성이 좋아지며, 테스트와 유지 보수가 더 쉬워집니다.
