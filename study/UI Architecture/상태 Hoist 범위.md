@@ -102,3 +102,37 @@ fun ChatBubble(
 > UI Element State를 Composable 내부에 유지 할 수 있습니다.   
 > 이는 상태와 그에 적용하는 로직이 단순하고 UI Layer의 다른 Composable들이 상태를 필요로 하지 않는 경우 괜찮습니다.   
 > 일반적으로 애니메이션 상태의 경우 사용될 수 있습니다.
+
+### Composable 내부에서 호이스팅
+UI Element State를 다른 Composable과 공유하여 다른 곳에서도 UI 로직을 적용한다면, UI 계층 구조에서 상위로 상태를 호이스팅 할 수 있습니다.   
+이는 Composable 재사용을 가능하게 하며 테스트도 간편합니다.
+
+다음은 두 가지 기능을 구현한 채팅 앱 예시입니다.
+
+<img src="../../resource/state-hoisting-chat.png" width="40%" height="auto">
+
+- `JumpToBottom` 버튼은 메시지 목록을 맨 아래로 '스크롤'합니다.
+- `MessagesList` 목록은 사용자가 새 메시지를 보낸 후 맨 아래로 '스크롤'합니다.
+
+각 항목들은 '스크롤'을 움직이는 UI 로직이 필요함에 따라 '목록 상태'에 대해서 UI 로직을 수행함을 알 수 있습니다.
+
+위 채팅 앱의 Composable 계층 구조를 보시면 다음과 같습니다.
+
+<img src="../../resource/state-hoisting-initial-tree.png" width="40%" height="auto">
+
+`LazyColumn` 상태는 `ConversationScreen`에 표시됩니다. 이에 따라 다음을 알 수 있습니다.
+1. `UserInput`과 `Button`에 `LazyListState`라는 목록을 관리하는 상태를 넘겨 UI 로직 수행
+2. UI 로직에 필요한 `LazyListState` 목록 상태를 모든 Composable에서 읽을 수 있음
+
+<img src="../../resource/state-hoisting-animated.gif" width="50%" height="50%">
+
+[들어가서 자세한 코드를 보시면]((https://github.com/android/snippets/blob/e9e6e1fc71b9a6fb77277126ad44e985deea992d/compose/snippets/src/main/java/com/example/compose/snippets/state/StateHoistingSnippets.kt#L85-L123))
+`LazyListState`는 적용해야 하는 UI 로직에 따라 필요한 만큼 높이 호이스팅됩니다.   
+이는 Composable에서 초기화되므로, 해당 Composable의 생명 주기에 따라 Composition에 저장됩니다.
+
+`LazyListState`가 `MessagesList` 메서드에서 `rememberLazyListState()`의 기본 값으로 정의되어 있습니다.  
+이는, Compose에서는 흔히 볼 수 있는 패턴입니다. 이러한 패턴으로 인해 Composable이 더 유연하고 재사용성이 높아집니다.
+
+> 상태를 가장 가까운 공통 조상(Lowest Common Ancestor)에 호이스팅하고, 상태를 필요로 하지 않은 Composable에는 전달 하지마세요.
+
+<img src="../../resource/state-hoisting-lca.png" width="50%" height="auto">
