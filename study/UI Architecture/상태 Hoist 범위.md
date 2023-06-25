@@ -212,3 +212,62 @@ UI 상태를 `ViewModel`에서 호이스팅하면, 그 상태는 Composition 밖
 `Activity`, `Fragment`, `navigation graph`, `destination of navigation graph`와 같은 `ViewModelStoreOwner`에 범위가 지정됩니다.
 
 따라서, `ViewModel`은 UI 상태에 대한 **가장 가까운 공통 조상**이며 신뢰할 수 있는 정보 출처가 됩니다.
+
+### Screen UI State
+
+Screen UI state는 비즈니스 규칙을 적용하여 생성된 데이터를 의미합니다.   
+Screen UI state는 일반적으로 특정 화면에 표시되는 정보를 관리하며, 그것이 사용자에게 보여지는 방식을 정의합니다.  
+
+Screen level state holder는 Screen UI state를 관리하는 역할을 합니다. 
+이는 주로 `ViewModel`에서 수행되며, 이를 통해 UI State는 앱의 비즈니스 로직과 분리되어 보다 재사용성이 높은 코드를 작성할 수 있습니다.
+
+예를 들어, 아래 채팅 앱의 `ConversationViewModel`는 Screen UI State를 제공하고 이를 변경하는 이벤트를 노출하고 있습니다.
+
+```kotlin
+class ConversationViewModel(
+    channelId: String,
+    messagesRepository: MessagesRepository
+) : ViewModel() {
+
+    val messages = messagesRepository
+        .getLatestMessages(channelId)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
+    // Business logic
+    fun sendMessage(message: Message) { /* ... */ }
+}
+```
+Composable은 `ViewModel`에서 관리하는 Screen UI State를 사용하므로,   
+비즈니스 로직에 접근하기 위해 Screen-Level Composable에 `ViewModel` 인스턴스를 주입해야 합니다.
+
+아래 예제는 `ViewModel`이 Screen-Level Composable에서 어떻게 사용되는지 보여줍니다.   
+여기서 `ConversationScreen()`은 `ViewModel`에서 Screen UI State를 가져옵니다.
+
+```kotlin
+@Composable
+private fun ConversationScreen(
+    conversationViewModel: ConversationViewModel = viewModel()
+) {
+
+    val messages by conversationViewModel.messages.collectAsStateWithLifecycle()
+
+    ConversationScreen(
+        messages = messages,
+        onSendMessage = { message: Message -> conversationViewModel.sendMessage(message) }
+    )
+}
+
+@Composable
+private fun ConversationScreen(
+    messages: List<Message>,
+    onSendMessage: (Message) -> Unit
+) {
+
+    MessagesList(messages, onSendMessage)
+    /* ... */
+}
+```
