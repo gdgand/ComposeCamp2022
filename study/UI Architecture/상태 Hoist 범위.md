@@ -271,3 +271,103 @@ private fun ConversationScreen(
     /* ... */
 }
 ```
+
+### UI Element State
+
+비즈니스 로직이 해당 데이터를 읽거나 쓰는 경우, UI Element State를 Screen Level State Holder로 가져올 수 있습니다.
+
+계속해서 채팅 앱을 예로들어 보죠.
+
+사용자가 `@`와 `힌트`를 입력하면 그룹 채팅에 `사용자 제안`을 표시합니다.   
+`사용자 제안`은 Data Layer에서 데이터를 불러오며, 이 데이터를 불러오는 로직은 비즈니스 로직으로 간주됩니다.
+
+<img src="../../resource/state-hoisting-suggestions.png" width="50%" height="auto">
+
+이 기능을 구현하는 `ViewModel`은 다음과 같이 구성됩니다:
+
+```kotlin
+class ConversationViewModel(/*...*/) : ViewModel() {
+
+    // 상향된 상태
+    var inputMessage by mutableStateOf("")
+        private set
+
+    val suggestions: StateFlow<List<Suggestion>> =
+        snapshotFlow { inputMessage }
+            .filter { hasSocialHandleHint(it) }
+            .mapLatest { getHandle(it) }
+            .mapLatest { repository.getSuggestions(it) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList()
+            )
+
+    fun updateInput(newInput: String) {
+        inputMessage = newInput
+    }
+}
+```
+
+`inputMessage`는 `TextField` 상태를 저장하는 변수입니다. 사용자가 새로운 입력을 타이핑 할 때마다, 
+앱은 `사용자 제안`을 생성하기 위해 비즈니스 로직을 호출합니다.
+
+`suggestions`는 화면 UI 상태이며, `StateFlow`로부터 수집하여 Compose UI에서 사용됩니다.
+
+### 주의사항
+
+Compose에서 UI Element State를 `ViewModel`로 옮길 때는 각별한 주의가 필요합니다.  
+특히, 일부 UI Element의 State Holder는 `State`를 변경하는 메서드를 제공하며, 이 중 일부는 애니메이션을 제어하는 `suspend` 함수입니다.
+이런 함수들은 Composition에 범위가 지정되지 않은 `CoroutineScope`에서 호출하면 `예외`를 발생시킵니다.
+
+예를 들어, 앱의 서랍(drawer) 컨텐츠가 동적으로 변경되고, 사용자가 서랍을 닫은 후, 데이터 계층에서 가져온 새로운 데이터로 서랍 내용을 새로 고침해야 하는 상황을 생각해 봅시다. 
+이 경우, 해당 UI Element와 관련된 UI 및 비즈니스 로직을 모두 호출할 수 있도록 서랍 상태를 `ViewModel`로 호이스팅하는 것이 좋습니다.
+
+그런데 문제는, Compose UI의 `DrawerState`의 `close()` 메서드를 호출할 때 `viewModelScope`를 사용하면, 
+"MonotonicFrameClock이 이 `CoroutineContext`에서 사용할 수 없다"는 메시지와 함께 `IllegalStateException`이 발생한다는 것입니다. 
+
+이것은 애니메이션을 제어하는 `suspend` 함수가 Composition에 종속된 `CoroutineContext`에서만 정상적으로 작동한다는 것을 의미합니다.
+
+이 문제를 해결하기 위해서는, Composition에 범위가 지정된 `CoroutineScope`를 사용해야 합니다. 
+이렇게 하면 `suspend` 함수가 필요로 하는 MonotonicFrameClock을 `CoroutineContext`에 제공할 수 있습니다.
+
+따라서 `ViewModel`에서 코루틴의 `CoroutineContext`를 Composition에 범위가 지정된 것으로 전환하는 것이 좋습니다.  
+이를 통해 `LazyListState.animateScrollTo()`와 `DrawerState.close()` 등의 함수를 안전하게 호출할 수 있습니다.
+
+이를 구현하는 방법은 아래의 코틀린 코드 예시를 참조하세요.
+
+```kotlin
+class ConversationViewModel(/*...*/) : ViewModel() {
+
+    val drawerState = DrawerState(initialValue = DrawerValue.Closed)
+
+    private val _drawerContent = MutableStateFlow(DrawerContent.Empty)
+    val drawerContent: StateFlow<DrawerContent> = _drawerContent.asStateFlow()
+
+    fun closeDrawer(uiScope: CoroutineScope) {
+        viewModelScope.launch {
+            withContext(uiScope.coroutineContext) { // Use instead of the default context
+                drawerState.close()
+            }
+            // Fetch drawer content and update state
+            _drawerContent.update { content }
+        }
+    }
+}
+
+// in Compose
+@Composable
+private fun ConversationScreen(
+    conversationViewModel: ConversationViewModel = viewModel()
+) {
+    val scope = rememberCoroutineScope()
+
+    ConversationScreen(onCloseDrawer = { conversationViewModel.closeDrawer(uiScope = scope) })
+}
+```
+
+여기서는 `viewModelScope.launch`를 사용하여 코루틴을 시작하고, 
+`withContext(uiScope.coroutineContext)`를 사용하여 Composition에 범위 지정된 `CoroutineScope`로 `Context`를 전환합니다.
+
+이렇게 하면 `drawerState.close()`와 같은 애니메이션 `suspend` 함수를 안전하게 호출할 수 있습니다.
+또한, 서랍(drawer) 컨텐츠를 새로 고침하는 비즈니스 로직도 이 곳에서 호출할 수 있습니다.
