@@ -29,3 +29,34 @@ UI가 아닌 Compose의 트리 관리 기능만 필요하다면 이 레이어를
 ### Material
 Material Design 시스템을 Compose UI에 적용하고, Theme 시스템, 스타일 컴포넌트, 리플 표시, 아이콘 등을 제공합니다.   
 앱에서 MaterialDesign을 사용할 때 이 레이어를 기반으로 구축하면 됩니다.
+
+---
+
+## 설계 원칙(Design Principles)
+Compose는 조립하거나 구성할 수 있는 작은, 특정 기능들을 제공하는 것이 주 목표이며, 이런 접근 방식은 여러가지 장점을 가집니다.
+
+### Control
+고수준의 컴포넌트는 많은 기능을 자동으로 처리해주지만, 그로 인해 개발자들이 직접 컨트롤 할 수 있는 범위가 제한됩니다. 
+만약 더 많은 제어가 필요하다면, 저수준의 컴포넌트를 사용하여 처리하면 됩니다.
+
+예를 들어, 컴포넌트의 색상을 애니메이션으로 변경하려고 할 때, 고수준의 `animateColorAsState`를 사용하면 됩니다.
+```kotlin
+val color = animateColorAsState(
+    if (condition) Color.Green else Color.Red
+)
+```
+
+그러나 컴포넌트의 색이 매번 회색으로 시작하길 원한다면, 다음과 같이 저수준의 `Animatable`를 사용하면 됩니다.
+
+```kotlin
+val color = remember { Animatable(Color.Gray) }
+
+LaunchedEffect(condition) {
+    color.animateTo(
+        if (condition) Color.Green else Color.Red
+    )
+}
+```
+
+이처럼 고수준의 `animateColorAsState`는 저수준의 `Animatable`를 바탕으로 만들어졌습니다. 
+저수준의 API를 사용하면 보다 복잡하지만, 더 많은 제어가 가능합니다. 즉, 개발 시 필요에 의한 수준을 선택하여 개발하면 됩니다.
