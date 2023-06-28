@@ -146,3 +146,31 @@ fun DescendantExample() {
 
 올바른 접근법은, [상태가 아래로 흐르고 이벤트가 위로 흐르는 패턴](../용어.md#단방향-데이터-흐름)을 따라 composable에 필요한 정보만 전달하는 것입니다. 
 이 방식은 composable을 더욱 재사용하기 쉽게 만들고 테스트를 용이하게 합니다.
+
+---
+
+### CompositionLocal 생성하기
+
+| 생성 API                     | 설명                                                                                                                                                                                             | 
+|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `compositionLocalOf`       | 재구성(recomposition) 중에 제공된 값이 변경되면, **`current` 값을 읽는 `content`만** 무효화 합니다.                                                                                                                     |
+| `staticCompositionLocalOf` | `compositionLocalOf`와 달리, `staticCompositionLocalOf`의 읽기는 Compose에 의해 추적되지 않습니다. </br> 값이 변경되면 `CompositionLocal`이 제공된 `content` 람다의 전체가 재구성되고, Composition에서 `current` 값을 읽는 위치만 재구성되지 않습니다.  |
+
+**`CompositionLocal`에 제공된 값이 거의 변하지 않거나 절대로 변경되지 않을 경우, 성능의 이점을 얻기 위해 `staticCompositionLocalOf`를 사용하는것이 좋습니다.**
+
+예를 들어, 다음과 같이 그림자에 대한 값을 UI 트리 전체에 전파되어야 할때에 다음과 같이 `CompositionLocal`을 사용합니다. 
+`CompositionLocal` 값은 시스템 테마에 따라 조건적으로 유도되므로, `compositionLocalOf`를 사용합니다.
+
+```kotlin
+// LocalElevations.kt 파일
+
+data class Elevations(val card: Dp = 0.dp, val default: Dp = 0.dp)
+
+// 기본값을 가진 CompositionLocal 글로벌 객체 정의
+// 이 인스턴스는 앱 내의 모든 composables에서 접근할 수 있음
+val LocalElevations = compositionLocalOf { Elevations() }
+```
+
+위의 코드에서 `Elevations`은 `card`와 `default`라는 두 가지 상태를 가지고 있으며, 각각의 기본값은 `0.dp`입니다.   
+`LocalElevations`는 이 `Elevations`를 기본값으로 가지는 `CompositionLocal`이며, 앱의 어느 곳에서나 접근하여 사용할 수 있습니다.   
+`compositionLocalOf`를 사용하므로, 이 값이 변경되면 해당 `CompositionLocal`을 참조하는 composable 함수들이 재구성됩니다.
