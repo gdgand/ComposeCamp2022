@@ -96,3 +96,33 @@ fun DescendantExample() {
 <img src=../../resource/compositionlocal-alpha.png width="50%" height="auto">
 
 > `CompositionLocal` 객체나 상수는 일반적으로 `Local`이라는 접두어로 시작하여 IDE에서 자동완성을 통해 더 쉽게 발견할 수 있도록 합니다.
+
+## 고유한 CompositionLocal 만들기
+`CompositionLocal`은 Composition을 통해 데이터를 암시적으로 전달하는데 사용됩니다.
+
+`CompositionLocal`을 사용하는 주요 케이스 중 하나는 파라미터가 여러 계층을 관통(cross-cutting)하고 중간 구현 계층이 해당 파라미터를 인식할 필요가 없는 경우입니다.  
+이는 중간 계층이 해당 파라미터를 인식하게 되면, 그 composable의 활용성이 제한될 수 있기 때문입니다.
+
+예를 들어, 안드로이드에서 권한 요청을 처리하는 작업은 내부적으로 `CompositionLocal`을 이용합니다.   
+여기서 'Media Picker Composable'은 디바이스에서 권한으로 보호된 컨텐츠에 액세스하는 새로운 기능을 추가할 수 있습니다.
+이는 Media Picker Composable이 추가 기능을 구현할 때 그 기능을 사용하는 다른 코드에서 API 변경을 인지하거나, 추가된 컨텍스트에 대해 알 필요가 없습니다.
+
+이러한 상황에서는 `CompositionLocal`을 사용하여 특정 composable의 내부 구현 세부사항을 숨기고 동시에 새로운 기능을 추가할 수 있습니다. 
+그 결과, composable의 API는 동일하게 유지되지만 그 아래의 구현은 `CompositionLocal`에 의해 암시적으로 제어됩니다. 
+이렇게 하면 composable이 가지고 있는 기능을 확장하거나 변경하는 데 필요한 유연성을 제공하게 됩니다.
+
+### CompositionLocal 단점
+`CompositionLocal`이 항상 최선의 해결책은 아닙니다. 
+`CompositionLocal`의 과도한 사용은 여러 단점을 가지고 있기에 사용에 주의해야 합니다.
+
+#### Composable의 동작을 이해하기 어려움
+`CompositionLocal`은 암시적인 의존성을 만들어내기 때문에, 이를 사용하는 composable 함수를 호출하는 개발자들은 모든 `CompositionLocal`에 대한 값을 만족시키는 것을 확인해야 합니다.
+즉, `CompositionLocal`에 값이 제공되어야 하는데, 그렇지 않으면 런타임 에러가 발생할 수 있습니다.
+
+#### 의존성에 대한 명확한 근거가 없을 수 있음
+`CompositionLocal`은 Composable의 어느 부분에서든 변경될 수 있기 때문에, 이 의존성에 대한 명확한 근거가 없을 수 있습니다. 
+이로 인해 문제가 발생했을 때 디버깅이 어려울 수 있습니다.
+
+예를 들어, 문제가 발생한 Composable이 특정 `CompositionLocal`의 `current` 값을 사용하고 있다고 가정해보겠습니다. 
+이 경우 문제를 해결하기 위해서는 `current` 값이 어디에서 제공되었는지 확인해야 합니다. 
+이는 Composition의 계층을 거슬러 올라가며 확인해야 하므로 디버깅이 어려울 수 있습니다.
