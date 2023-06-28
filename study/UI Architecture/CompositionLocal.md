@@ -53,3 +53,46 @@ fun SomeTextLabel(labelText: String) {
     )
 }
 ```
+
+#### CompositionLocal 범위 지정
+- `CompositionLocal`의 인스턴스는 Composition의 일부 범위에 지정됩니다.
+- `CompositionLocal`은 범위 지정(scoping) 특성으로 UI 트리의 다른 레벨에서 서로 다른 값을 제공할 수 있습니다.
+
+#### CompositionLocal 'current' 값
+- `CompositionLocal`의 `current` 값은 해당 부분의 Compose에서 가장 가까운 조상(composable)이 제공하는 값을 참조합니다.  
+  하지만, 부모 composable과 그 자식들이 같은 `CompositionLocal` 인스턴스를 가지고 있지만 각각 다른 값을 가지고 있다면, 자식 composable은 부모의 값을 참조하지 않고 자신의 값을 참조합니다.
+
+#### CompositionLocalProvider
+- `CompositionLocalProvider`는 `CompositionLocal`에 새로운 값을 제공하는 역할을 합니다.
+- `provides`는 중위 함수로서 `CompositionLocal`의 키와 값을 연결하며, 이를 통해 `CompositionLocal`에 특정 값을 제공할 수 있습니다.
+- 새로운 값이 `CompositionLocal`에 제공되면, Compose는 `CompositionLocal`을 읽는 Composable들을 자동으로 재구성합니다.
+
+아래 예제에서는 `CompositionLocalProvider`가 Composition의 다른 부분에 대해 다른 값을 제공하는 데 사용됩니다.
+
+```kotlin
+@Composable
+fun CompositionLocalExample() {
+    MaterialTheme { // MaterialTheme은 기본적으로 ContentAlpha.high 설정
+        Column {
+            Text("Uses MaterialTheme's provided alpha")
+            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+                Text("Medium value provided for LocalContentAlpha")
+                Text("This Text also uses the medium value")
+                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.disabled) {
+                    DescendantExample()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DescendantExample() {
+    // CompositionLocalProviders는 composable 함수를 통해 동작
+    Text("This Text uses the disabled alpha now")
+}
+```
+
+<img src=../../resource/compositionlocal-alpha.png width="50%" height="auto">
+
+> `CompositionLocal` 객체나 상수는 일반적으로 `Local`이라는 접두어로 시작하여 IDE에서 자동완성을 통해 더 쉽게 발견할 수 있도록 합니다.
