@@ -126,3 +126,23 @@ fun DescendantExample() {
 예를 들어, 문제가 발생한 Composable이 특정 `CompositionLocal`의 `current` 값을 사용하고 있다고 가정해보겠습니다. 
 이 경우 문제를 해결하기 위해서는 `current` 값이 어디에서 제공되었는지 확인해야 합니다. 
 이는 Composition의 계층을 거슬러 올라가며 확인해야 하므로 디버깅이 어려울 수 있습니다.
+
+---
+
+### CompositionLocal 사용시기 결정
+
+아래의 조건이 충족될 때 `CompositionLocal`은 요구 사항에 적절한 해결책이 될 수 있습니다.
+
+1. `CompositionLocal`은 적절한 기본값을 가져야 합니다.
+기본값이 없다면, 개발자가 `CompositionLocal`에 대한 값을 제공하지 않는 상황을 가능한 피할 수 있도록 해야 합니다.
+기본값을 제공하지 않으면, 해당 `CompositionLocal`을 사용하는 composable을 테스트하거나 미리보기 할 때 항상 명시적으로 제공해야 하므로 문제와 혼란을 야기할 수 있습니다.
+
+2. `CompositionLocal`은 트리 범위 또는 하위 계층 범위의 개념에 사용되어야 합니다. 
+즉, `CompositionLocal`은 특정 몇 개의 항목에 의해 사용되는 것이 아닌 모든 후손에 의해 잠재적으로 사용될 수 있을 때 의미가 있습니다.
+
+`CompositionLocal`의 나쁜 사용 예로는, 특정 화면의 `ViewModel`을 보유하도록 만드는 것이 있습니다.   
+이 경우 해당 화면의 모든 composable들이 `ViewModel`에 대한 참조를 얻어 어떤 로직을 수행하게 되지만, 
+이는 모든 composable이 `ViewModel`에 대해 알 필요가 없다는 점 때문에 좋지 않은 방법입니다.
+
+올바른 접근법은, [상태가 아래로 흐르고 이벤트가 위로 흐르는 패턴](../용어.md#단방향-데이터-흐름)을 따라 composable에 필요한 정보만 전달하는 것입니다. 
+이 방식은 composable을 더욱 재사용하기 쉽게 만들고 테스트를 용이하게 합니다.
