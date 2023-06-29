@@ -215,3 +215,65 @@ fun SomeComposable() {
     }
 }
 ```
+
+---
+
+## CompositionLocal 대안
+
+`CompositionLocal`은 일부 사용 사례에 대해 과도한 해결책이 될 수 있습니다.   
+[CompositionLocal 사용 시기 결정](#compositionlocal-사용시기-결정)에 명시된 기준을 충족하지 않는다면, 다른 해결책이 더 적합할 가능성이 큽니다.
+
+### 명시적인 파라미터 전달
+
+composable의 종속성에 대해 명확하게 표현하는 것은 좋은 습관이며, 분리와 재사용을 위해 각 Composable은 최소한의 정보만을 가지고 있어야 합니다.
+
+### 제어 역전
+
+composable에 불필요한 종속성 전달을 피하는 또 다른 방법은 제어 역전을 하는 방법입니다.
+ 
+어떤 로직을 실행하기 위한 종속성을 하위 Composable에게 전달하지 않고, 상위 Composable이 로직을 실행하도록 하는 제어 역전 원칙을 사용하세요.
+
+```kotlin
+@Composable
+fun MyComposable(myViewModel: MyViewModel = viewModel()) {
+    ReusableLoadDataButton(
+        onLoadClick = { myViewModel.loadData() }
+    )
+}
+
+@Composable
+fun ReusableLoadDataButton(onLoadClick: () -> Unit) {
+    Button(onClick = onLoadClick) {
+        Text("Load data")
+    }
+}
+```
+
+이러한 접근법은 하위 Composable을 상위 Composable들로부터 분리하는 것으로, 일부 사용 사례에 더 적합할 수 있습니다. 
+상위 composable은 더 유연한 하위 composable을 가지기 위해 더 복잡해지는 경향이 있습니다.
+
+유사하게, `@Composable`의 `content lambda`도 같은 이점을 얻기 위해 다음과 같은 방식으로 사용될 수 있습니다.
+
+```kotlin
+@Composable
+fun MyComposable(myViewModel: MyViewModel = viewModel()) {
+    // ...
+    ReusablePartOfTheScreen(
+        content = {
+            Button(
+              onClick = { myViewModel.loadData() }
+            ) {
+                Text("Confirm")
+            }
+        }
+    )
+}
+
+@Composable
+fun ReusablePartOfTheScreen(content: @Composable () -> Unit) {
+    Column {
+        // ...
+        content()
+    }
+}
+```
