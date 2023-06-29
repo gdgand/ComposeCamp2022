@@ -174,3 +174,32 @@ val LocalElevations = compositionLocalOf { Elevations() }
 위의 코드에서 `Elevations`은 `card`와 `default`라는 두 가지 상태를 가지고 있으며, 각각의 기본값은 `0.dp`입니다.   
 `LocalElevations`는 이 `Elevations`를 기본값으로 가지는 `CompositionLocal`이며, 앱의 어느 곳에서나 접근하여 사용할 수 있습니다.   
 `compositionLocalOf`를 사용하므로, 이 값이 변경되면 해당 `CompositionLocal`을 참조하는 composable 함수들이 재구성됩니다.
+
+### CompositionLocal으로 값 제공
+
+`CompositionLocalProvider` Composable은 주어진 계층에 대해 `CompositionLocal` 인스턴스에 값을 연결합니다.
+`CompositionLocal` 키를 `value`에 연결하는 `provides`를 사용하여 새 값을 제공할 수 있습니다.
+
+```kotlin
+class MyActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            // 시스템 Theme에 따라 elevation 계산
+            val elevations = if (isSystemInDarkTheme()) {
+                Elevations(card = 1.dp, default = 1.dp)
+            } else {
+                Elevations(card = 0.dp, default = 0.dp)
+            }
+
+            // LocalElevation의 값으로 elevations 연결
+            CompositionLocalProvider(LocalElevations provides elevations) {
+                // Composable 작성...
+                // 이 Composition의 일부(즉, 내부의 모든 Composable)는 
+                // LocalElevations.current에 접근할 때 `elevations` 인스턴스를 확인할 수 있음
+            }
+        }
+    }
+}
+```
