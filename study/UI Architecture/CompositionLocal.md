@@ -203,3 +203,15 @@ class MyActivity : ComponentActivity() {
     }
 }
 ```
+
+### CompositionLocal 사용
+`CompositionLocal.current`은 `CompositionLocal`에 값을 제공하는 가장 가까운 `CompositionLocalProvider`가 제공한 값을 반환합니다.
+
+```kotlin
+@Composable
+fun SomeComposable() {
+    Card(elevation = LocalElevations.current.card) {
+        // Content
+    }
+}
+```
