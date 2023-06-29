@@ -174,3 +174,106 @@ val LocalElevations = compositionLocalOf { Elevations() }
 위의 코드에서 `Elevations`은 `card`와 `default`라는 두 가지 상태를 가지고 있으며, 각각의 기본값은 `0.dp`입니다.   
 `LocalElevations`는 이 `Elevations`를 기본값으로 가지는 `CompositionLocal`이며, 앱의 어느 곳에서나 접근하여 사용할 수 있습니다.   
 `compositionLocalOf`를 사용하므로, 이 값이 변경되면 해당 `CompositionLocal`을 참조하는 composable 함수들이 재구성됩니다.
+
+### CompositionLocal으로 값 제공
+
+`CompositionLocalProvider` Composable은 주어진 계층에 대해 `CompositionLocal` 인스턴스에 값을 연결합니다.
+`CompositionLocal` 키를 `value`에 연결하는 `provides`를 사용하여 새 값을 제공할 수 있습니다.
+
+```kotlin
+class MyActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            // 시스템 Theme에 따라 elevation 계산
+            val elevations = if (isSystemInDarkTheme()) {
+                Elevations(card = 1.dp, default = 1.dp)
+            } else {
+                Elevations(card = 0.dp, default = 0.dp)
+            }
+
+            // LocalElevation의 값으로 elevations 연결
+            CompositionLocalProvider(LocalElevations provides elevations) {
+                // Composable 작성...
+                // 이 Composition의 일부(즉, 내부의 모든 Composable)는 
+                // LocalElevations.current에 접근할 때 `elevations` 인스턴스를 확인할 수 있음
+            }
+        }
+    }
+}
+```
+
+### CompositionLocal 사용
+`CompositionLocal.current`은 `CompositionLocal`에 값을 제공하는 가장 가까운 `CompositionLocalProvider`가 제공한 값을 반환합니다.
+
+```kotlin
+@Composable
+fun SomeComposable() {
+    Card(elevation = LocalElevations.current.card) {
+        // Content
+    }
+}
+```
+
+---
+
+## CompositionLocal 대안
+
+`CompositionLocal`은 일부 사용 사례에 대해 과도한 해결책이 될 수 있습니다.   
+[CompositionLocal 사용 시기 결정](#compositionlocal-사용시기-결정)에 명시된 기준을 충족하지 않는다면, 다른 해결책이 더 적합할 가능성이 큽니다.
+
+### 명시적인 파라미터 전달
+
+composable의 종속성에 대해 명확하게 표현하는 것은 좋은 습관이며, 분리와 재사용을 위해 각 Composable은 최소한의 정보만을 가지고 있어야 합니다.
+
+### 제어 역전
+
+composable에 불필요한 종속성 전달을 피하는 또 다른 방법은 제어 역전을 하는 방법입니다.
+ 
+어떤 로직을 실행하기 위한 종속성을 하위 Composable에게 전달하지 않고, 상위 Composable이 로직을 실행하도록 하는 제어 역전 원칙을 사용하세요.
+
+```kotlin
+@Composable
+fun MyComposable(myViewModel: MyViewModel = viewModel()) {
+    ReusableLoadDataButton(
+        onLoadClick = { myViewModel.loadData() }
+    )
+}
+
+@Composable
+fun ReusableLoadDataButton(onLoadClick: () -> Unit) {
+    Button(onClick = onLoadClick) {
+        Text("Load data")
+    }
+}
+```
+
+이러한 접근법은 하위 Composable을 상위 Composable들로부터 분리하는 것으로, 일부 사용 사례에 더 적합할 수 있습니다. 
+상위 composable은 더 유연한 하위 composable을 가지기 위해 더 복잡해지는 경향이 있습니다.
+
+유사하게, `@Composable`의 `content lambda`도 같은 이점을 얻기 위해 다음과 같은 방식으로 사용될 수 있습니다.
+
+```kotlin
+@Composable
+fun MyComposable(myViewModel: MyViewModel = viewModel()) {
+    // ...
+    ReusablePartOfTheScreen(
+        content = {
+            Button(
+              onClick = { myViewModel.loadData() }
+            ) {
+                Text("Confirm")
+            }
+        }
+    )
+}
+
+@Composable
+fun ReusablePartOfTheScreen(content: @Composable () -> Unit) {
+    Column {
+        // ...
+        content()
+    }
+}
+```
