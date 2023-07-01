@@ -52,3 +52,26 @@ fun ContactList(
 이제, `ContactList()`가 처음 구성될 때 목록이 한 번 정렬됩니다. 
 만약 연락처나 비교자가 변경되면, 정렬된 목록이 재생성됩니다. 
 그렇지 않다면, composable은 캐시된 정렬된 목록을 계속 사용할 수 있습니다.
+
+---
+
+### Lazy Layout 사용시 Key 적용
+
+`Lazy` 접두어를 사용하는 레이아웃들은 아이템을 최대한 재사용하고, 필요할 때만 재성성하거나 재구성하도록 합니다.   
+추가로, 개발자들은 Key를 사용하여 이러한 동작을 더 최적화할 수 있습니다.
+
+```kotlin
+@Composable
+fun NotesList(notes: List<Note>) {
+    LazyColumn {
+        items(
+            key = { note -> note.id },
+            items = notes
+        ) { note ->
+            NoteRow(note)
+        }
+    }
+}
+```
+위처럼 `key`를 적용하지 않은 경우, `note` 목록이 변경될 경우 모든 `note`를 재구성하겠지만, 
+위와 같이 해당 아이템에 `key`를 제공함으로써, 재구성 시 변경된 노트만 재구성을 하여 불필요한 재구성을 피할 수 있습니다. 
