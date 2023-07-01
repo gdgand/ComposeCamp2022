@@ -121,3 +121,125 @@ AnimatedVisibility(visible = showButton) {
     ScrollToTopButton()
 }
 ```
+
+---
+
+### 상태를 가능한 한 늦게 읽도록 지연
+성능에 문제가 확인되면, 상태 읽기를 지연하는것이 도움이 될 수 있습니다. 
+상태 읽기를 지연시키는 것은 Compose가 재구성 시 최소한의 코드만 실행하도록 보장합니다. 
+
+예를 들어, UI에 상위 Composable 트리에 호이스팅된 상태가 있고, 
+이를 하위 Composable에서 읽는다면, 이 상태를 읽는것을 람다 함수로 감쌀 수 있습니다.
+이렇게 하면 실제로 필요할 때만 읽기가 발생합니다.
+
+```kotlin
+@Composable
+fun SnackDetail() {
+    // ...
+
+    Box(Modifier.fillMaxSize()) { // Recomposition Scope Start
+        val scroll = rememberScrollState(0)
+        // ...
+        Title(snack, scroll.value)
+        // ...
+    } // Recomposition Scope End
+}
+
+@Composable
+private fun Title(snack: Snack, scroll: Int) {
+    // ...
+    val offset = with(LocalDensity.current) { scroll.toDp() }
+
+    Column(
+        modifier = Modifier
+            .offset(y = offset)
+    ) {
+        // ...
+    }
+}
+```
+
+이 효과를 얻기 위해 `Title` Composable은 `Modifier`를 사용하여 자신을 오프셋하기 위해 스크롤의 `offset`을 알아야 합니다.
+
+스크롤 상태가 변경되면, Compose는 가장 가까운 상위 재구성 범위를 찾아서 무효화 합니다.
+이 경우, 가장 가까운 범위는 `SnackDetail()`입니다. 따라서 Compose는 `SnackDetail()`을 재구성하고, `SnackDetail()` 내부의 모든 Composable을 재구성합니다.
+
+상태를 실제로 사용하는 곳에서만 읽도록 코드를 변경하면, 재구성이 필요한 요소의 수를 줄일 수 있습니다.
+
+```kotlin
+@Composable
+fun SnackDetail() {
+    // ...
+
+    Box(Modifier.fillMaxSize()) { // Recomposition Scope Start
+        val scroll = rememberScrollState(0)
+        // ...
+        Title(snack) { scroll.value }
+        // ...
+    } // Recomposition Scope End
+}
+
+@Composable
+private fun Title(snack: Snack, scrollProvider: () -> Int) {
+    // ...
+    val offset = with(LocalDensity.current) { scrollProvider().toDp() }
+    Column(
+        modifier = Modifier
+            .offset(y = offset)
+    ) {
+        // ...
+    }
+}
+```
+
+`scroll` 파라미터를 `scrollProvider` 람다로 변경하였고, 이는 `Title`이 호이스팅된 상태를 여전히 참조할 수 있지만, 값은 실제 필요한 `Title` 내부에서만 읽습니다.
+결과적으로, 스크롤 값이 변경될 때 가장 가까운 재구성 범위는 `Title()`이며, Compose는 더 이상 `SnackDetail()`을 재구성할 필요가 없습니다.
+
+이 정도만으로도 좋은 개선이지만, 더 좋은 방법이 있습니다.  
+위 Composabledms `offset`만을 변경하고 있습니다. 이 작업은 Layout 단계에서 처리할 수 있습니다.
+하지만, 현재 코드에서는 상태가 변경될 때마다 Composition 단계가 일어나므로, 실제보다 더 많은 작업을 함을 알 수 있습니다.
+
+그래서 아래와 같이 `offset`을 람다 기반으로 전환하여 스크롤 상태가 변경될 때 Composition 단계가 아닌 Layout 단계에서 바로 처리할 수 있도록 변경할 수 있습니다. 
+
+```kotlin
+@Composable
+private fun Title(snack: Snack, scrollProvider: () -> Int) {
+    // ...
+    Column(
+        modifier = Modifier
+            .offset { IntOffset(x = 0, y = scrollProvider()) }
+    ) {
+        // ...
+    }
+}
+```
+
+결과적으로 스크롤 상태가 변경되면 Compose는 Composition 단계를 전부 건너뛰고, 바로 Layout 단계로 이동하여 더 효율적으로 UI 작성을 합니다.
+자주 변경되는 상태 변수를 `Modifier`로 전달할 때는 가능한 한 람다 기반 Modifier(lambda versions of the modifier)를 사용해야 합니다.
+
+```kotlin
+val color by animateColorBetween(Color.Cyan, Color.Magenta)
+
+Box(
+    Modifier
+        .fillMaxSize()
+        .background(color)
+)
+```
+
+여기서 박스의 배경색은 2가지 색 사이를 빠르게 전환하고 있습니다. 이 상태는 어느 조건에 따라 매우 자주 변경될 수 있으며,
+Composable이 `Modifier`의 `Background`에서 이 상태를 읽습니다. 결과적으로 `Box`는 `color`가 매 프레임 마다 변경되므로 매 프레임마다 재구성해야 합니다.
+
+이를 개선하기 위해, 람다 기반 Modifier인 `drawBehind`를 사용할 수 있습니다.
+이는 `color` 상태가 Drawing 단계에서만 읽히게 하여 Compose가 Composition과 Layout 단계를 전부 건너뛸 수 있도록 합니다.
+
+```kotlin
+val color by animateColorBetween(Color.Cyan, Color.Magenta)
+Box(
+    Modifier
+        .fillMaxSize()
+        .drawBehind {
+            drawRect(color)
+        }
+)
+```
