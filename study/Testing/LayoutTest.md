@@ -382,3 +382,32 @@ composeTestRule.waitUntilNodeCount(matcher, count, timeoutMs)
 
 `ComposeTestRule`를 사용하면 전체 앱, 단일 화면, 작은 요소 등 어떤 Composable이든 `Activity`을 시작해 화면에 표시할 수 있습니다.
 또한, Composable이 올바르게 캡슐화되어 독립적으로 작동하는지 확인 할 수 있고 이를 통해 더 쉽고 집중적인 UI 테스트를 가능하게 합니다.
+
+### 사용자 지정 컨텐츠 설정 후 Activity 및 Resource 접근 
+
+대부분의 경우 `composeTestRule.setContent`를 통해 테스트 컨텐츠를 설정하고, 동시에 Activity 리소스에 접근해야 합니다.
+
+예를 들어, 화면에 표시된 텍스트가 문자열 리소스와 일치하는지 확인해야 할 수 있습니다.
+그러나, Activity가 이미 `setContent`를 호출한 경우, `createAndroidComposeRule()`로 생성된 규칙에서 `setContent`를 호출 할 수 없습니다.
+
+이를 해결하기 위해서는 `ComponentActivity`와 같은 빈 Activity를 사용하여 `AndroidComposeTestRule`을 생성하는 것입니다.
+
+```kotlin
+class MyComposeTest {
+
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+
+    @Test
+    fun myTest() {
+        // Start the app
+        composeTestRule.setContent {
+            MyAppTheme {
+                MainScreen(uiState = exampleUiState, /*...*/)
+            }
+        }
+        val continueLabel = composeTestRule.activity.getString(R.string.next)
+        composeTestRule.onNodeWithText(continueLabel).performClick()
+    }
+}
+```
