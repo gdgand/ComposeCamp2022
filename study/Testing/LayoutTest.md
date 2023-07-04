@@ -331,3 +331,26 @@ Compose는 테스트와 UI를 동기화하며, 이를 통해 모든 작업과 �
 composeTestRule.registerIdlingResource(idlingResource)
 composeTestRule.unregisterIdlingResource(idlingResource)
 ```
+
+### 수동 동기화(Manual synchronization)
+
+특정 상황에서는 테스트 중인 앱의 다른 부분이나 테스트 자체와 Compose UI를 수동으로 동기화해야 할 수 있습니다.
+
+`waitForIdle`은 Compose가 유휴 상태가 될 때까지 대기하는데, 이는 `autoAdvance` 속성에 따라 달라집니다.
+
+```kotlin
+composeTestRule.mainClock.autoAdvance = true // default
+composeTestRule.waitForIdle() // Compose가 유휴 상태가 될 때까지 시간을 진행
+
+composeTestRule.mainClock.autoAdvance = false
+composeTestRule.waitForIdle() // 유휴 자원이 유휴 상태가 될 때까지만 대기
+```
+
+두 경우 모두, `waitForIdle`은 보류 중인 draw와 layout pass를 대기합니다.
+
+또한, 특정 조건이 충족될 때까지 `advanceTimeUntil()`을 통해 시간을 진행시킬 수 있습니다.
+
+```kotlin
+// condition은 Compose 상태 값만 작동됨
+composeTestRule.mainClock.advanceTimeUntil(timeoutMs) { condition }
+```
