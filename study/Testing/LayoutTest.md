@@ -162,3 +162,37 @@ Node #1 at (...)px
 ```kotlin
 composeTestRule.onNodeWithText("World", useUnmergedTree = true).assertIsDisplayed()
 ```
+
+---
+
+## Assertions
+
+`Finder API`가 반환하는 `SemanticsNodeInteraction`에 `assert()`를 호출하여 하나 또는 여러 `matcher`를 확인합니다.
+
+```kotlin
+// Single matcher:
+composeTestRule
+    .onNode(matcher)
+    .assert(hasText("Button")) // hasText is a SemanticsMatcher
+
+// Multiple matchers can use and / or
+composeTestRule
+    .onNode(matcher).assert(hasText("Button") or hasText("Button2"))
+```
+
+일반적인 `assertion`에 대해 다음과 같은 함수를 사용할 수 있습니다.
+
+- `assertIsDisplayed()`
+- `assertExists()`
+- `assertTextEquls()`
+
+또한, 노드의 컬렉션에 대한 `Assertion`을 확인하는 함수는 다음과 같습니다.
+
+```kotlin
+// 일치하는 노드의 수 
+composeTestRule.onAllNodesWithContentDescription("Beatle").assertCountEquals(4)
+// 최소한 하나가 일치 
+composeTestRule.onAllNodesWithContentDescription("Beatle").assertAny(hasTestTag("Drummer"))
+// 모두 일치
+composeTestRule.onAllNodesWithContentDescription("Beatle").assertAll(hasClickAction())
+```
