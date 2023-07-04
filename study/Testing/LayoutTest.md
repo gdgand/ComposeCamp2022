@@ -473,3 +473,42 @@ class MyStateRestorationTests {
     }
 }
 ```
+
+---
+
+## UiAutomator 상호 운용 (Interoperability with UiAutomator)
+
+기본적으로, Composable들은 UiAutomator에서 설명자(표시된 텍스트, 콘텐츠 설명 등)을 통해서만 접근할 수 있습니다.
+
+`Modifier.testTag`를 사용하는 모든 Composable에 접근하려면, 특정 Composable 서브트리에 대해 `testTagAsResourceId`라는 의미론적 속성을 활성화해야 합니다.
+
+이느 다른 고유한 핸들이 없는 Composables, 예를 들어 `LazyColumn`과 같은 스크롤 가능한 Composable에 유용합니다.
+
+
+```kotlin
+Scaffold(
+    // 계층구조 내의 모든 Composables에 대해 활성화
+    modifier = Modifier.semantics {
+        testTagsAsResourceId = true
+    }
+){
+    // 이곳에 중첩된 Composables은 Modifier.testTag를 통해 UiAutomator에서 접근 가능 
+    LazyColumn(
+        modifier = Modifier.testTag("myLazyColumn")
+    ){
+        // content
+    }
+}
+```
+
+`Modifier.testTag(tag)`가 있는 모든 Composable은 `By.res(resourceName)`을 사용하여 접근할 수 있습니다. (`resourceName` == `tag`)
+
+`By.res(resourcePackage, resourceId)`를 사용하지 않도록 주의해야 합니다.
+이는 인수를 `$resourcePakcage::id/$resourceId`로 포맷하며, 이는 `Modifier.testTag`와 달라집니다.
+
+```kotlin
+val device = UiDevice.getInstance(getInstrumentation())
+
+val lazyColumn: UiObject2 = device.findObject(By.res("myLazyColumn"))
+// lazyColumn과 일부 상호 작용
+```
