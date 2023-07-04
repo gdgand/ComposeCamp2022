@@ -443,3 +443,33 @@ composeTestRule
 > 특정 항목을 일치시키기 어려울 때만 custom semantics property를 사용해야 합니다.
 > color, font size, shape 등을 공개하기 위해 custom semantics property를 사용하는 것은 권장되지 않습니다.  
 > 이는 Product 코드를 더럽히며, 잘못된 구현으로 인해 찾기 어려운 버그가 발생될 수 있습니다.
+
+### 상태 복원 검증(Verify state restoration)
+
+`Activity` 또는 `Process`가 다시 생성될 때 Compose 요소의 상태가 올바르게 복원되는지 확인해야 합니다.
+
+`StateRestorationTester`를 사용하면 Activity 재생성에 의존하지 않고 이러한 검사를 수행할 수 있습니다.
+또한, Composable의 재생성을 시뮬레이션 할 수 있습니다. 이는 `rememberSaveable`의 구현을 확인하는 데 특히 유용합니다.
+
+```kotlin
+
+class MyStateRestorationTests {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Test
+    fun onRecreation_stateIsRestored() {
+        val restorationTester = StateRestorationTester(composeTestRule)
+
+        restorationTester.setContent { MainScreen() }
+
+        // TODO: 상태 변경 작업 실행 
+
+        // 재생성 트리거
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        // TODO: 상태 복원 검증
+    }
+}
+```
