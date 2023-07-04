@@ -411,3 +411,35 @@ class MyComposeTest {
     }
 }
 ```
+
+### Custom semantics properties
+
+테스트에 필요한 정보를 제공하기 위해 custom semantics property를 만들 수 있습니다.
+이를 위해 새로운 `SemanticsPropertyKey`를 정의하고 `SemanticsPropertyReceiver`를 통해 사용할 수 있습니다.
+
+```kotlin
+val PickedDateKey = SemanticsPropertyKey<Long>("PickedDate")
+var SemanticsPropertyReceiver.pickedDate by PickedDateKey
+```
+
+아래와 같이 `semantics`를 통해 해당 속성을 사용할 수 있습니다.
+
+```kotlin
+val datePickerValue by remember { mutableStateOf(0L) }
+MyCustomDatePicker(
+    modifier = Modifier
+        .semantics { pickedDate = datePickerValue }
+)
+```
+
+테스트에서는 `SemanticsMatcher.expectValue`를 사용하여 속성의 값을 확인 할 수 있습니다.
+
+```kotlin
+composeTestRule
+    .onNode(SemanticsMatcher.expectValue(PickedDateKey, 1445378400)) // 2015-10-21
+    .assertExists()
+```
+
+> 특정 항목을 일치시키기 어려울 때만 custom semantics property를 사용해야 합니다.
+> color, font size, shape 등을 공개하기 위해 custom semantics property를 사용하는 것은 권장되지 않습니다.  
+> 이는 Product 코드를 더럽히며, 잘못된 구현으로 인해 찾기 어려운 버그가 발생될 수 있습니다.
