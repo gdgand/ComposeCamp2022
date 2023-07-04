@@ -314,3 +314,20 @@ composeTestRule.mainClock.advanceTimeBy(milliseconds)
 ```
 
 > `MainTestClock`은 모든 재구성, 애니메이션, 제스처를 제어하지만, Android의 measure과 draw pass를 제어하지는 않습니다.
+
+### 유휴 자원(Idling resources)
+
+Compose는 테스트와 UI를 동기화하며, 이를 통해 모든 작업과 검증(assertion)이 유휴 상태에서 실행될 수 있으며 필요에 따라 시간을 대기하거나 전진시키기도 합니다. 
+그러나 UI 상태에 영향을 주는 일부 비동기 작업들은 테스트가 인지하지 못하는 상태에서 백그라운드에서 실행될 수 있습니다.
+
+이러한 유휴 자원을 테스트에 만들어서 등록함으로써, 테스트 대상 앱이 바쁜 상태인지 아니면 유휴 상태인지 판단할 때 이를 고려하게 할 수 있습니다. 
+예를 들어, Espresso나 Compose와 동기화되지 않는 백그라운드 작업을 실행하는 경우, 추가적인 유휴 자원을 등록해야 할 필요가 있습니다.
+
+테스트 대상이 유휴 상태인지 아니면 바쁜 상태인지를 나타내는 Espresso의 Idling Resources와 매우 유사합니다. 
+
+`IdlingResource`의 구현체를 `ComposeTestRule`에 등록하면 됩니다.
+
+```kotlin
+composeTestRule.registerIdlingResource(idlingResource)
+composeTestRule.unregisterIdlingResource(idlingResource)
+```
