@@ -7,15 +7,21 @@
 - [동적 컨텐츠 생성](/study/Introduce/동적%20컨텐츠%20생성.md)
 - [ReComposition - 재구성](/study/Introduce/Recomposition(재구성).md)
 
-
 ## 2. UI 구조
 - [Composable LifeCycle](/study/UI%20Architecture/Composable%20함수의%20생명주기.md)
 - [Compose Side-Effect](/study/UI%20Architecture/Compose의%20Side-Effect.md)
 - [Compose Phases](/study/UI%20Architecture/Compose%20Phases.md)
 - [Compose State](/study/UI%20Architecture/State와%20Compose.md)
 - [State Hoisting](/study/UI%20Architecture/State%20Hoisting.md)
+- [State Hoist Scope](/study/UI%20Architecture/상태%20Hoist%20범위.md)
+- [Compose 아키텍쳐 레이어](/study/UI%20Architecture/Architecture%20layer.md)
+- [CompositionLocal](/study/UI%20Architecture/CompositionLocal.md)
+
+## 3. UI Test
+- [Layout Test](/study/Testing/LayoutTest.md)
 
 ---
 ### Other
-[XML-Compose 차이](study/XML---Compose-차이.md)
+- [Performance Best Practices](study/Performance를%20위한%20좋은%20사례.md)
+- [XML-Compose 차이](study/XML%20-%20Compose%20차이.md)
 - [용어](study/용어.md)
