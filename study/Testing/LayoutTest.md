@@ -290,3 +290,27 @@ fun counterTest() {
 
 이러한 요구사항은 Compose 계층에만 적용되며 앱의 나머지 부분에는 적용되지 않습니다.
 
+
+### 자동 동기화 비활성화(Disabling automatic synchronization)
+
+`assertExists()`와 같은 `ComposeTestRule`을 통해 `assertion` 또는 `action`을 호출하면 테스트가 Compose UI와 동기화됩니다.
+
+경우에 따라 이 동기화를 중지하고 직접 시간을 제어하고 싶은 경우가 있을 수 있습니다.  
+예를 들어, UI 여전히 바쁘게 동작하는 지점에서 애니메이션의 정확한 스크린샷을 찍을 수 있도록 시간을 제어하고 싶은 경우가 그렇습니다.
+
+자동 동기화를 비활성화하려면 `mainClock`의 `autoAdvance` 속성을 `false`로 설정하면 됩니다.
+
+```kotlin
+composeTestRule.mainClock.autoAdvance = false
+```
+
+위 속성을 적용하고 직접 시간을 진행 시킵니다.
+- advanceTimeByFrame() : 한 프레임만큼 시간을 진행시킵니다.
+- advanceTimeBy() : 지정된 시간만큼 시간을 진행시킵니다.
+
+```kotlin
+composeTestRule.mainClock.advanceTimeByFrame()
+composeTestRule.mainClock.advanceTimeBy(milliseconds)
+```
+
+> `MainTestClock`은 모든 재구성, 애니메이션, 제스처를 제어하지만, Android의 measure과 draw pass를 제어하지는 않습니다.
