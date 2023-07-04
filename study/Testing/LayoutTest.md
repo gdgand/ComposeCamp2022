@@ -167,7 +167,7 @@ composeTestRule.onNodeWithText("World", useUnmergedTree = true).assertIsDisplaye
 
 ---
 
-## Assertions
+### Assertions
 
 `Finder API`가 반환하는 `SemanticsNodeInteraction`에 `assert()`를 호출하여 하나 또는 여러 `matcher`를 확인합니다.
 
@@ -201,7 +201,7 @@ composeTestRule.onAllNodesWithContentDescription("Beatle").assertAll(hasClickAct
 
 ---
 
-## Actions
+### Actions
 
 노드에 `action`을 주입하려면 `perform...()`을 호출하면 됩니다.
 
@@ -220,9 +220,9 @@ performGesture { swipeLeft() }
 
 ---
 
-## Matchers
+### Matchers
 
-### 계층형(Hierarchical) matcher
+#### 계층형(Hierarchical) matcher
 
 계층형 `matcher` 사용 시 `Semantics` 트리를 위아래로 이동하고 간단한 `matcher`를 수행할 수 있습니다.
 
@@ -239,7 +239,7 @@ composeTestRule
     .assertIsDisplayed()
 ```
 
-### Selectors
+#### Selectors
 
 Test를 생성하는 또 다른 방법은 몇몇 Test를 더 읽기 쉽게 만들 수 있는 `selector`를 사용하는 것입니다.
 
@@ -251,3 +251,42 @@ composeTestRule.onNode(hasTestTag("Players"))
     .onFirst()
     .assert(hasText("John"))
 ```
+
+---
+
+## 동기화(synchronization)
+
+Compose 테스트는 기본적으로 UI와 동기화 됩니다.
+
+`ComposeTestRule`을 통해 `assertion` 또는 `action`을 호출하면, UI 트리가 비동기적으로 동기화되기 전까지 기다립니다.
+
+보통은 별도의 조치를 취할 필요가 없으나, 몇가지 주의 사항이 있습니다.
+
+테스트가 동기화되면 Compose 앱이 가상 시계를 사용하여 시간이 지남에 따라 진행됩니다. 
+이는 Compose 테스트가 실제 시간대로 실행되지 않으므로 가능한 빨리 통과할 수 있습니다.
+
+그러나 테스트를 동기화하하는 메서드를 사용하지 않으면, 재구성이 발생하지 않고, UI가 일시 중지된 것처럼 보일 수 있습니다.
+
+```kotlin
+@Test
+fun counterTest() {
+    val myCounter = mutableStateOf(0) // 재구성을 일으킬 수 있는 상태
+    var lastSeenValue = 0
+    
+    composeTestRule.setContent {
+        Text(myCounter.value.toString()) // Composable
+        lastSeenValue = myCounter.value
+    }
+    
+    myCounter.value = 1 // 상태가 변경되지만, 재구성은 발생하지 않음
+
+    // 재구성을 유발하지 않았기에 실패
+    assertTrue(lastSeenValue == 1)
+
+    // `assertion`이 재구성을 일으키기에 통과
+    composeTestRule.onNodeWithText("1").assertExists()
+}
+```
+
+이러한 요구사항은 Compose 계층에만 적용되며 앱의 나머지 부분에는 적용되지 않습니다.
+
