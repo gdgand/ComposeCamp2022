@@ -354,3 +354,22 @@ composeTestRule.waitForIdle() // 유휴 자원이 유휴 상태가 될 때까지
 // condition은 Compose 상태 값만 작동됨
 composeTestRule.mainClock.advanceTimeUntil(timeoutMs) { condition }
 ```
+
+### 조건 대기(Waiting for conditions)
+
+외부 작업에 의존하는 조건(예: 데이터 로딩, Android의 measure 또는 draw 등)은 더 일반적인 개념인 `waitUntil()`을 사용해야 합니다.
+
+```kotlin
+composeTestRule.waitUntil(timeoutMs) { condition }
+```
+
+또한, 아래와 같이 `waitUntil` 헬퍼를 사용할 수 있습니다.
+
+```kotlin
+composeTestRule.waitUntilAtLeastOneExists(matcher, timeoutMs)
+composeTestRule.waitUntilDoesNotExist(matcher, timeoutMs)
+composeTestRule.waitUntilExactlyOneExists(matcher, timeoutMs)
+composeTestRule.waitUntilNodeCount(matcher, count, timeoutMs)
+```
+
+> 테스트에서 외부 CountDownLatch와 같은 메커니즘을 사용하는 경우, `waitUntil` API를 사용하지 않으면, 테스트 시간이 진행되지 않을 수 있어 예기치 않게 동작될 수 있습니다.
