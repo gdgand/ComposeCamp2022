@@ -78,6 +78,8 @@ class MyComposeTest {
 
 요소와 상호작용하는 주요 방법은 3가지가 있습니다.
 
+<img src="../../resource/testing-cheat-sheet.png" width="70%">
+
 - Finders를 사용하면 하나 이상의 요소(또는 `Semantics` 트리의 노드)를 선택하여 그들에 대한 `assertion` 또는 `action`을 수행할 수 있습니다.
 - Assertions은 요소가 존재하거나 특정 속성을 가지고 있는지 확인하는데 사용합니다.
 - Action은 클릭이나 다른 제스쳐와 같은 시뮬레이트된 사용자 이벤트를 요소에 주입합니다.
@@ -214,4 +216,38 @@ performClick()
 performSemanticsAction(key)
 performKeyPress(keyEvent)
 performGesture { swipeLeft() }
+```
+
+---
+
+## Matchers
+
+### 계층형(Hierarchical) matcher
+
+계층형 `matcher` 사용 시 `Semantics` 트리를 위아래로 이동하고 간단한 `matcher`를 수행할 수 있습니다.
+
+```kotlin
+fun hasParent(matcher: SemanticsMatcher): SemanticsMatcher
+fun hasAnySibling(matcher: SemanticsMatcher): SemanticsMatcher
+fun hasAnyAncestor(matcher: SemanticsMatcher): SemanticsMatcher
+fun hasAnyDescendant(matcher: SemanticsMatcher):  SemanticsMatcher
+```
+
+```kotlin
+composeTestRule
+    .onNode(hasParent(hasText("Button")))
+    .assertIsDisplayed()
+```
+
+### Selectors
+
+Test를 생성하는 또 다른 방법은 몇몇 Test를 더 읽기 쉽게 만들 수 있는 `selector`를 사용하는 것입니다.
+
+```kotlin
+composeTestRule.onNode(hasTestTag("Players"))
+    .onChildren()
+    .filter(hasClickAction())
+    .assertCountEquals(4)
+    .onFirst()
+    .assert(hasText("John"))
 ```
