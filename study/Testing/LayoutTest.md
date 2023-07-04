@@ -373,3 +373,12 @@ composeTestRule.waitUntilNodeCount(matcher, count, timeoutMs)
 ```
 
 > 테스트에서 외부 CountDownLatch와 같은 메커니즘을 사용하는 경우, `waitUntil` API를 사용하지 않으면, 테스트 시간이 진행되지 않을 수 있어 예기치 않게 동작될 수 있습니다.
+
+---
+
+## 일반적인 패턴 (Common patterns)
+
+### 독립 테스트 (Test in isolation)
+
+`ComposeTestRule`를 사용하면 전체 앱, 단일 화면, 작은 요소 등 어떤 Composable이든 `Activity`을 시작해 화면에 표시할 수 있습니다.
+또한, Composable이 올바르게 캡슐화되어 독립적으로 작동하는지 확인 할 수 있고 이를 통해 더 쉽고 집중적인 UI 테스트를 가능하게 합니다.
