@@ -196,3 +196,22 @@ composeTestRule.onAllNodesWithContentDescription("Beatle").assertAny(hasTestTag(
 // 모두 일치
 composeTestRule.onAllNodesWithContentDescription("Beatle").assertAll(hasClickAction())
 ```
+
+---
+
+## Actions
+
+노드에 `action`을 주입하려면 `perform...()`을 호출하면 됩니다.
+
+```kotlin
+composeTestRule.onNode(...).performClick()
+```
+
+`perform`함수 내에서 `action`을 연결하여 사용하는 것이 아닌 여러 `perform()`을 호출해야 합니다.
+
+```kotlin
+performClick()
+performSemanticsAction(key)
+performKeyPress(keyEvent)
+performGesture { swipeLeft() }
+```
