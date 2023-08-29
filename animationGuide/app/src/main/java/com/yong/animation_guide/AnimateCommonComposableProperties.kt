@@ -56,3 +56,27 @@ fun SimpleAnimateFloatAsState() {
         // ...
     }
 }
+
+/**
+ * Composable에 정적으로 배경색을 설정할 때에는 `Modifier.background()`를 사용하는 것이 간단하고 적절하지만,
+ * 배경색을 시간에 따라 애니메이션하려는 경우에는 `Modifier.background()` 방식으로 처리하면 재구성이 빈번하게 발생될 수 있기에 효율적이지 않을 수 있습니다.
+ */
+@Composable
+fun SimpleAnimateColorAsState() {
+    var animateBackgroundColor by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        animateBackgroundColor = true
+    }
+
+    val animatedColor by animateColorAsState(
+        targetValue = if (animateBackgroundColor) Color.Green else Color.Blue,
+        label = "color"
+    )
+
+    Column(
+        modifier = Modifier.drawBehind { drawRect(animatedColor) }
+    ) {
+        // composable code
+    }
+}
