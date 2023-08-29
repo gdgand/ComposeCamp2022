@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,7 +16,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 /**
  * - `AnimatedVisibility` 사용하여 Composable을 숨기거나 표시할 수 있습니다.
@@ -98,4 +104,73 @@ fun simpleAnimateContentSize() {
             .fillMaxWidth()
             .clickable { expanded = !expanded }
     )
+}
+
+/**
+ * `animateIntOffsetAsState()`는 두 개의 PixelOffset을 `IntOffset(x: Int, y: Int)` 인자로 사용하여 두 값 사이를 애니메이션으로 표현하는데 도움을 줍니다.
+ *
+ * 그러나 이 방법은 부모 Composable이 인식하는 위치에 영향을 주지 않으며 형제 Composable의 위치에도 영향을 주지 않습니다.
+ * 이에 따라 형제 Composable이 서로 위에 그려질 수도 있습니다.
+ */
+@Composable
+fun SimpleAnimateIntOffsetAsState() {
+    var moved by remember { mutableStateOf(false) }
+    val pxToMove = with(LocalDensity.current) { 100.dp.toPx().roundToInt() }
+
+    val offset by animateIntOffsetAsState(
+        targetValue = if (moved) IntOffset(x = pxToMove, y = pxToMove) else IntOffset.Zero,
+        label = "offset"
+    )
+
+    Box(
+        modifier = Modifier
+            .offset { offset }
+            .background(Color.Blue)
+            .size(100.dp)
+            .clickable { moved = !moved }
+    )
+}
+
+/**
+ * 위치를 형제 Composable과 관련하여 더 정확하게 제어하려면 `Modifier.layout`을 사용할 수 있습니다.
+ *
+ * `Modifier.layout`는 Composable의 측정 및 위치 지정을 직접 제어할 수 있게 해줍니다.
+ */
+@Preview
+@Composable
+fun SimpleModifierLayout() {
+
+    var toggled by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize()
+            .clickable { toggled = toggled.not() }
+    ) {
+        val offset by animateIntOffsetAsState(
+            targetValue = if (toggled) IntOffset(150, 150) else IntOffset.Zero,
+            label = "offset"
+        )
+
+        DefaultBox()
+
+        Box(
+            modifier = Modifier
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+
+                    layout(
+                        width = placeable.width + offset.x,
+                        height = placeable.height + offset.y
+                    ) {
+                        placeable.placeRelative(offset)
+                    }
+                }
+                .size(100.dp)
+                .background(Color.Green)
+        )
+
+        DefaultBox()
+    }
 }
