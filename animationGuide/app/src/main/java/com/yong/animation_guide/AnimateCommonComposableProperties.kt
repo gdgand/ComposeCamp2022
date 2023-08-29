@@ -2,11 +2,12 @@ package com.yong.animation_guide
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -79,4 +80,22 @@ fun SimpleAnimateColorAsState() {
     ) {
         // composable code
     }
+}
+
+/**
+ * `Modifier.animteContentSize()`는 Composable의 크기 변경을 애니메이션하기 위해 설계되었습니다.
+ * Composable의 크기가 변경되면 이전 크기와 새 크기 사이의 전환을 애니메이션화합니다.
+ */
+@Composable
+fun simpleAnimateContentSize() {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .background(Color.Blue)
+            .animateContentSize()
+            .height(if (expanded) 400.dp else 200.dp)
+            .fillMaxWidth()
+            .clickable { expanded = !expanded }
+    )
 }
