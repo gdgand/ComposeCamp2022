@@ -1,6 +1,7 @@
 package com.yong.animation_guide
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
@@ -10,6 +11,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -261,4 +263,24 @@ fun SimpleTextAnimation() {
             style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated)
         )
     }
+}
+
+/**
+ * 텍스트 색상에 애니메이션 처리 시 `animateColor`와 `Text`의 `color`를 설정하면 됩니다.
+ */
+@Preview
+@Composable
+fun SimpleTextColorAnimation() {
+    val infiniteTransition = rememberInfiniteTransition(label = "infinite transition")
+    val animatedColor by infiniteTransition.animateColor(
+        initialValue = Color.Red,
+        targetValue = Color.Green,
+        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse),
+        label = "color"
+    )
+
+    Text(
+        text = "Yong suk",
+        color = animatedColor
+    )
 }
