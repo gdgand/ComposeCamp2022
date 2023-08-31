@@ -9,6 +9,7 @@ import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
@@ -23,6 +24,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
+
+@Composable
+fun SimpleAnimation() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = androidx.compose.ui.Alignment.Companion.Center
+    ) {
+
+    }
+}
 
 /**
  * - `AnimatedVisibility` 사용하여 Composable을 숨기거나 표시할 수 있습니다.
@@ -137,7 +148,6 @@ fun SimpleAnimateIntOffsetAsState() {
  *
  * `Modifier.layout`는 Composable의 측정 및 위치 지정을 직접 제어할 수 있게 해줍니다.
  */
-@Preview
 @Composable
 fun SimpleModifierLayout() {
 
@@ -154,7 +164,7 @@ fun SimpleModifierLayout() {
             label = "offset"
         )
 
-        DefaultBox()
+        DefaultClickBox()
 
         Box(
             modifier = Modifier
@@ -172,14 +182,13 @@ fun SimpleModifierLayout() {
                 .background(Color.Green)
         )
 
-        DefaultBox()
+        DefaultClickBox()
     }
 }
 
 /**
  * `animateDpAsState()`와 `Modifier.padding()`을 사용하여 Composable의 Padding을 애니메이션으로 만들 수 있습니다.
  */
-@Preview
 @Composable
 fun SimplePaddingAnimation() {
     var toggled by remember { mutableStateOf(false) }
@@ -193,4 +202,25 @@ fun SimplePaddingAnimation() {
             .background(Color.Green)
             .clickable { toggled = !toggled }
     ) { }
+}
+
+/**
+ * `animateDpAsState()`와 `Modifier.graphicsLayer { }`를 사용하여 Composable의 Elevation 애니메이션을 만들 수 있습니다.
+ *
+ * 1번만 변경되는 높이에 대해서는 `Modifier.shadow()`를 사용하면 되지만, `graphicsLayer { }`는 GPU를 사용하여 렌더링을 최적화하기에 `shadow()`보다 성능에 유리합니다.
+ */
+@Composable
+fun SimpleElevationAnimation() {
+    val mutableInteractionSource = remember { MutableInteractionSource() }
+    val pressed by mutableInteractionSource.collectIsPressedAsState()
+    val elevation = animateDpAsState(
+        targetValue = if (pressed) 32.dp else 8.dp,
+        label = "elevation"
+    )
+
+    DefaultClickBox(
+        modifier = Modifier
+            .graphicsLayer { this.shadowElevation = elevation.value.toPx() }
+            .clickable(interactionSource = mutableInteractionSource, indication = null) { }
+    )
 }
