@@ -3,23 +3,27 @@ package com.yong.animation_guide
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -223,4 +227,38 @@ fun SimpleElevationAnimation() {
             .graphicsLayer { this.shadowElevation = elevation.value.toPx() }
             .clickable(interactionSource = mutableInteractionSource, indication = null) { }
     )
+}
+
+/**
+ * 텍스트의 Scale, Translation, Rotation 등을 애니메이션으로 할때 `TextStyle`의 `textmotion` 파라미터를 `TextMotion.Animated`로 설정해야 합니다.
+ *
+ * 텍스트의 Translation, Scale, Rotation 변경을 위해서 `Modifier.graphicsLayer { }`를 사용하는 것이 좋습니다.
+ */
+@OptIn(ExperimentalTextApi::class)
+@Preview
+@Composable
+fun SimpleTextAnimation() {
+    val infiniteTransition = rememberInfiniteTransition(label = "infinite transition")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 8f,
+        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse),
+        label = "scale"
+    )
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(
+            text = "Yong suk",
+            modifier = Modifier
+                .graphicsLayer {
+                    this.scaleX = scale
+                    this.scaleY = scale
+                    transformOrigin = TransformOrigin.Center
+                }
+                .align(Alignment.Center),
+            style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated)
+        )
+    }
 }
