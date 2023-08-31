@@ -1,27 +1,49 @@
 package com.yong.animation_guide
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
+
+@Composable
+fun SimpleAnimation() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = androidx.compose.ui.Alignment.Companion.Center
+    ) {
+
+    }
+}
 
 /**
  * - `AnimatedVisibility` 사용하여 Composable을 숨기거나 표시할 수 있습니다.
@@ -136,7 +158,6 @@ fun SimpleAnimateIntOffsetAsState() {
  *
  * `Modifier.layout`는 Composable의 측정 및 위치 지정을 직접 제어할 수 있게 해줍니다.
  */
-@Preview
 @Composable
 fun SimpleModifierLayout() {
 
@@ -153,7 +174,7 @@ fun SimpleModifierLayout() {
             label = "offset"
         )
 
-        DefaultBox()
+        DefaultClickBox()
 
         Box(
             modifier = Modifier
@@ -171,6 +192,132 @@ fun SimpleModifierLayout() {
                 .background(Color.Green)
         )
 
-        DefaultBox()
+        DefaultClickBox()
+    }
+}
+
+/**
+ * `animateDpAsState()`와 `Modifier.padding()`을 사용하여 Composable의 Padding을 애니메이션으로 만들 수 있습니다.
+ */
+@Composable
+fun SimplePaddingAnimation() {
+    var toggled by remember { mutableStateOf(false) }
+    val animatedPadding by animateDpAsState(if (toggled) 0.dp else 20.dp)
+
+    Box(
+        modifier = Modifier
+            .aspectRatio(1f)
+            .size(200.dp)
+            .padding(animatedPadding)
+            .background(Color.Green)
+            .clickable { toggled = !toggled }
+    ) { }
+}
+
+/**
+ * `animateDpAsState()`와 `Modifier.graphicsLayer { }`를 사용하여 Composable의 Elevation 애니메이션을 만들 수 있습니다.
+ *
+ * 1번만 변경되는 높이에 대해서는 `Modifier.shadow()`를 사용하면 되지만, `graphicsLayer { }`는 GPU를 사용하여 렌더링을 최적화하기에 `shadow()`보다 성능에 유리합니다.
+ */
+@Composable
+fun SimpleElevationAnimation() {
+    val mutableInteractionSource = remember { MutableInteractionSource() }
+    val pressed by mutableInteractionSource.collectIsPressedAsState()
+    val elevation = animateDpAsState(
+        targetValue = if (pressed) 32.dp else 8.dp,
+        label = "elevation"
+    )
+
+    DefaultClickBox(
+        modifier = Modifier
+            .graphicsLayer { this.shadowElevation = elevation.value.toPx() }
+            .clickable(interactionSource = mutableInteractionSource, indication = null) { }
+    )
+}
+
+/**
+ * 텍스트의 Scale, Translation, Rotation 등을 애니메이션으로 할때 `TextStyle`의 `textmotion` 파라미터를 `TextMotion.Animated`로 설정해야 합니다.
+ *
+ * 텍스트의 Translation, Scale, Rotation 변경을 위해서 `Modifier.graphicsLayer { }`를 사용하는 것이 좋습니다.
+ */
+@OptIn(ExperimentalTextApi::class)
+@Preview
+@Composable
+fun SimpleTextAnimation() {
+    val infiniteTransition = rememberInfiniteTransition(label = "infinite transition")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 8f,
+        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse),
+        label = "scale"
+    )
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(
+            text = "Yong suk",
+            modifier = Modifier
+                .graphicsLayer {
+                    this.scaleX = scale
+                    this.scaleY = scale
+                    transformOrigin = TransformOrigin.Center
+                }
+                .align(Alignment.Center),
+            style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated)
+        )
+    }
+}
+
+/**
+ * 텍스트 색상에 애니메이션 처리 시 `animateColor`와 `Text`의 `color`를 설정하면 됩니다.
+ */
+@Preview
+@Composable
+fun SimpleTextColorAnimation() {
+    val infiniteTransition = rememberInfiniteTransition(label = "infinite transition")
+    val animatedColor by infiniteTransition.animateColor(
+        initialValue = Color.Red,
+        targetValue = Color.Green,
+        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse),
+        label = "color"
+    )
+
+    Text(
+        text = "Yong suk",
+        color = animatedColor
+    )
+}
+
+/**
+ * `AnimatedContent`와 `Corssfade`는 서로 다른 Composable 간 애니메이션을 적용하기 위한 방법입니다.
+ *
+ * - `Corssfade` : 기본적으로 서로 다른 Composable 간 fade 효과를 적용합니다. 특별한 설정 없이 부드럽게 전환할 수 있습니다.
+ * - `AnimatedContent` : Composable의 `enter`, `exit`의 전환을 다양한 종류로 적용할 수 있습니다.
+ */
+@OptIn(ExperimentalAnimationApi::class)
+@Preview
+@Composable
+fun SwitchBetweenDifferentTypeAnimation() {
+    var state: UiState by remember { mutableStateOf(UiState.Loading) }
+
+    AnimatedContent(
+        targetState = state,
+        transitionSpec = {
+            fadeIn(animationSpec = tween(3000)) with(fadeOut(animationSpec = tween(3000)))
+        },
+        modifier = Modifier.clickable {
+            state = when(state) {
+                UiState.Loading -> UiState.Loaded
+                UiState.Loaded -> UiState.Error
+                UiState.Error -> UiState.Loading
+            }
+        }
+    ) { targetState: UiState ->
+        when(targetState) {
+            UiState.Loading -> LoadingScreen()
+            UiState.Loaded -> LoadedScreen()
+            UiState.Error -> ErrorScreen()
+        }
     }
 }
