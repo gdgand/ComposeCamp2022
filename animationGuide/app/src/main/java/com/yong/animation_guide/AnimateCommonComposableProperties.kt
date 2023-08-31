@@ -3,6 +3,7 @@ package com.yong.animation_guide
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.foundation.background
@@ -173,4 +174,23 @@ fun SimpleModifierLayout() {
 
         DefaultBox()
     }
+}
+
+/**
+ * `animateDpAsState()`와 `Modifier.padding()`을 사용하여 Composable의 Padding을 애니메이션으로 만들 수 있습니다.
+ */
+@Preview
+@Composable
+fun SimplePaddingAnimation() {
+    var toggled by remember { mutableStateOf(false) }
+    val animatedPadding by animateDpAsState(if (toggled) 0.dp else 20.dp)
+
+    Box(
+        modifier = Modifier
+            .aspectRatio(1f)
+            .size(200.dp)
+            .padding(animatedPadding)
+            .background(Color.Green)
+            .clickable { toggled = !toggled }
+    ) { }
 }
