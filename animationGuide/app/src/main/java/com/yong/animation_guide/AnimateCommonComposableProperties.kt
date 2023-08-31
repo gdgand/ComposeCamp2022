@@ -1,17 +1,21 @@
 package com.yong.animation_guide
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -283,4 +287,37 @@ fun SimpleTextColorAnimation() {
         text = "Yong suk",
         color = animatedColor
     )
+}
+
+/**
+ * `AnimatedContent`와 `Corssfade`는 서로 다른 Composable 간 애니메이션을 적용하기 위한 방법입니다.
+ *
+ * - `Corssfade` : 기본적으로 서로 다른 Composable 간 fade 효과를 적용합니다. 특별한 설정 없이 부드럽게 전환할 수 있습니다.
+ * - `AnimatedContent` : Composable의 `enter`, `exit`의 전환을 다양한 종류로 적용할 수 있습니다.
+ */
+@OptIn(ExperimentalAnimationApi::class)
+@Preview
+@Composable
+fun SwitchBetweenDifferentTypeAnimation() {
+    var state: UiState by remember { mutableStateOf(UiState.Loading) }
+
+    AnimatedContent(
+        targetState = state,
+        transitionSpec = {
+            fadeIn(animationSpec = tween(3000)) with(fadeOut(animationSpec = tween(3000)))
+        },
+        modifier = Modifier.clickable {
+            state = when(state) {
+                UiState.Loading -> UiState.Loaded
+                UiState.Loaded -> UiState.Error
+                UiState.Error -> UiState.Loading
+            }
+        }
+    ) { targetState: UiState ->
+        when(targetState) {
+            UiState.Loading -> LoadingScreen()
+            UiState.Loaded -> LoadedScreen()
+            UiState.Error -> ErrorScreen()
+        }
+    }
 }
