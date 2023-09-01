@@ -5,3 +5,8 @@ sealed interface UiState {
     object Loaded : UiState
     object Error : UiState
 }
+
+sealed interface BoxState {
+    object Collapsed : BoxState
+    object Expanded : BoxState
+}

@@ -13,7 +13,10 @@ import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -24,11 +27,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.VectorProperty
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -41,6 +54,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import kotlinx.coroutines.launch
 import java.net.URLDecoder
 import java.net.URLEncoder
 import kotlin.math.roundToInt
@@ -404,4 +418,101 @@ fun SimpleComposableStartAnimation() {
             alpha = alphaAnimation.value
         }
     )
+}
+
+/**
+ * `Animatable`을 사용하면 연속적이나 동시에 여러 애니메이션을 수행할 수 있습니다.
+ *
+ * `animateTo()`는 suspending 함수이기에 하나씩 호출하면 이전 애니메이션이 끝난 후 다음 애니메이션이 시작되며 이를 sequential animation 이라 합니다.
+ */
+@Preview
+@Composable
+fun SimpleCreateSequentialAnimation() {
+    val alphaAnimation = remember { Animatable(0f) }
+    val yAnimation = remember { Animatable(0f) }
+
+    LaunchedEffect(
+        key1 = "animationKey",
+        block = {
+            alphaAnimation.animateTo(0.5f)
+            yAnimation.animateTo(100f, tween(1000))
+            yAnimation.animateTo(500f, tween(3000))
+            alphaAnimation.animateTo(1f)
+        }
+    )
+
+    DefaultBox(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(yAnimation.value.dp)
+            .alpha(alphaAnimation.value)
+    )
+}
+
+/**
+ * 코루틴 컨테스트에서 여러 개의 `launch` 함수를 사용하면 애니메이션이 동시에 시작됩니다.
+ *
+ * 또는 `updateTransition`를 사용하여 동일한 상태를 이용하여 동시에 여러 속성 애니메이션을 구동할 수 있습니다.
+ */
+@Preview
+@Composable
+fun SimpleCreateConcurrentAnimation() {
+    val alphaAnimation = remember { Animatable(0f) }
+    val yAnimation = remember { Animatable(0f) }
+
+    LaunchedEffect(
+        key1 = "animationKey",
+        block = {
+            launch {
+                alphaAnimation.animateTo(0.5f, tween(1000))
+                alphaAnimation.animateTo(1f, tween(3000))
+            }
+
+            launch {
+                yAnimation.animateTo(100f, tween(1000))
+                yAnimation.animateTo(500f, tween(3000))
+            }
+        }
+    )
+
+    var currentState: BoxState by remember { mutableStateOf(BoxState.Collapsed) }
+    val transition = updateTransition(targetState = currentState, label = "transition")
+
+    val rect by transition.animateRect(label = "rect") { state ->
+        when(state) {
+            BoxState.Collapsed -> Rect(offset = Offset(0f, 0f), size = Size(100f,100f))
+            BoxState.Expanded -> Rect(offset = Offset(300f, 300f), size = Size(500f,500f))
+        }
+    }
+
+    val borderWidth by transition.animateDp(label = "borderWidth") { state ->
+        when(state) {
+            BoxState.Collapsed -> 20.dp
+            BoxState.Expanded -> 10.dp
+        }
+    }
+
+    Column {
+        DefaultBox(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(yAnimation.value.dp)
+                .alpha(alphaAnimation.value)
+                .clickable { currentState = BoxState.Expanded }
+        )
+
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { currentState = BoxState.Collapsed }
+        ) {
+            drawRect(
+                color = Color.Green,
+                topLeft = Offset(rect.left, rect.top),
+                size = Size(rect.right, rect.bottom),
+                style = Stroke(width = borderWidth.toPx()),
+                alpha = alphaAnimation.value
+            )
+        }
+    }
 }
