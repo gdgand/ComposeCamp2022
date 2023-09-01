@@ -1,7 +1,10 @@
 package com.yong.animation_guide
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
@@ -33,6 +36,13 @@ import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import java.net.URLDecoder
+import java.net.URLEncoder
 import kotlin.math.roundToInt
 
 @Composable
@@ -174,7 +184,7 @@ fun SimpleModifierLayout() {
             label = "offset"
         )
 
-        DefaultClickBox()
+        DefaultBox()
 
         Box(
             modifier = Modifier
@@ -192,7 +202,7 @@ fun SimpleModifierLayout() {
                 .background(Color.Green)
         )
 
-        DefaultClickBox()
+        DefaultBox()
     }
 }
 
@@ -228,7 +238,7 @@ fun SimpleElevationAnimation() {
         label = "elevation"
     )
 
-    DefaultClickBox(
+    DefaultBox(
         modifier = Modifier
             .graphicsLayer { this.shadowElevation = elevation.value.toPx() }
             .clickable(interactionSource = mutableInteractionSource, indication = null) { }
@@ -304,20 +314,70 @@ fun SwitchBetweenDifferentTypeAnimation() {
     AnimatedContent(
         targetState = state,
         transitionSpec = {
-            fadeIn(animationSpec = tween(3000)) with(fadeOut(animationSpec = tween(3000)))
+            fadeIn(animationSpec = tween(3000)) with (fadeOut(animationSpec = tween(3000)))
         },
         modifier = Modifier.clickable {
-            state = when(state) {
+            state = when (state) {
                 UiState.Loading -> UiState.Loaded
                 UiState.Loaded -> UiState.Error
                 UiState.Error -> UiState.Loading
             }
         }
     ) { targetState: UiState ->
-        when(targetState) {
+        when (targetState) {
             UiState.Loading -> LoadingScreen()
             UiState.Loaded -> LoadedScreen()
             UiState.Error -> ErrorScreen()
+        }
+    }
+}
+
+/**
+ * Navigation을 사용하여 Composable 간 전환을 애니메이션으로 만드려면 해당 Composable에 `enterTransition`과 `exitTransition`을 지정하면 됩니다.
+ *
+ * 또한 모든 `Destination`에 대한 기본 애니메이션을 설정하려면 `NavHost`에서 지정할 수 있습니다.
+ */
+@Preview
+@Composable
+fun SimpleNavigationDestinationsAnimation() {
+
+    val randingRoute = "landing"
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = randingRoute,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None }
+    ) {
+        composable(route = randingRoute) {
+            ScreenLanding(onItemClicked = { navController.navigate("detail/${URLEncoder.encode(it.toString())}") })
+        }
+
+        composable(
+            route = "detail/{color}",
+            arguments = listOf(navArgument("color") { type = NavType.StringType }),
+            enterTransition = {
+                fadeIn(
+                    animationSpec = tween(300, easing = LinearEasing)
+                ) + slideIntoContainer(
+                    animationSpec = tween(300, easing = EaseIn),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(300, easing = LinearEasing)
+                ) + slideOutOfContainer(
+                    animationSpec = tween(300, easing = EaseOut),
+                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                )
+            }
+        ) { backStackEntry ->
+            ScreenDetails(
+                index = URLDecoder.decode(backStackEntry.arguments!!.getString("color")!!).toInt(),
+                onBackClicked = { navController.popBackStack() }
+            )
         }
     }
 }
