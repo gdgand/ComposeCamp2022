@@ -1,7 +1,10 @@
 package com.yong.animation_guide
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
@@ -10,7 +13,10 @@ import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -21,11 +27,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.VectorProperty
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -33,6 +49,14 @@ import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import kotlinx.coroutines.launch
+import java.net.URLDecoder
+import java.net.URLEncoder
 import kotlin.math.roundToInt
 
 @Composable
@@ -174,7 +198,7 @@ fun SimpleModifierLayout() {
             label = "offset"
         )
 
-        DefaultClickBox()
+        DefaultBox()
 
         Box(
             modifier = Modifier
@@ -192,7 +216,7 @@ fun SimpleModifierLayout() {
                 .background(Color.Green)
         )
 
-        DefaultClickBox()
+        DefaultBox()
     }
 }
 
@@ -228,7 +252,7 @@ fun SimpleElevationAnimation() {
         label = "elevation"
     )
 
-    DefaultClickBox(
+    DefaultBox(
         modifier = Modifier
             .graphicsLayer { this.shadowElevation = elevation.value.toPx() }
             .clickable(interactionSource = mutableInteractionSource, indication = null) { }
@@ -304,20 +328,191 @@ fun SwitchBetweenDifferentTypeAnimation() {
     AnimatedContent(
         targetState = state,
         transitionSpec = {
-            fadeIn(animationSpec = tween(3000)) with(fadeOut(animationSpec = tween(3000)))
+            fadeIn(animationSpec = tween(3000)) with (fadeOut(animationSpec = tween(3000)))
         },
         modifier = Modifier.clickable {
-            state = when(state) {
+            state = when (state) {
                 UiState.Loading -> UiState.Loaded
                 UiState.Loaded -> UiState.Error
                 UiState.Error -> UiState.Loading
             }
         }
     ) { targetState: UiState ->
-        when(targetState) {
+        when (targetState) {
             UiState.Loading -> LoadingScreen()
             UiState.Loaded -> LoadedScreen()
             UiState.Error -> ErrorScreen()
+        }
+    }
+}
+
+/**
+ * Navigation을 사용하여 Composable 간 전환을 애니메이션으로 만드려면 해당 Composable에 `enterTransition`과 `exitTransition`을 지정하면 됩니다.
+ *
+ * 또한 모든 `Destination`에 대한 기본 애니메이션을 설정하려면 `NavHost`에서 지정할 수 있습니다.
+ */
+@Preview
+@Composable
+fun SimpleNavigationDestinationsAnimation() {
+
+    val randingRoute = "landing"
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = randingRoute,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None }
+    ) {
+        composable(route = randingRoute) {
+            ScreenLanding(onItemClicked = { navController.navigate("detail/${URLEncoder.encode(it.toString())}") })
+        }
+
+        composable(
+            route = "detail/{color}",
+            arguments = listOf(navArgument("color") { type = NavType.StringType }),
+            enterTransition = {
+                fadeIn(
+                    animationSpec = tween(300, easing = LinearEasing)
+                ) + slideIntoContainer(
+                    animationSpec = tween(300, easing = EaseIn),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(300, easing = LinearEasing)
+                ) + slideOutOfContainer(
+                    animationSpec = tween(300, easing = EaseOut),
+                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                )
+            }
+        ) { backStackEntry ->
+            ScreenDetails(
+                index = URLDecoder.decode(backStackEntry.arguments!!.getString("color")!!).toInt(),
+                onBackClicked = { navController.popBackStack() }
+            )
+        }
+    }
+}
+
+/**
+ * `LaunchedEffect`는 Composable이 Composition에 진입될 때 실행됩니다.
+ *
+ * 이를 활용하여 Composable이 시작될 때 애니메이션을 트리거할 수 있으며 `Animateable`과 `animteTo`를 사용하여 설정할 수 있습니다.
+ */
+@Preview
+@Composable
+fun SimpleComposableStartAnimation() {
+    val alphaAnimation = remember {
+        Animatable(0f)
+    }
+    LaunchedEffect(Unit) {
+        alphaAnimation.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(4000, easing = EaseIn)
+        )
+    }
+    DefaultBox(
+        modifier = Modifier.graphicsLayer {
+            alpha = alphaAnimation.value
+        }
+    )
+}
+
+/**
+ * `Animatable`을 사용하면 연속적이나 동시에 여러 애니메이션을 수행할 수 있습니다.
+ *
+ * `animateTo()`는 suspending 함수이기에 하나씩 호출하면 이전 애니메이션이 끝난 후 다음 애니메이션이 시작되며 이를 sequential animation 이라 합니다.
+ */
+@Preview
+@Composable
+fun SimpleCreateSequentialAnimation() {
+    val alphaAnimation = remember { Animatable(0f) }
+    val yAnimation = remember { Animatable(0f) }
+
+    LaunchedEffect(
+        key1 = "animationKey",
+        block = {
+            alphaAnimation.animateTo(0.5f)
+            yAnimation.animateTo(100f, tween(1000))
+            yAnimation.animateTo(500f, tween(3000))
+            alphaAnimation.animateTo(1f)
+        }
+    )
+
+    DefaultBox(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(yAnimation.value.dp)
+            .alpha(alphaAnimation.value)
+    )
+}
+
+/**
+ * 코루틴 컨테스트에서 여러 개의 `launch` 함수를 사용하면 애니메이션이 동시에 시작됩니다.
+ *
+ * 또는 `updateTransition`를 사용하여 동일한 상태를 이용하여 동시에 여러 속성 애니메이션을 구동할 수 있습니다.
+ */
+@Preview
+@Composable
+fun SimpleCreateConcurrentAnimation() {
+    val alphaAnimation = remember { Animatable(0f) }
+    val yAnimation = remember { Animatable(0f) }
+
+    LaunchedEffect(
+        key1 = "animationKey",
+        block = {
+            launch {
+                alphaAnimation.animateTo(0.5f, tween(1000))
+                alphaAnimation.animateTo(1f, tween(3000))
+            }
+
+            launch {
+                yAnimation.animateTo(100f, tween(1000))
+                yAnimation.animateTo(500f, tween(3000))
+            }
+        }
+    )
+
+    var currentState: BoxState by remember { mutableStateOf(BoxState.Collapsed) }
+    val transition = updateTransition(targetState = currentState, label = "transition")
+
+    val rect by transition.animateRect(label = "rect") { state ->
+        when(state) {
+            BoxState.Collapsed -> Rect(offset = Offset(0f, 0f), size = Size(100f,100f))
+            BoxState.Expanded -> Rect(offset = Offset(300f, 300f), size = Size(500f,500f))
+        }
+    }
+
+    val borderWidth by transition.animateDp(label = "borderWidth") { state ->
+        when(state) {
+            BoxState.Collapsed -> 20.dp
+            BoxState.Expanded -> 10.dp
+        }
+    }
+
+    Column {
+        DefaultBox(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(yAnimation.value.dp)
+                .alpha(alphaAnimation.value)
+                .clickable { currentState = BoxState.Expanded }
+        )
+
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { currentState = BoxState.Collapsed }
+        ) {
+            drawRect(
+                color = Color.Green,
+                topLeft = Offset(rect.left, rect.top),
+                size = Size(rect.right, rect.bottom),
+                style = Stroke(width = borderWidth.toPx()),
+                alpha = alphaAnimation.value
+            )
         }
     }
 }
