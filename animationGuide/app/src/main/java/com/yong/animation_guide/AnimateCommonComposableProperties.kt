@@ -381,3 +381,27 @@ fun SimpleNavigationDestinationsAnimation() {
         }
     }
 }
+
+/**
+ * `LaunchedEffect`는 Composable이 Composition에 진입될 때 실행됩니다.
+ *
+ * 이를 활용하여 Composable이 시작될 때 애니메이션을 트리거할 수 있으며 `Animateable`과 `animteTo`를 사용하여 설정할 수 있습니다.
+ */
+@Preview
+@Composable
+fun SimpleComposableStartAnimation() {
+    val alphaAnimation = remember {
+        Animatable(0f)
+    }
+    LaunchedEffect(Unit) {
+        alphaAnimation.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(4000, easing = EaseIn)
+        )
+    }
+    DefaultBox(
+        modifier = Modifier.graphicsLayer {
+            alpha = alphaAnimation.value
+        }
+    )
+}
