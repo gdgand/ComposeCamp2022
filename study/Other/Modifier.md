@@ -3,10 +3,10 @@
 > - Modifier는 single modifier 또는 레이아웃 노드를 감쌀 수 있음
 > - Layout 단계에서 wrapper modifier 노드를 방문하여 single modifier 또는 레이아웃 노드의 크기 요구 사항과 배치를 변경할 수 있음
 > - Layout 단계는 `자식 측정 -> 자신의 크기 결정 -> 자식 배치` 순서의 알고리즘을 따름
-> - 자식 측정 동안 제약 조건은 부모에서 자식으로 전달되며 DFS로 UI 트리를 순회하여 크기를 결정하고 측정을 완료함
-> - `Modifier.Elements`는 Modifier를 통한 동작들을 정렬되고 변하지 않는 목록으로 나타내며 이를 통해 동작을을 순서대로 실행할 수 있음
+>   - 자식 측정 동안 제약 조건은 부모에서 자식으로 전달되며 DFS로 UI 트리를 순회하여 크기를 결정하고 측정을 완료함
+>   - `Modifier.Elements`는 Modifier를 통한 동작들을 정렬되고 변하지 않는 목록으로 나타내며 이를 통해 동작을을 순서대로 실행할 수 있음
 > - Modifier 체인이 길어지는 경우 변수로 선언하여 재사용하는 경우 성능 향상을 기대할 수 있음
-    >   - Re-Composition 시 modifier도 재생성되는데 이를 방지함
+>   - Re-Composition 시 modifier도 재생성되는데 이를 방지함
 >   - 컴포즈 런타임에 Modifier 체인을 매번 생성하고 비교하는 작업을 방지함
 
 컴포즈에서는 여러 `modifier`를 체인하여 컴포저블의 모양과 느낌을 변경할 수 있습니다.
