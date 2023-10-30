@@ -82,14 +82,21 @@ fun LoginError() { /* ... */
 
 ---
 
-## 효율적인 재구성을 위한 참고정보 추가
+## Add extra information to help smart recompositions
 
-### Composable 인스턴스의 구분
-Composable 함수를 여러 번 호출하면 해당 Composable의 인스턴스가 여러 개 Composition에 추가됩니다.   
-같은 위치에서 Composable 함수를 여러 번 호출하는 경우, Compose는 각각의 Composable 호출을 식별할 수 있는 충분한 정보를 가지지 못합니다.
-이 때문에 호출 위치 외에도 실행 순서를 사용하여 각 인스턴스를 구분합니다.
+> - 동일한 'call site에서 Composable을 여러 번 호출하면 ('실행 순서'(index) + 'call site')를 통해 각 Composable의 인스턴스를 구별함
+>   - 리스트 내 'call site' 변경이 없고, 동일한 파리미터를 사용하는 새로운 요소가 리스트 하단으로 계속 추가되면 `Composition` 내의 Composable 인스턴스 재사용 가능
+>   - 그러나 리스트의 순서가 섞이는 순간, 리스트 내 Composable 인스턴스들의 'call site'가 변경되어 리스트에서 사용 중인 Composable 인스턴스 모두가 'ReComposition'됨
+>   - 이처럼 리스트 순서가 섞여도 Composable 인스턴스를 재사용하고 싶다면, `key` 컴포저블을 사용할 수 있음
+> - `key` 컴포저블은 특정 코드 부분을 구별할 수 있는 고유 값('Identity')을 설정하도록 하는 역할
+>   - 이 고유 값은 전역적일 필요는 없고, 같은 'call site'에서 호출되는 다른 컴포저블들 사이에서만 고유하면 됨
 
-아래 코드를 보죠.
+`N`번 호출된 컴포저블은 `Composition` 내에 `N`번 추가됩니다.
+
+만약 같은 'call site'에서 컴포저블을 여러 번 호출하면, 컴포즈는 각 호출을 고유하게 식별할 수 있는 정보가 없습니다.  
+따라서 실행 순서와 'call site'를 함께 사용하여 각 컴포저블의 인스턴스를 구별합니다.
+
+이러한 동작은 때로 필요할 수 있지만, 일부 상황에서는 원치 않는 동작을 초래할 수 있습니다.
 
 ```kotlin
 @Composable
@@ -104,21 +111,17 @@ fun MoviesScreen(movies: List<Movie>) {
 }
 ```
 
-위 코드에서, Compose는 호출 위치 외에도 실행 순서를 사용하여 Composition에서 인스턴스를 구분합니다.  
-새로운 `movie`가 리스트의 하단에 추가되면, Compose는 그들의 호출 위치가 변경되지 않았다는걸 알고 있고,  
-이에따라 그 인스턴스에 대한 `movie` 입력이 동일하기 때문에 이미 Composition에 있는 인스턴스를 재사용할 수 있습니다.
+위 코드를 보면, 컴포즈는 'call site'와 실행 순서를 함께 사용하여 `Composition`에서 컴포저블 인스턴스를 구분합니다.
 
-<img src="../../resource/lifecycle-newelement-bottom.png" width="50%" height="50%">
+만약 새로운 `movie`가 리스트 하단에 추가되면, 컴포즈는 이미 `Composition` 내에 있는 컴포저블 인스턴스를 재사용할 수 있습니다.
+왜냐하면 해당 컴포저블 인스턴스들의 리스트 내 'call site'가 변경되지 않았고, 따라서 그들의 `movie` 입력도 동일하기 때문입니다.
 
-위 이미지는 새로운 요소가 추가될 때 Composition 내의 `MoviesScreen`입니다.   
-`MovieOverview` Composable은 Composition에서 재사용될 수 있습니다.   
-`MovieOverview`에서 같은 색상은 Composable이 재구성되지 않았음을 의미합니다.
+<img src="../../resource/lifecycle-newelement-bottom.png" width="60%">
 
-그러나, `movies` 리스트가 항목을 상단이나 중간에 추가하거나, 항목을 제거하거나 순서를 변경함으로써 변경되면,  
-목록에서 위치가 변경된 입력 매개변수를 가진 모든 `MovieOverview` 호출에 재구성이 발생합니다.
+그러나 만약 영화 목록이 리스트의 상단 또는 중간에 추가되거나, 항목이 제거되거나 순서가 변경된다면, 입력 파라미터의 위치가 리스트에서 변경된 모든 `MovieOverview` 호출에서 'ReComposition'이 발생합니다.
 
-예를 들어, `MovieOverview`가 `Side-Effect`를 사용하여 영화의 이미지를 가져오는 경우에 매우 중요합니다.  
-재구성이 진행 중인 동안 `Side-Effect`가 발생하면, `Side-Effect`는 취소되고 다시 시작됩니다.
+이는 특히, `MoviewOverview`가 SideEffect를 사용하여 영화 이미지를 불러오는 경우에 중요해집니다.
+만약 SideEffect 진행 중에 'ReComposition'이 발생하면, 해당 SideEffect는 취소되고 다시 새롭게 시작됩니다.
 
 ```kotlin
 @Composable
@@ -134,20 +137,27 @@ fun MovieOverview(movie: Movie) {
 }
 ```
 
-<img src="../../resource/lifecycle-newelement-top-all-recompose.png" width="50%" height="50%">
+<img src="../../resource/lifecycle-newelement-top-all-recompose.png" width="60%">
 
-리스트에 새로운 요소가 추가될 때 Composition 내의 `MoviesScreen`의 표현입니다.   
-`MovieOverview` Composable은 재사용될 수 없고 모든 `Side-Effect`들이 다시 시작됩니다. (다른 색상은 재구성 되었음을 의미)
+위 그림처럼 리스트 상단에 새로운 요소가 추가될 때 `Composition` 내의 `MoviesScreen`을 나타냅니다.
+
+리스트 상단에 추가되므로 `MoviewOverview` 컴포저블을 재사용할 수 없고 모든 SideEffect들이 다시 시작됩니다.  
+또한 'ReComposition'이 일어나 모든 `MovieOverview`들이 'ReComposition' 되었음을 알 수 있습니다.
 
 ---
 
-### Key Composable
+이상적으로 `MovieOverview` 컴포저블의 'Identity'는 해당 컴포저블 파라미터인 `movie`의 'Identity'와 연결되어야 합니다.   
+즉, 영화 목록의 순서를 바꾼다면, 그에 따라 컴포저블도 새로 정렬되는 것이 좋습니다.   
+이렇게 하면 각 `MovieOverview` 컴포저블을 다른 `movie` 데이터로 다시 그릴 필요가 없습니다.
 
-Compose는 RunTime 환경에서 구성 트리의 특정 부분을 식별하는 데 사용하고 싶은 값을 알려주는 방법으로 `key` Composable을 제공합니다.
+이를 가능하게 하기 위해서 컴포즈에서는 `key` 컴포저블을 제공 합니다.  
+`key` 컴포저블은 특정 코드 부분을 구별할 수 있는 고유한 값인 'Identity'를 설정하도록 하는 역할을 합니다.
 
-- `key` Composable은 Composition에서 Composable 인스턴스를 식별하는 데 사용되는 정보를 제공합니다.
-- `key` Composable을 사용하려면, 인자로 전달하는 하나 이상의 값들로 Composable 인스턴스를 구별하는 식별자를 생성할 수 있습니다.
-- `key`는 전역적으로 고유할 필요는 없으며, 같은 호출 위치에서 Composable을 호출하는 경우에만 고유해야 합니다.
+예를 들어, `movie` 데이터를 `key` 컴포저블에 전달하면, 그 `movie` 데이터를 가지고 그려지는 `MovieOverview` 컴포저블은 그 `movie`에 고유하게 연결됩니다.   
+이렇게 하면 영화 목록의 순서가 바뀌더라도, 각 `MovieOverview` 컴포저블은 자신에게 연결된 `movie` 데이터를 그대로 유지하게 됩니다. 
+따라서 목록 순서가 바뀌어도 다시 그릴 필요가 없게 됩니다.
+
+이 'Identity'는 전역적으로 고유할 필요는 없고, 같은 'call site'에서 호출되는 다른 컴포저블들 사이에서만 고유하면 됩니다.
 
 ```kotlin
 @Composable
@@ -162,10 +172,11 @@ fun MoviesScreenWithKey(movies: List<Movie>) {
 }
 ```
 
-<img src="../../resource/lifecycle-newelement-top-keys.png" width="50%" height="50%">
+<img src="../../resource/lifecycle-newelement-top-keys.png" width="60%">
 
-위와 같이 영화 목록의 순서가 바뀌더라도, 각 `MovieOverview` Composable 인스턴스를 재사용하고, 그것들의 `side-effect`들을 계속 실행할 수 있습니다.  
-즉, 리스트의 순서가 변경되어도, 각 `MovieOverview` 인스턴스가 그대로 유지되며, 재구성을 피할 수 있게 됩니다.
+위와 같이 영화 목록의 순서가 뒤바뀌더라도, 각 `MovieOverview` 컴포저블 인스턴스를 재사용하고, SideEffect를 계속 실행할 수 있습니다.
+
+즉, 리스트의 순서가 변경되어도, 각 `MovieOverview` 컴포저블 인스턴스가 그대로 유지되며, 'ReComposition'을 피할 수 있게 됩니다.
 
 만약, `List<T>`형태의 타입일 경우 다음과 같이 사용할 수 있습니다.
 
@@ -173,7 +184,10 @@ fun MoviesScreenWithKey(movies: List<Movie>) {
 @Composable
 fun MoviesScreenLazy(movies: List<Movie>) {
     LazyColumn {
-        items(movies, key = { movie -> movie.id }) { movie ->
+        items(
+            item = movies,
+            key = { movie -> movie.id }
+        ) { movie ->
             MovieOverview(movie)
         }
     }
