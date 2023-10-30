@@ -4,14 +4,9 @@
 > - 'ReComposition'의 트리거는 `State<T>` 객체의 변경
 > - 컴포즈는 `State<T>`를 읽는 `Composition`을 추적하여 Composable을 다시 실행하도록 할 수 있음
 > - Composable Lifecycle
-    >
-
-1. 컴포즈는 'initial Composition' 시 `Composition`에 컴포저블을 추가
-
-> 2. 상태 변경 시 `Composition`에 해당 상태를 사용중인 컴포저블을 추적하여 다시 실행, `Composition`을 업데이트
-     >
-
-3. 더 이상 필요하지 않거나 조건에 따라 제거되면 `Composition`을 떠남
+>   1. 컴포즈는 'initial Composition' 시 `Composition`에 컴포저블을 추가
+>   2. 상태 변경 시 `Composition`에 해당 상태를 사용중인 컴포저블을 추적하여 다시 실행, `Composition`을 업데이트
+>   3. 더 이상 필요하지 않거나 조건에 따라 제거되면 `Composition`을 떠남
 
 `Composition` 단계는 컴포저블을 실행하여 앱의 UI 트리를 생성합니다.
 
@@ -90,19 +85,11 @@ fun LoginError() { /* ... */
 ## Add extra information to help smart recompositions
 
 > - 동일한 'call site에서 Composable을 여러 번 호출하면 ('실행 순서'(index) + 'call site')를 통해 각 Composable의 인스턴스를 구별함
-    >
-
-- 리스트 내 'call site' 변경이 없고, 동일한 파리미터를 사용하는 새로운 요소가 리스트 하단으로 계속 추가되면 `Composition` 내의 Composable 인스턴스 재사용 가능
-
-> - 그러나 리스트의 순서가 섞이는 순간, 리스트 내 Composable 인스턴스들의 'call site'가 변경되어 리스트에서 사용 중인 Composable 인스턴스 모두가 'ReComposition'됨
-    >
-
-- 이처럼 리스트 순서가 섞여도 Composable 인스턴스를 재사용하고 싶다면, `key` 컴포저블을 사용할 수 있음
-
+>   - 리스트 내 'call site' 변경이 없고, 동일한 파리미터를 사용하는 새로운 요소가 리스트 하단으로 계속 추가되면 `Composition` 내의 Composable 인스턴스 재사용 가능
+>   - 그러나 리스트의 순서가 섞이는 순간, 리스트 내 Composable 인스턴스들의 'call site'가 변경되어 리스트에서 사용 중인 Composable 인스턴스 모두가 'ReComposition'됨
+>   - 이처럼 리스트 순서가 섞여도 Composable 인스턴스를 재사용하고 싶다면, `key` 컴포저블을 사용할 수 있음
 > - `key` 컴포저블은 특정 코드 부분을 구별할 수 있는 고유 값('Identity')을 설정하도록 하는 역할
-    >
-
-- 이 고유 값은 전역적일 필요는 없고, 같은 'call site'에서 호출되는 다른 컴포저블들 사이에서만 고유하면 됨
+>   - 이 고유 값은 전역적일 필요는 없고, 같은 'call site'에서 호출되는 다른 컴포저블들 사이에서만 고유하면 됨
 
 `N`번 호출된 컴포저블은 `Composition` 내에 `N`번 추가됩니다.
 
