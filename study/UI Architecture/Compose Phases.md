@@ -173,6 +173,72 @@ Canvas(modifier = modifier) {
 
 ---
 
+## Optimizing state reads
+
+컴포즈는 지역화된 상태 읽기를 추적하며, 각 상태를 적절한 단계에서 확인하므로 수행되는 작업을 최소화 할 수 있습니다.
+
+예를 들어, 최종 레이아웃 위치를 오프셋하는 `Modifier.offset`을 사용하여 스크롤 시 패럴랙스 이펙트를 나타내려 합니다.
+
+```kotlin
+Box {
+    val listState = rememberLazyListState()
+
+    Image(
+        // ...
+        // Non-optimal implementation!
+        Modifier.offset(
+            with(LocalDensity.current) {
+                // State read of firstVisibleItemScrollOffset in composition
+                (listState.firstVisibleItemScrollOffset / 2).toDp()
+            }
+        )
+    )
+
+    LazyColumn(state = listState) {
+        // ...
+    }
+}
+```
+
+위 코드는 원하는 이펙트가 나오지만, 최적의 성능을 내지 못합니다.  
+위 코드는 `firstVisibleItemScrollOffset` 상태를 읽고, `Modifier.offset(offset: Dp)`에 전달합니다.  
+스크롤 시 `firstVisibleItemScrollOffset` 상태가 변경되고, 컴포즈는 상태 읽기를 추적하여 코드를 다시 시작(재호출)할 수 있습니다.
+여기서는 `Box` 람다가 재실행됩니다.
+
+위와 같은 방법은 `Composition` 단계에서 상태를 읽는 것처럼 실제로 데이터 변경이 새로운 UI를 다시 만드는 `Re-Composition`의 기초로 볼 수 있습니다.
+
+그러나 위 예시는 최적화를 할 수 있습니다. 
+위 예제는 UI 데이터가 변경되지 않고 오직 어디에 표시되는지만 변경되기만 하면 되기에 상태를 읽는 단계를 `Layout` 단계에서만 다시 트리거하도록 최적화할 수 있습니다.
+
+이를 `Modifier.offset`을 람다 파라미터를 통해 호출하는 방식으로 변경하면 `Layout` 단계에서 상태를 읽고 추적할 수 있도록 변경할 수 있습니다.
+
+```kotlin
+Box {
+    val listState = rememberLazyListState()
+
+    Image(
+        // ...
+        Modifier.offset {
+            // State read of firstVisibleItemScrollOffset in Layout
+            IntOffset(x = 0, y = listState.firstVisibleItemScrollOffset / 2)
+        }
+    )
+
+    LazyColumn(state = listState) {
+        // ...
+    }
+}
+```
+
+이렇게 변경되면 더 이상 `Composition-Layout-Drawing` 단계로 Re-Composition이 발생하지 않고 `Layout-Drawing` 단계만 실행되게 되기에 더 최적화 될 수 있습니다.
+
+이처럼 상태 읽기를 가능한 한 '낮은' 단계에서 수행하면 컴포즈가 덜 일하게 되므로 성능이 향상됩니다.
+
+그러나 상황에 따라 `Composition` 단계에서 상태를 읽을 필요가 있을 수도 있습니다. 
+이런 경우에는 `derivedStateOf` 같은 API를 사용하여 상태 변경을 필터링하고 Re-Composition을 최소화하는 방법도 있습니다.
+
+---
+
 ### 재시작 범위 (re-start scope)
 재시작 범위는 컴포즈에서 **특정 상태를 읽은** `Code Block`을 가리키며 상태 값이 변경될 때 재실행 될 수 있음을 말합니다.
 
