@@ -1,19 +1,24 @@
 # Composable 생명주기
 
 > - `Composition`은 'initial Composition'에 의해 생성되고, 'ReComposition'에 의해만 업데이트 될 수 있음
-> - 'ReComposition'의 트리거는 `State<T>` 객체의 변경 
+> - 'ReComposition'의 트리거는 `State<T>` 객체의 변경
 > - 컴포즈는 `State<T>`를 읽는 `Composition`을 추적하여 Composable을 다시 실행하도록 할 수 있음
 > - Composable Lifecycle
->   1. 컴포즈는 'initial Composition' 시 `Composition`에 컴포저블을 추가
->   2. 상태 변경 시 `Composition`에 해당 상태를 사용중인 컴포저블을 추적하여 다시 실행, `Composition`을 업데이트
->   3. 더 이상 필요하지 않거나 조건에 따라 제거되면 `Composition`을 떠남
+    >
+
+1. 컴포즈는 'initial Composition' 시 `Composition`에 컴포저블을 추가
+
+> 2. 상태 변경 시 `Composition`에 해당 상태를 사용중인 컴포저블을 추적하여 다시 실행, `Composition`을 업데이트
+     >
+
+3. 더 이상 필요하지 않거나 조건에 따라 제거되면 `Composition`을 떠남
 
 `Composition` 단계는 컴포저블을 실행하여 앱의 UI 트리를 생성합니다.
 
 컴포즈는 'initial composition' 단계에서 실행되는 컴포저블을 모두 추적합니다.  
 그런 다음 추적되고 있는 컴포저블에 상태가 변경되면 컴포즈는 'ReComposition'을 예약합니다.
 
-'ReComposition'은 컴포즈가 상태 변경에 응답하여 변경될 수 있는 컴포저블을 다시 실행하고, 변경 사항을 반영하여 `Composition`을 업데이트 하는 것을 말합니다.  
+'ReComposition'은 컴포즈가 상태 변경에 응답하여 변경될 수 있는 컴포저블을 다시 실행하고, 변경 사항을 반영하여 `Composition`을 업데이트 하는 것을 말합니다.
 
 `Composition`은 'initial Composition'에 의해만 생성되고, 'ReComposition'에 의해만 업데이트 될 수 있습니다.  
 즉, `Composition`을 수정하는 유일한 방법은 'ReComposition'을 통해서만 가능합니다.
@@ -47,7 +52,7 @@
 `Composition` 내의 컴포저블 인스턴스는 [call site](#호출-위치call-site)에 의해 식별되며 컴포즈 컴파일러는 각 'call site'를 별개로 취급합니다.  
 즉, 다수의 'call site'에서 컴포저블을 호출하면 `Composition` 내에 여러 인스턴스가 생성됩니다.
 
-'ReComposition' 중 컴포저블이 이전 `Composition` 때와 다른 컴포저블을 호출하면, 
+'ReComposition' 중 컴포저블이 이전 `Composition` 때와 다른 컴포저블을 호출하면,
 컴포즈는 어떤 컴포저블이 호출되었는지 않았는지를 파악하고, 전∙후 `Composition`에서 모두 호출된 컴포저블에 대해서 입력이 변경되지 않았다면 'ReComposition'을 회피합니다.
 
 컴포저블 인스턴스의 'Identity' 유지는 `Side-Effect`를 관리하는데 중요합니다.
@@ -85,11 +90,19 @@ fun LoginError() { /* ... */
 ## Add extra information to help smart recompositions
 
 > - 동일한 'call site에서 Composable을 여러 번 호출하면 ('실행 순서'(index) + 'call site')를 통해 각 Composable의 인스턴스를 구별함
->   - 리스트 내 'call site' 변경이 없고, 동일한 파리미터를 사용하는 새로운 요소가 리스트 하단으로 계속 추가되면 `Composition` 내의 Composable 인스턴스 재사용 가능
->   - 그러나 리스트의 순서가 섞이는 순간, 리스트 내 Composable 인스턴스들의 'call site'가 변경되어 리스트에서 사용 중인 Composable 인스턴스 모두가 'ReComposition'됨
->   - 이처럼 리스트 순서가 섞여도 Composable 인스턴스를 재사용하고 싶다면, `key` 컴포저블을 사용할 수 있음
+    >
+
+- 리스트 내 'call site' 변경이 없고, 동일한 파리미터를 사용하는 새로운 요소가 리스트 하단으로 계속 추가되면 `Composition` 내의 Composable 인스턴스 재사용 가능
+
+> - 그러나 리스트의 순서가 섞이는 순간, 리스트 내 Composable 인스턴스들의 'call site'가 변경되어 리스트에서 사용 중인 Composable 인스턴스 모두가 'ReComposition'됨
+    >
+
+- 이처럼 리스트 순서가 섞여도 Composable 인스턴스를 재사용하고 싶다면, `key` 컴포저블을 사용할 수 있음
+
 > - `key` 컴포저블은 특정 코드 부분을 구별할 수 있는 고유 값('Identity')을 설정하도록 하는 역할
->   - 이 고유 값은 전역적일 필요는 없고, 같은 'call site'에서 호출되는 다른 컴포저블들 사이에서만 고유하면 됨
+    >
+
+- 이 고유 값은 전역적일 필요는 없고, 같은 'call site'에서 호출되는 다른 컴포저블들 사이에서만 고유하면 됨
 
 `N`번 호출된 컴포저블은 `Composition` 내에 `N`번 추가됩니다.
 
@@ -118,7 +131,8 @@ fun MoviesScreen(movies: List<Movie>) {
 
 <img src="../../resource/lifecycle-newelement-bottom.png" width="60%">
 
-그러나 만약 영화 목록이 리스트의 상단 또는 중간에 추가되거나, 항목이 제거되거나 순서가 변경된다면, 입력 파라미터의 위치가 리스트에서 변경된 모든 `MovieOverview` 호출에서 'ReComposition'이 발생합니다.
+그러나 만약 영화 목록이 리스트의 상단 또는 중간에 추가되거나, 항목이 제거되거나 순서가 변경된다면, 입력 파라미터의 위치가 리스트에서 변경된 모든 `MovieOverview` 호출에서 'ReComposition'이
+발생합니다.
 
 이는 특히, `MoviewOverview`가 SideEffect를 사용하여 영화 이미지를 불러오는 경우에 중요해집니다.
 만약 SideEffect 진행 중에 'ReComposition'이 발생하면, 해당 SideEffect는 취소되고 다시 새롭게 시작됩니다.
@@ -154,7 +168,7 @@ fun MovieOverview(movie: Movie) {
 `key` 컴포저블은 특정 코드 부분을 구별할 수 있는 고유한 값인 'Identity'를 설정하도록 하는 역할을 합니다.
 
 예를 들어, `movie` 데이터를 `key` 컴포저블에 전달하면, 그 `movie` 데이터를 가지고 그려지는 `MovieOverview` 컴포저블은 그 `movie`에 고유하게 연결됩니다.   
-이렇게 하면 영화 목록의 순서가 바뀌더라도, 각 `MovieOverview` 컴포저블은 자신에게 연결된 `movie` 데이터를 그대로 유지하게 됩니다. 
+이렇게 하면 영화 목록의 순서가 바뀌더라도, 각 `MovieOverview` 컴포저블은 자신에게 연결된 `movie` 데이터를 그대로 유지하게 됩니다.
 따라서 목록 순서가 바뀌어도 다시 그릴 필요가 없게 됩니다.
 
 이 'Identity'는 전역적으로 고유할 필요는 없고, 같은 'call site'에서 호출되는 다른 컴포저블들 사이에서만 고유하면 됩니다.
@@ -196,58 +210,63 @@ fun MoviesScreenLazy(movies: List<Movie>) {
 
 ---
 
-## 입력값이 변경되지 않은 경우 재구성 건너뛰기
+## Skipping if the inputs haven't changed
 
-Composable이 이미 Composition에 있고 모든 입력값이 Stable(안정적)이고 변경되지 않는다면 재구성을 건너뛸 수 있습니다.
+> - `Composition`에 Composable이 존재하고, Composable의 모든 '입력 값이 변경되지 않았고' '안정적인 타입'이라면 'ReComposition'을 건너뛸 수 있음
+> - Compose에서 'Stable Type'은 다음을 준수함
+>   - 같은 두 인스턴스에 대해 `equals()` 결과가 항상 동일해야 함
+>   - 'public properties type'이 변경될 때 `Composition`에 알려야 함
+>   - 모든 'public properties type'이 안정적이어야 함
+>   - primitive type (`Boolean`, `Int`, `Long`, `Float`, `Char` 등)
+>   - 문자열 (`String`)
+>   - 모든 함수 타입 (lambda)
+> - Compose에서 `MutableState<T>`은 'Stable Type'으로 간주함
+> - Composable의 파라미터 타입이 모두 'Stable Type'이라면, UI 트리에서 Composable 위치를 기준으로 `equlas()`를 통해 동일성을 비교하여 값에 변경이 없다면 'ReComposition' 회피 가능
+> - `@Stable`을 통해 개발자가 임의의 타입을 'Stable Type'으로 Compose에게 알릴 수 있음
+>   - 그럼에도 `@Stable`의 값이 변경되면 'ReComposition' 발생
 
-> 안정적인 타입은 변경이 예측 가능하고 일관된 방식으로 행동하는 데이터의 한 유형입니다.
+이미 컴포저블이 `Composition`에 있고 모든 입력 값이 변경되지 않았고 안정적인 타입이라면 **'ReComposition'을 건너뛸 수 있습니다.**
 
 안정적인 타입은 다음의 규약을 준수해야 합니다.
 
-| 규약         | 설명                                                                                                                                                                     |
-|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 동일성        | 같은 두 인스턴스에 대해 `equals` 메소드의 결과는 항상 동일해야 합니다.</br>이 규약은 값의 안전성과 일관성을 보장합니다.                                                                                             |
-| 변경 통보      | 타입의 공개 속성이 변경될 때마다 Compose에 알려야 합니다. </br>예를 들어, Compose에서 관리하는 `MutableState`는 값을 변경할 때마다 Compose에 알립니다. 이는 Compose가 어떤 값이 변경되었는지를 알고, 필요한 경우에만 해당 부분을 재구성할 수 있게 합니다. |
-| 속성 타입의 안정성 | 모든 공개 속성 타입 역시 안정적이어야 합니다. </br>예를 들어, 클래스의 모든 속성이 불변 타입인 경우, 그 클래스는 안정적인 것으로 간주할 수 있습니다.                                                                              |
+| 규약         | 설명                                                                                                                                             |
+|------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| 동일성        | 같은 두 인스턴스에 대해 `equals()` 결과는 항상 동일해야 합니다.</br>이 규약은 값의 안전성과 일관성을 보장합니다.                                                                        |
+| 변경 통보      | 타입의 공개 속성이 변경될 때마다 `Composition`에 알려야 합니다. </br>예를 들어, `MutableState`는 값이 변경될 때 알립니다. 이는 컴포즈가 어떤 값이 변경되었는지를 알고, 필요한 경우에만 해당 부분을 재구성할 수 있게 합니다. |
+| 속성 타입의 안정성 | 모든 공개 속성 타입 역시 안정적이어야 합니다. </br>예를 들어, 클래스의 모든 속성이 불변 타입인 경우, 그 클래스는 안정적인 것으로 간주할 수 있습니다.                                                      |
 
-이러한 규약은 Compose가 성능 최적화를 할 수 있게 돕습니다. Compose는 값이 변경되었는지 확인하고, 변경이 없다면 재구성을 건너뛸 수 있습니다.   
-이는 불필요한 작업을 최소화하고 앱의 성능을 향상시키는 데 중요합니다.
+또한 컴포즈 컴파일러는 몇가지 타입을 안정적이라 판단하며, `@Stable`을 명시하지 않아도 괜찮습니다.
 
-Compose 컴파일러는 몇가지 타입들이 안정적이라고 판단하며, 이는 `@Stable` 어노테이션을 사용하여 명시적으로 표시하지 않아도 됩니다.  
-Compose 컴파일러에서 안정적으로 판단되는 몇 가지 중요한 타입으로 다음과 같이 있습니다.
 - 모든 기본 값 타입: `Boolean`, `Int`, `Long`, `Float`, `Char` 등
 - 문자열 (`String`)
 - 모든 함수 타입 (lambda)
 
-이러한 타입들은 모두 불변(immutable)하기 때문에 안정적 규약을 따르기에 Composition에 변경 사항을 알릴 필요가 없어 이 규약을 따르는 것이 좋습니다.
+이처럼 불변 타입은 절대로 변하지 않으므로, `Composition`에 변경을 알릴 필요가 없기에 안정적인 규약을 쉽게 따를 수 있습니다.
 
-> 모든 Immutable Type은 안정적인 타입으로 간주될 수 있습니다.
+---
 
-불변성을 가진 타입이 아닌데도 안정적으로 간주되는 특별한 타입이 하나 있습니다.  
-바로 Compose의 `MutableState` 타입으로 만약 값이 `MutableState`에 보관되면, 상태 객체 전체가 안정적으로 간주됩니다.   
-왜냐하면 Compose는 `State`의 `.value` 프로퍼티에 대한 모든 변경사항을 알림 받기 때문입니다.
+컴포즈의 `MutableState` 타입은 불변 타입이 아니지만, 안정적인 타입으로 간주됩니다.
 
-Composable에 파라미터가 전달될 때, 이 파라미터 값들은 UI 구성 트리에서 Composable 위치에 따라 동일성 비교가 이루어집니다.   
-이전 호출 이후로 값이 변경되지 않았다면, 재구성은 건너뜁니다.
+만약 어떤 값이 `MutableState`에 저장되어 있다면, 컴포즈는 `State` 객체의 `.value` 속성이 변경되면 알림을 받습니다.
+따라서 `MutableState` 객체는 안정적인 타입으로 간주됩니다.
 
-다시 말해서, 만약 Composable 함수에 전달된 모든 인자들이 안정적인 타입이라면, 
-이 인자들의 값은 이전 호출과 비교해서 동일한지 확인하게 됩니다. 
-만약 모든 인자들의 값이 변하지 않았다면, Compose는 해당 Composable 함수를 다시 실행하지 않고 건너뛰게 됩니다. 
-이로 인해 불필요한 재구성을 최소화하고, 성능을 향상시키는 효과를 얻을 수 있습니다.
+또한 컴포저블에 전달되는 모든 타입이 안정적이라면, 이 값들은 UI 트리에서 컴포저블의 위치를 기준으로 동일성을 비교할 수 있습니다.
+이전 호출 이후 모든 값이 변경되지 않았다면, 'ReComposition'을 건너뛸 수 있습니다.
 
-> Compose는 모든 입력이 안정적이고 변경되지 않았다면 Composable의 재구성을 건너뜁니다. 비교는 `equals` 메서드를 사용합니다.
+> 컴포즈는 모든 입력 값이 안정적이고 변경되지 않았다면 컴포저블의 'ReComposition'을 건너뜁니다.   
+> 이 비교에는 `equals()`을 사용합니다.
 
-### @Stable 어노테이션을 통한 안정성 강제
+---
 
-Compose는 타입이 안정적임을 증명할 수 있을 때만 그 타입을 안정적으로 간주합니다.  
-일반적으로 Compose는 `interface`를 안정적이지 않은 타입으로 취급합니다.
+컴포즈는 타입이 안정적임을 증명할 수 있을 때만 그 타입을 안정적으로 간주합니다.  
+일반적으로 컴포즈는 `interface`를 안정적이지 않은 타입으로 취급합니다.
 왜냐하면 `interface`는 그 자체로 구현이 없으며, 여러 다른 구현체들이 있을 수 있기 때문입니다.
-이 때문에 Compose는 `interface`의 내용이 언제든지 바뀔 수 있다고 생각합니다.
+이 때문에 컴포즈는 `interface`의 내용이 언제든지 바뀔 수 있다고 생각합니다.
 
-만약 Compose가 타입이 안정적임을 추론할 수 없지만, 개발자가 Compose가 그것을 안정적으로 취급하도록 강제하고 싶다면 해당 타입에 `@Stable` 어노테이션을 표시해야 합니다.
+만약 컴포즈가 타입이 안정적임을 추론할 수 없지만, 개발자가 안정적으로 취급하도록 강제하고 싶다면 해당 타입에 `@Stable` 어노테이션을 붙여주면 됩니다.
 
-`interface`에 `@Stable` 어노테이션 붙으면, Compose는 이 인터페이스를 안정적이라고 판단합니다.   
-즉, 이 `interface`의 구현체들은 바뀌지 않는다고 가정하게 되는 것입니다.
+`interface`에 `@Stable` 어노테이션 붙으면, 컴포즈는 이 인터페이스를 안정적이라고 판단합니다.   
+즉, 이 `interface`의 구현체들이 바뀌지 않는다고 알릴 수 있습니다.
 
 ```kotlin
 @Stable
@@ -260,12 +279,14 @@ interface UiState<T : Result<T>> {
 }
 ```
 
-위 코드에서 `@Stable` 어노테이션이 붙은 `UiState`는, Compose에게 이 인터페이스를 안정적이라고 알리는 역할을 합니다. 
-이로 인해 Compose는 `UiState`가 매개변수 타입으로 사용될 때 모든 구현체를 안정적으로 간주합니다. 
-즉, `UiState`를 구현하는 모든 클래스들의 인스턴스는 변경되지 않는다는 가정하에 Compose는 재구성을 수행하게 됩니다.
+위 코드에서 `@Stable` 어노테이션이 붙은 `UiState`는, 컴포즈에게 이 인터페이스를 안정적이라고 알리는 역할을 합니다.  
+이로 인해 컴포즈는 `UiState`가 파라미터 타입으로 사용될 때 모든 구현체를 안정적으로 간주합니다.
 
-> Compose가 타입의 안정성을 추론할 수 없다면, `@Stable` 어노테이션을 사용하여 스마트한 재구성을 가능하게 합니다.
+즉, `UiState`를 구현하는 모든 클래스들의 인스턴스는 변경되지 않는다는 가정하에 컴포즈는 'ReComposition'을 수행하게 됩니다.
 
+---
+
+---
 
 ---
 
