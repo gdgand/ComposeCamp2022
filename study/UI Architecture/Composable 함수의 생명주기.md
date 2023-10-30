@@ -38,28 +38,21 @@
 
 ---
 
-## Composition 내부의 Composable 구조
+## Anatomy of a composable in Composition
 
-### Composition 내의 Composable 인스턴스 식별
+> - Compose-Compiler는 [call site](#호출-위치call-site)를 통해 `Composition` 내부의 Composable 인스턴스를 구분함
+> - 'ReComposition' 중 이전과 동일한 Composable 인스턴스는 재사용됨 (즉, 'ReComposition' 회피)
+> - 'call site'로 구분되는 Composable 인스턴스는 Composable의 Identity를 유지하게 해주며, 이는 SideEffect 관리에 유용함
 
-Composable 인스턴스는 호출 위치(Call Site)에 의해 식별됩니다.  
-동일한 Composable이지만 다른 위치에서 호출되면 Composition 내에서는 다른 인스턴스로 간주됩니다.
+`Composition` 내의 컴포저블 인스턴스는 [call site](#호출-위치call-site)에 의해 식별되며 컴포즈 컴파일러는 각 'call site'를 별개로 취급합니다.  
+즉, 다수의 'call site'에서 컴포저블을 호출하면 `Composition` 내에 여러 인스턴스가 생성됩니다.
 
-호출 위치는 Composable이 Composition 내에서 어디에 위치할지, 그리고 결국 UI 트리가 어떻게 형성될지에 큰 영향을 미칩니다.
+'ReComposition' 중 컴포저블이 이전 `Composition` 때와 다른 컴포저블을 호출하면, 
+컴포즈는 어떤 컴포저블이 호출되었는지 않았는지를 파악하고, 전∙후 `Composition`에서 모두 호출된 컴포저블에 대해서 입력이 변경되지 않았다면 'ReComposition'을 회피합니다.
 
-### 재구성과 인스턴스 식별 관리
-
-Compose는 Composable 함수의 실행을 추적하고, Composable 함수가 어떤 다른 Composable 함수를 호출하는지를 기록합니다.  
-상태 변화로 인한 재구성이 발생하면, Compose는 이전 Composition과 비교해 어떤 Composable이 추가/제거/변경되었는지 파악합니다.  
-이전 Composition과 동일하게 호출된 Composable은 입력값이 변하지 않았다면 재구성을 피하게 됩니다. 이를 통해 불필요한 함수 실행을 최소화하고 성능을 향상시킵니다.
-
-### Side-Effect 관리
-
-Composable 인스턴스의 `Identity(식별성)`유지는 `Side-Effect`를 관리하는데 중요합니다.  
-`Identity`가 유지되면 각 인스턴스는 자신의 `Side-Effect`를 올바르게 관리하고 추적할 수 있습니다.   
-이로 인해 상태 변경에도 `Side-Effect` 작업이 중단되거나 재시작되는 것을 방지하고, 성공적으로 완료될 수 있게 됩니다.
-
-아래 예를 보시죠.
+컴포저블 인스턴스의 'Identity' 유지는 `Side-Effect`를 관리하는데 중요합니다.
+'Identity'가 유지되면 각 컴포저블은 자신의 `Side-Effect`를 올바르게 관리하고 추적할 수 있습니다.
+이로 인해 'ReComposition'이 발생해도 `Side-Effect` 작업이 중단되거나 재시작되는 것을 방지하고, 성공적으로 완료될 수 있게 됩니다.
 
 ```kotlin
 @Composable
@@ -80,15 +73,14 @@ fun LoginError() { /* ... */
 ```
 
 위의 코드에서, `LoginScreen`은 조건문을 통해 `LoginError`를 호출하고 항상 `LoginInput`을 호출합니다.   
-각 호출은 **고유한 호출 위치와 소스 위치**를 가지며, **컴파일러는 이것을 통해 고유하게 식별**합니다.
+**각 호출은 고유한 'call site'를 지니며, 컴포즈 컴파일러는 이를 통해 고유하게 식별할 수 있습니다.**
 
 <img src="../../resource/lifecycle-show-error.png" width="50%" height="50%">
 
-상태가 변경되고 재구성이 발생할 때 Composition 내의 `LoginScreen`의 표현입니다. (같은 색상은 재구성되지 않았음을 의미합니다.)
+위 그림은 `showError` 상태가 변경되어 'ReComposition'이 발생되면 `LoginScreen`을 표현한 것 입니다.  
+비록 `LoginInput`의 'call site'가 변경되었지만, 상태에 영향을 받지 않기에 `LoginInput` 컴포저블의 인스턴스는 재구성을 거쳐도 유지됩니다.
 
-위 그림을 보면 비록 `LoginInput`이 처음 호출된 위치에서 두 번째로 호출된 위치로 변경되었지만,  
-`LoginInput`은 재구성을 거쳐도 입력 매개변수가 변경되지 않았기 때문에, `LoginInput`에 대한 호출은 Compose에 의해 건너뛰어집니다.  
-즉, `LoginInput` 인스턴스는 재구성을 거쳐도 유지됩니다.
+---
 
 ## 효율적인 재구성을 위한 참고정보 추가
 
@@ -273,3 +265,8 @@ interface UiState<T : Result<T>> {
 1. 상태가 자식 컴포저블 내부에서 변경된 경우, 그 자식 컴포저블을 건너뛸 수 없음
 2. 부모 컴포저블에서 전달되는 프로퍼티가 변경되었다면, 그 프로퍼티를 사용하는 자식 컴포저블은 건너뛸 수 없음
 3. 다른 외부 조건이나 리소스에 의존하는 컴포저블인 경우
+
+### 호출 위치(call site)
+
+컴포저블이 호출되는 소스 코드의 위치입니다.  
+'Call Site'는 컴포저블이 `Composition` 내에서 어디에 위치할지, 즉 UI 트리가 어떻게 형성될지 영향을 미칩니다.
