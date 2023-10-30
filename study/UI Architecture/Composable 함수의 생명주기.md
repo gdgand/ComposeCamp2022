@@ -1,60 +1,40 @@
 # Composable 생명주기
 
----
+> - `Composition`은 'initial Composition'에 의해 생성되고, 'ReComposition'에 의해만 업데이트 될 수 있음
+> - 'ReComposition'의 트리거는 `State<T>` 객체의 변경 
+> - 컴포즈는 `State<T>`를 읽는 `Composition`을 추적하여 Composable을 다시 실행하도록 할 수 있음
+> - Composable Lifecycle
+>   1. 컴포즈는 'initial Composition' 시 `Composition`에 컴포저블을 추가
+>   2. 상태 변경 시 `Composition`에 해당 상태를 사용중인 컴포저블을 추적하여 다시 실행, `Composition`을 업데이트
+>   3. 더 이상 필요하지 않거나 조건에 따라 제거되면 `Composition`을 떠남
 
-## 개요
+`Composition` 단계는 컴포저블을 실행하여 앱의 UI 트리를 생성합니다.
 
-Composition은 composable들을 실행하여 생성되며, 앱의 UI를 설명합니다. 또한, Composable들의 트리 구조 입니다.
+컴포즈는 'initial composition' 단계에서 실행되는 컴포저블을 모두 추적합니다.  
+그런 다음 추적되고 있는 컴포저블에 상태가 변경되면 컴포즈는 'ReComposition'을 예약합니다.
 
-### Composition
+'ReComposition'은 컴포즈가 상태 변경에 응답하여 변경될 수 있는 컴포저블을 다시 실행하고, 변경 사항을 반영하여 `Composition`을 업데이트 하는 것을 말합니다.  
 
-Compose가 [initial Composition](../용어.md#초기-컴포지션initial-composition)을 실행하는 동안, UI를 그리기 위해 호출한 composable들을 Composition에
-저장합니다.   
-그런 다음 App의 상태가 변경되면, Compose는 ReComposition(이하 재구성)을 실행합니다.
+`Composition`은 'initial Composition'에 의해만 생성되고, 'ReComposition'에 의해만 업데이트 될 수 있습니다.  
+즉, `Composition`을 수정하는 유일한 방법은 'ReComposition'을 통해서만 가능합니다.
 
-Composition은 오직 `initial Composition`에 의해 생성되고 재구성에 의해 업데이트될 수 있습니다.  
-Composition을 수정하는 유일한 방법은 재구성을 통한 것입니다.
+<img src="../../resource/composition.png" width="50%">
 
-### 재구성 (ReComposition)
+컴포저블의 생명주기는 위 표와 같이 정의될 수 있습니다.
 
-재구성이란, Compose가 상태 변경에 반응할 수 있도록 상태가 변경된 composable들을 다시 실행하고, 변경 사항을 반영하기 위해 Composition을 업데이트하는 과정입니다.
+1. Composition 진입
+2. 0회 이상 ReComposition
+3. Composition 떠나기
 
-재구성은 일반적으로 **`State<T>` 객체의 변경에 의해 트리거**됩니다.  
-Compose는 `State<T>`를 추적하고, 해당 `State<T>`를 읽는 Composition 내부 중 건너뛸 수 없는 모든 상위 및 하위 Composable들을 재구성합니다.
+컴포저블을 'initial Composition' 시 `Composition`에 추가(enter)되고,   
+그 후 상태 변경이나 다른 요인에 의해 1번 이상 재구성될 수 있습니다.(recomposed 0 or more times)  
+마지막으로 더 이상 필요하지 않거나 조건에 따라 제거되어 Composition을 떠납니다. (leave)
 
-### Composable 생명주기 단계
+'ReComposition'은 일반적으로 `State<T>` 객체의 변경에 의해 트리거됩니다.  
+컴포즈는 `State<T>`를 추적하고, 해당 `State<T>`를 읽는 `Composition` 내의 모든 컴포저블을 실행합니다.  
+그리고 그 컴포저블들이 호출하는 다른 컴포저블들 중 [건너 뛸 수 없는 컴포저블](#recomposition-시-건너-뛸-수-없는-composable)들도 실행됩니다.
 
-<img src="../../resource/composition.png" width="40%" height="40%">
-
-| 단계              | 설명                                                                                                                                                                                           |
-|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Composition 진입  | - Composable이 Composition에 처음 추가될 때 시작됩니다. </br>- Composable이 Composition에 진입하면 Compose는 이 Composable의 구성을 기억하고 상태 변화를 추적합니다.                                                                |
-| N회 재구성          | - 앱의 상태가 변하면, Compose는 이러한 변경 사항에 응답할 수 있도록 관련된 Composable을 재구성합니다.</br> - 이 단계에서는 Composable이 계속해서 실행되고 상태 변화를 반영하도록 업데이트됩니다.</br> - 재구성은 0번 이상 발생할 수 있으며, 이는 앱 상태가 얼마나 자주 변경되는지에 따라 달라집니다. |
-| Composition 떠나기 | - Composable이 Composition 트리에서 제거되면, 그 생명주기는 끝나게 됩니다. </br> - 이 단계에서는 Composable이 더 이상 실행되지 않으며, Composition에서 제거됩니다.                                                                        |
-
-다시 말해, Composable의 생명주기는 Composition에 진입하여 시작되고, 상태 변화에 따라 재구성되며, 최종적으로 Composition에서 제거되면서 종료됩니다.
-
-> Composable의 생명주기는 `View`, `Activity`, `Fragment`의 생명주기보다 간단합니다.  
-> Composable이 더 복잡한 생명주기를 가진 외부 리소스를 관리하거나 상호작용해야 하는 경우, `effects`를 사용해야 합니다.
-
-만약 Composable이 여러 번 호출된다면, Composition에는 여러 인스턴스가 배치됩니다.
-각 호출은 Composition에서 자체적인 생명주기를 가집니다.
-
-```kotlin
-@Composable
-fun MyComposable() {
-    Column {
-        Text("Hello")
-        Text("World")
-    }
-}
-```
-
-<img src="../../resource/lifecycle-hierarchy.png" width="50%" height="50%">
-
-위 코드는 `MyComposable`이 Composition에서 어떻게 표현되는지를 보여줍니다.  
-위처럼 서로 다른 텍스트를 가진 Composable들은 별개의 인스턴스입니다.
-
+> 만약 컴포저블이 더 복잡한 라이프사이클 가진 외부 리소스와 상호 작용하거나 괸리가 필요한 경우 Effects를 사용해야 합니다.
 
 ---
 
@@ -279,3 +259,17 @@ interface UiState<T : Result<T>> {
 즉, `UiState`를 구현하는 모든 클래스들의 인스턴스는 변경되지 않는다는 가정하에 Compose는 재구성을 수행하게 됩니다.
 
 > Compose가 타입의 안정성을 추론할 수 없다면, `@Stable` 어노테이션을 사용하여 스마트한 재구성을 가능하게 합니다.
+
+
+---
+
+### ReComposition 시 건너 뛸 수 없는 Composable
+
+컴포즈는 성능 최적화를 위해 불필요한 'ReComposition'을 최대한 회피하며 상태가 변경될 때 상태를 읽는 컴포저블만 'ReComposition'됩니다.
+
+그런데 이 상태를 읽고 있는 컴포저블이 다른 컴포저블을 호출한다면, 호출되는 컴포저블도 'ReComposition'의 대상이 될 수 있습니다.  
+이런 상황에서 'ReComposition'의 대상이 되는 컴포저블은 다음과 같음
+
+1. 상태가 자식 컴포저블 내부에서 변경된 경우, 그 자식 컴포저블을 건너뛸 수 없음
+2. 부모 컴포저블에서 전달되는 프로퍼티가 변경되었다면, 그 프로퍼티를 사용하는 자식 컴포저블은 건너뛸 수 없음
+3. 다른 외부 조건이나 리소스에 의존하는 컴포저블인 경우
