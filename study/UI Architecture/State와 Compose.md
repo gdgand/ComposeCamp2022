@@ -4,6 +4,7 @@
 - [State and composition](#state-and-composition)
 - [State in composbles](#state-in-composables)
 - [Other supported types of state](#other-supported-types-of-state)
+- [State hoisting](#state-hoisting)
 
 ---
 
@@ -187,6 +188,101 @@ Stateful 컴포저블은 `remember`를 사용하여 객체를 내부에 저장�
 
 Stateless 컴포저블은 위와 반대로 `State<T>`를 보유하지 않은 컴포저블을 말합니다.  
 Stateless 컴포저블을 만드는 가장 간단한 방법은 'State Hoisting'을 사용하는 것입니다.
+
+---
+
+## State hoisting
+
+> - State hoisting : Stateless Composable로 만들기 위해 `State<T>`를 상위 Composable로 이동시키는 패턴
+>   - Composable안에서 `State<T>`를 생성하지 않고, `value: T`와 `onValueChange: (T) -> Unit` 파라미터로 대체
+> - State hoisting 특징
+>   - single source of truth : 동일한 `State<T>` 제공, 일관성 보장 
+>   - Encapsulated : 'Stateful Composable' 만 `State<T>` 수정 가능, 외부에서 무분별한 수정 방지
+>   - Shareable : 하나의 `State<T>`를 여러 Composable에 공유 가능
+>   - Interceptable : `State<T>` 변경 전 이벤트 무시 또는 수정 가능
+>   - Decoupled : `State<T>` 관리 로직을 `ViewModel`과 같은 다양한 곳에서 할 수 있음
+> - 단방향 데이터 흐름 : `State<T>`가 내려가고 `이벤트`가 올라가는 패턴
+> - State hoisting 규칙
+>   - UI 트리 구조에서 상태를 사용하는 모든 Composable의 가장 낮은 Composable에 호이스팅 되어야 함
+>   - 상태는 변경될 수 있는 가장 높은 Composable까지 호이스팅되어야 함
+>   - 같은 이벤트에 변경되는 두 상태는 함께 호이스팅 되어야 함
+
+---
+
+컴포즈에서 'state hoisting'은 컴포저블을 Stateless로 만들기 위해 상태를 컴포저블의 호출자에게 이동시키는 패턴입니다.
+
+컴포즈에서 일반적으로 'state hoisting'을 구현하는 패턴은 컴포저블에서 `State<T>`를 생성하는 대신 2가지 파라미터로 대체하는 것입니다.
+
+- `value: T`: 현재 표시할 값입니다.
+- `onValueChange: (T) -> Unit`: 값 변경 요청을 하는 이벤트, `T`는 제안된 새로운 값입니다.
+
+그러나 `onValueChange`로 제한할 필요는 없습니다. 만약 컴포저블이 더 구체적인 이벤트가 필요하다 판단되면,
+`ExpandingCard`가 `onExpand`와 `onCollapse`와 같은 람다를 사용하여 정의하는 것처럼 변경하면 됩니다.
+
+이처럼 상태를 끌어올린(state hoisting) 경우 아래와 같은 중요한 특징이 있습니다.
+
+### State hoisting 특징
+
+1. **Single source of truth (단일 공급)** : 중복되지 않은 `State<T>`을 제공하여, 값의 일관성을 보장합니다.
+
+2. **Encapsulated (캡슐화)** : Stateful 컴포저블만이 `State<T>`를 수정할 수 있으므로, 외부에서 무분별한 수정을 방지합니다.
+
+3. **Shareable (공유 가능)** : 끌어올린 `State<T>`는 여러 컴포저블과 공유될 수 있습니다.
+
+4. **Interceptable (가로채기 가능)** : Stateless 컴포저블 호출자는 `State<T>` 변경 전 이벤트를 무시하거나 수정할 수 있습니다.
+
+5. **Decoupled (분리 가능)** : Stateless 컴포저블의 `State<T>` 관리 로직을 `ViewModel`과 같은 다양한 곳에서 할 수 있습니다.
+
+---
+
+아래 예제는 `name`과 `onValueChange`를 `HelloContent()`에서 추출하고, 이를 UI 트리의 상위 레벨로 이동시킵니다.
+
+```kotlin
+@Composable
+fun HelloScreen() {
+    var name by rememberSaveable { mutableStateOf("") }
+
+    HelloContent(
+        name = name,
+        onNameChange = { name = it }
+    )
+}
+
+@Composable
+fun HelloContent(name: String, onNameChange: (String) -> Unit) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(
+            text = "Hello, $name",
+            modifier = Modifier.padding(bottom = 8.dp),
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        OutlinedTextField(
+            value = name,
+            onValueChange = onNameChange,
+            label = { Text("Name") }
+        )
+    }
+}
+```
+
+이처럼 상태를 끌어올리게 되면, 컴포저블을 더 쉽게 이해할 수 있고, 다양한 상황에서 재사용하거나 테스트하기 쉬워집니다.  
+이처럼 `HelloContent`는 상태가 어떻게 저장되는지와 분리됨에 따라, `HelloScreen`을 수정하거나 대체하더라도, `HelloContent`의 구현 방식을 변경할 필요가 없습니다.
+
+<img src="../../resource/host_hoisting.png" width="30%" height="30%">
+
+`State<T>`가 내려가고 `이벤트`가 올라가는 패턴을 단방향 데이터 흐름(unidirectional data flow)이라고 합니다.
+
+위 경우에 상태는 `HelloScreen`에서 `HelloContent`로 내려가고, 이벤트는 `HelloContent`에서 `HelloScreen`으로 올라갑니다.
+이처럼 단방향 데이터 흐름을 따르면, UI에서 `State<T>`를 표시하는 컴포저블과 앱의 `State<T>`를 저장하고 변경하는 부분을 분리할 수 있습니다.
+
+### State hoisting 규칙
+
+상태를 호이스팅할 때, 상태가 어디로 가야하는지 결정하는데 도움이 되는 3가지 규칙이 있습니다.
+
+1. 상태는 그 상태를 사용하는 모든 컴포저블의 가장 낮은 공통 부모 컴포넌트까지 적어도 호이스팅되어야 합니다.
+2. 상태는 변경될 수 있는 가장 높은 레벨까지 호이스팅되어야 합니다.
+3. 같은 이벤트에 변경되는 두 상태는 함께 호이스팅 되어야 합니다.
 
 ---
 
