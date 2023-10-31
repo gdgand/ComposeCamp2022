@@ -73,8 +73,8 @@ private fun HelloContent() {
 >   - ReComposition 시 `remember` 객체를 재사용 할 수 있어 성능 향상이 가능
 >   - 단, `Composition`에서 Composable 함수가 '제거'되면 거기에 종속된 `remember` 객체도 사라짐
 >   - Configuration Change 발생 시 `remember` 객체는 상태 유지 불가능, `rememberSaveable` 객체는 상태 유지 가능
-> - `mutableStateOf` 사용 시 `MutableState<T>` 생성, 이는 컴포즈 런타임이 '관찰 가능한 상태' 객체
->   - `MutableState`의 값을 변경하면 이를 관찰하는 모든 Composable에 컴포즈 런타임이 자동으로 `ReComposition` 예약
+> - `mutableStateOf` 사용 시 `MutableState<T>` 생성, 이는 Compose-Runtime이 '관찰 가능한 상태' 객체
+>   - `MutableState`의 값을 변경하면 이를 관찰하는 모든 Composable에 Compose-Runtime이 자동으로 `ReComposition` 예약
 
 ---
 
@@ -86,13 +86,13 @@ private fun HelloContent() {
 이 후 `ReComposition` 중에 `remember`에 저장된 값을 재사용 할 수 있습니다.  
 또한 `remember`는 가변(mutable) 및 불변(immutable) 객체 모두를 저장할 수 있습니다.
 
-> `remember`는 컴포저블 함수에 종속되어 `Composition`에 객체를 저장하기에 해당 컴포저블이 `Composition`에서 제거되면 `remember` 객체도 제거 됩니다.
+`remember`는 컴포저블 함수에 종속되어 `Composition`에 객체를 저장하기에 해당 컴포저블이 `Composition`에서 제거되면 `remember` 객체도 제거 됩니다.
 
 ---
 
 ### mutableStateOf
 
-`mutableStateOf`는 관찰이 가능한 `MutableState<T>`를 생성하는데, 이는 컴포즈 런타임과 통합된 관찰 가능한 타입입니다.
+`mutableStateOf`는 관찰이 가능한 `MutableState<T>`를 생성하는데, 이는 Compose-Runtime과 통합된 관찰 가능한 타입입니다.
 
 ```kotlin
 interface MutableState<T>: State<T> {
@@ -100,7 +100,7 @@ interface MutableState<T>: State<T> {
 }
 ```
 
-즉, `MutableState`의 값이 변경되면, 이 값을 관찰(사용) 하고 있는 모든 컴포저블이 `ReComposition` 되도록 컴포즈 런타임이 자동으로 예약 처리해줍니다.
+즉, `MutableState`의 값이 변경되면, 이 값을 관찰(사용) 하고 있는 모든 컴포저블이 `ReComposition` 되도록 Compose-Runtime이 자동으로 예약 처리해줍니다.
 
 예시로 `ExpandingCard`의 경우, `expanded` 파라미터가 변경될 때마다, `ExpandingCard`가 `ReComposition` 됩니다.
 
@@ -154,32 +154,48 @@ fun HelloContent() {
 
 ---
 
-## State의 다른 타입 지원
+## Other supported types of state
 
-Compose는 상태를 관리하기 위해 반드시 `MutableState<T>`를 사용해야 하는 것은 아니며, 다른 관찰 가능한 타입들을 지원합니다. 
-다른 관찰 가능한 타입을 Compose에서 사용하기 전에는, 상태가 변경될 때 Composable이 자동으로 재구성되도록 그것을 `State<T>`로 변환해야 합니다.
+> - `Flow` or `LiveData` 등 관찰 가능한 타입을 `State<T>`로 변환 가능하며 반드시 Composable 내부에서 변환해야 함
+>   - 외부에서 `State<T>`로 변환한 뒤 Composable로 전달하면, `State<T>`의 변화를 감지하지 못해 `ReComposition`이 발생하지 않음   
+>   - [produceState](https://developer.android.com/reference/kotlin/androidx/compose/runtime/package-summary#produceState(kotlin.Any,kotlin.coroutines.SuspendFunction1))를 사용하여 `State<T>`를 생성할 수 있음
+> - Stateful Composable : `remember`를 통해 `State<T>` 객체를 갖는 Composable
+> - Stateless Composable : `State<T>`를 가지지 않는 Composable
 
-Compose는 Android 앱에서 자주 사용되는 일반적인 관찰 가능한 타입들로부터 `State<T>`를 생성하는 함수를 제공합니다.
+---
 
-#### Flow 지원
+컴포즈는 `State<T>` 저장을 반드시 `MutableState<T>`를 사용해야 하는 것은 아니며, 다른 관찰 가능한 타입들을 지원합니다.  
+컴포즈에서 다른 관찰 가능한 타입을 사용하기 전에, `State<T>`가 변경될 때 컴포저블이 자동으로 `ReComposition` 할 수 있도록 `State<T>`로 변환해야 합니다. 
 
-`collectAsStateWithLifeCycle()`는 생명주기를 고려하여 Flow에서 값을 수집하며, 이를 통해 앱이 필요 이상의 리소스를 사용하는 것을 방지할 수 있습니다. 
-이 API는 Android 앱에서 Flow를 수집하는 권장되는 방법입니다.
+컴포즈는 Android 앱에서 일반적으로 사용되는 관찰 가능한 타입으로부터 `State<T>`를 생성하는 함수를 제공합니다.
 
-`collectAsState`는 `collectAsStateWithLifecycle`와 비슷하게, Flow에서 값을 수집하고 Compose의 `State`로 변환합니다. 
-`collectAsState`는 Android가 아닌 플랫폼에서 `collectAsStateWithLifecycle`(Android 전용) 대신 사용됩니다.
+### Flow
 
-#### Stateful Composable vs Stateless Composable
+`collectAsStateWithLifeCycle()`은 Android 앱에서 `Flow`를 안전하고 효율적으로 수집되는 권장 방식입니다.  
+생명 주기를 고려하여 `Flow`에서 값을 수집하며, `Flow`에서 최근에 방출된 값을 `State` 객체로 변환합니다.
 
-`remember`를 사용하여 객체를 저장하는 Composable은 내부 상태를 생성하므로, 그 Composable은 상태를 가지게 됩니다.   
-이는 상태를 제어할 필요가 없는 상황에서 유용할 수 있지만, 내부 상태를 가진 Composable은 재사용성이 낮고 테스트하기 어렵습니다.
+`collectAsState()`는 `collectAsStateWithLifeCycle()`와 유사하게, `Flow`에서 값을 수집하고 이를 `State`로 변환합니다.    
+`collectAsStateWithLifeCycle()`는 Android 플랫폼 전용이기에 플랫폼에 구애받지 않는 코드를 작성하려면 `collectAsState()`를 사용하면 됩니다.
 
-`Stateless Composable`은 상태를 직접 가지고 있지 않는 Composable를 의미합니다. 
-`Stateless Composable`은 모든 상태를 외부에서 받아들이고, 변경을 외부로 보내는 역할만 합니다. 
-이를 구현하는 방법 중 하나가 `state hoisting`입니다.
+### LiveData
 
-> stateful composable : 상태에 대해 신경 쓸 필요가 없는 호출자에게 편리합니다.  
-> stateless composable : 상태를 제어하거나 hoisting해야 하는 호출자에게 필요합니다.
+`observeAsState()`는 `LiveData`를 관찰하기 시작하고 그 값을 `State`로 변환합니다. 
+
+### 주의 사항
+
+컴포즈는 자동으로 `ReComposition을` 하여 UI를 업데이트 합니다.  
+따라서 `LiveData`나 다른 관찰 가능한 객체를 `State<T>`로 변환하는 과정은 외부 범위가 아닌 컴포저블 함수 내에서 이루어져야 합니다.
+
+제공되는 `Flow`, `LiveData` 외에도, `produceState` API를 사용하여 `State<T>`를 생성할 수 있습니다.
+
+### Stateful vs Stateless
+
+Stateful 컴포저블은 `remember`를 사용하여 객체를 내부에 저장하여 `State<T>`를 가지는 컴포저블을 말합니다.  
+예를 들어 위 예제 중 `HelloContent()`는 내부에서 `name` 상태를 보유하고 수정하기에 Stateful 컴포저블입니다.  
+이는 호출자가 `State<T>`를 제어할 필요가 없고, `State<T>`를 스스로 관리할 필요 없이 사용할 수 있도록 합니다.
+
+Stateless 컴포저블은 위와 반대로 `State<T>`를 보유하지 않은 컴포저블을 말합니다.  
+Stateless 컴포저블을 만드는 가장 간단한 방법은 'State Hoisting'을 사용하는 것입니다.
 
 ---
 
