@@ -1,18 +1,9 @@
-# 목차
- - [State와 Composition](#State와-Composition)
- - [Composable 안에 State](#Composable-안에-State)
-   - [remember API](#remember-api)
-   - [MutableState](#mutablestate)
-   - [rememberSaveable](#remember의-한계와-remembersaveable)
- - [State의 다른 타입 지원](#state의-다른-타입-지원)
- - [rememberSaveable의 저장 방식들](#remembersaveable의-저장-방식들)
-   - [parcelable](#parcelable)
-   - [mapSavor](#mapsaver)
-   - [listSavor](#listsaver)
- - [remember 블록의 재실행](#remember-함수-블록-재실행)
-   - [remember calculation](#remember-calculation)
-
 # Compose State
+
+## 목차
+- [State and composition](#state-and-composition)
+- [State in composbles](#state-in-composables)
+- [Other supported types of state](#other-supported-types-of-state)
 
 ---
 
