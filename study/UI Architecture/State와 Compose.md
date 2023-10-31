@@ -29,7 +29,7 @@
 ## State and composition
 
 > - Compose는 선언형 UI 프레임워크로 UI가 어떻게 보여야 하는지를 기술
-> - Compose UI 업데이트 방법 : 상태 업데이트 -> ReComposition 발생 -> Composition 업데이트 -> Composable 재실행
+> - Compose UI 업데이트 : 상태 업데이트 → ReComposition 발생 → Composition 업데이트 → Composable 재실행
 
 컴포즈는 선언형 UI 프레임워크로 UI가 어떻게 보여야 하는지를 기술합니다.  
 이 때문에 컴포즈 UI를 업데이트하는 유일한 방법은 파라미터를 '상태' 값으로 사용하는 동일한 컴포저블을 새로운 인자로 다시 호출하는 것 입니다.
@@ -67,75 +67,90 @@ private fun HelloContent() {
 
 ---
 
-## Composable 안에 State
+## State in composables
 
-Composable에서는 `remember` API를 사용하여 메모리에 객체를 저장할 수 있습니다.
+> - `remember` 사용 시 `Intial composition` 중 `Composition`에 저장되는 Composable 함수 안에 저장됨 
+>   - ReComposition 시 `remember` 객체를 재사용 할 수 있어 성능 향상이 가능
+>   - 단, `Composition`에서 Composable 함수가 '제거'되면 거기에 종속된 `remember` 객체도 사라짐
+>   - Configuration Change 발생 시 `remember` 객체는 상태 유지 불가능, `rememberSaveable` 객체는 상태 유지 가능
+> - `mutableStateOf` 사용 시 `MutableState<T>` 생성, 이는 컴포즈 런타임이 '관찰 가능한 상태' 객체
+>   - `MutableState`의 값을 변경하면 이를 관찰하는 모든 Composable에 컴포즈 런타임이 자동으로 `ReComposition` 예약
+
+---
 
 ### remember API
 
-- `remember`에 의해 계산된 값은 [initial composition](../용어.md#초기-컴포지션initial-composition) 중에 저장되며, recomposition 시에 저장된 값을 반환합니다.   
-- `remember`는 가변과 불변 객체 모두 저장하는 데 사용할 수 있습니다. 
+컴포저블 함수는 `remember` API를 사용하여 객체를 메모리에 저장할 수 있습니다.
 
-> `remember`를 호출한 composable이 Composition에서 제거되면, 저장된 객체를 지웁니다.  
-> `remember` 함수는 `remember`를 호출한 Composable에 객체를 저장합니다.  
-> 이는 ReComposition 과정에서 이전의 값을 재사용할 수 있게 해주는데, 이렇게 함으로써 UI 상태가 유지되고 성능이 향상됩니다.
+`remember`에 의해 메모리에 저장된 값(객체)는 `Initial composition` 중에 `Composition`에 저장됩니다.  
+이 후 `ReComposition` 중에 `remember`에 저장된 값을 재사용 할 수 있습니다.  
+또한 `remember`는 가변(mutable) 및 불변(immutable) 객체 모두를 저장할 수 있습니다.
 
-### MutableState
+> `remember`는 컴포저블 함수에 종속되어 `Composition`에 객체를 저장하기에 해당 컴포저블이 `Composition`에서 제거되면 `remember` 객체도 제거 됩니다.
 
-- `mutableStateOf`는 Compose 런타임과 통합되어 사용할 수 있는 특별한 상태 저장 방식입니다. 이를 사용하면 Observable한 `MutableState<T>`객체를 생성합니다.
-- `MutableState`는 저장된 값을 읽거나 변경할 수 있게 해주는 `Interface`입니다. 
-- `value`에 대한 모든 변경은 `value`를 읽은 모든 Composable이 자동으로 ReComposition이 됩니다. 
-  이러한 방식으로 상태의 변경이 UI를 자동으로 업데이트하게 해줍니다.
+---
 
-Composable에서 `MutableState` 객체를 선언하는 세 가지 방법이 있습니다.
+### mutableStateOf
+
+`mutableStateOf`는 관찰이 가능한 `MutableState<T>`를 생성하는데, 이는 컴포즈 런타임과 통합된 관찰 가능한 타입입니다.
+
 ```kotlin
+interface MutableState<T>: State<T> {
+    override var value: T
+}
+```
+
+즉, `MutableState`의 값이 변경되면, 이 값을 관찰(사용) 하고 있는 모든 컴포저블이 `ReComposition` 되도록 컴포즈 런타임이 자동으로 예약 처리해줍니다.
+
+예시로 `ExpandingCard`의 경우, `expanded` 파라미터가 변경될 때마다, `ExpandingCard`가 `ReComposition` 됩니다.
+
+컴포저블에서 `MutableState` 객체를 선언하는 방법은 다음과 같습니다.  
+(추가로 `by` Delegate 문법을 사용하려면 다음과 같은 `import`가 필요합니다.)
+
+```kotlin
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 val mutableState = remember { mutableStateOf(default) }
 var value by remember { mutableStateOf(default) }
 val (value, setValue) = remember { mutableStateOf(default) }
 ```
 
-### remember + MutableState 사용하기
-기억된 값은 다른 Composable의 매개변수로 사용될 수 있습니다.  
-즉, 한 Composable에서 상태를 생성하고, 이를 다른 Composable에 전달하여 사용할 수 있습니다.   
-이렇게 하면 여러 Composable이 같은 상태를 공유하고 참조할 수 있습니다.
-
-또한, 기억된 값은 조건문 또는 논리 구조에 사용될 수 있습니다.   
-예를 들어, 상태의 특정 값에 따라서 다른 Composable을 표시하거나 숨기는 등의 동작을 제어할 수 있습니다. 
-이를 통해 동적인 UI를 구성할 수 있으며, 사용자의 입력이나 내부 로직에 따라 UI가 바뀌는 동적인 앱을 만들 수 있습니다. 
-
-예를 들어, 이름이 비어 있으면 인사말을 표시하지 않으려면, if 문에서 state를 사용합니다.
+`remember` 객체를 다른 컴포저블의 파라미터로 사용하거나, 어떤 컴포저블이 표시 유뮤를 결정하는 로직의 일부로 사용할 수 있습니다.  
+예를 들어, 이름이 비어 있다면 인사말을 표시하지 않기 위해 상태를 `if` 조건문에서 사용할 수 있습니다.
 
 ```kotlin
 @Composable
 fun HelloContent() {
-    Column(modifier = Modifier.padding(16.dp)) {
-        var name by remember { mutableStateOf("") }
-        if (name.isNotEmpty()) {
-            Text(
-                text = "Hello, $name!",
-                modifier = Modifier.padding(bottom = 8.dp),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Name") }
-        )
-    }
+   Column(modifier = Modifier.padding(16.dp)) { 
+       
+      var name by remember { mutableStateOf("") }
+      
+      if (name.isNotEmpty()) {
+         Text(
+            text = "Hello, $name!",
+            modifier = Modifier.padding(bottom = 8.dp),
+            style = MaterialTheme.typography.bodyMedium
+         )
+      }
+      OutlinedTextField(
+         value = name,
+         onValueChange = { name = it },
+         label = { Text("Name") }
+      )
+   }
 }
 ```
 
-### remember의 한계와 rememberSaveable
-다시한번 이야기 하지만, `remember` 함수는 Composable이 재구성(recomposition)될 때 상태를 유지하는데 도움이 됩니다.   
-즉, 데이터나 상태가 변경되어 해당 Composable이 다시 그려질 때, `remember`로 생성된 상태는 그 이전의 값을 계속 유지합니다.
+`remember` 객체는 `ReComposition`을 거쳐도 상태를 유지하지만, '설정 변경(디바이스 회전)'이 발생되면 상태를 유지하지 못합니다.  
+이런 경우 `rememberSaveable`을 사용할 수 있습니다.
 
-그러나 `remember` 함수는 [구성 변경](../용어.md#구성-변경configuration-change)이 일어나면 상태를 유지하지 않습니다.  
-즉, 구성 변경이 발생하면 앱의 `Activity`는 재생성됩니다. 따라서 이 경우에는 `remember`로 생성된 상태가 초기화되고, 이전의 값은 유지되지 않게 됩니다.
+`rememberSaveable`은 `Bundle`에 저장될 수 있는 어떠한 값을 자동으로 저장합니다.  
+특별한 타입의 데이터를 저장해야 하는 경우, 커스텀 Saver 객체를 통해 저장할 수 있습니다.
 
-이러한 상황을 해결하기 위해 `rememberSaveable` 함수를 사용할 수 있습니다. 
-`rememberSaveable` 함수는 [Bundle](../용어.md#bundle)에 저장할 수 있는 모든 값을 자동으로 저장합니다.  
-따라서 `rememberSaveable`로 생성된 상태는 구성 변경 사이에서도 값을 유지할 수 있습니다.
+`ArrayList<T>` 또는 `mutableListOf()`와 같은 가변 객체를 컴포즈의 상태로 사용하면 잘못된 데이터나 오래된 데이터를 UI로 보게 될 수 있습니다.  
+즉, 가변 객체는 관찰이 불가능하기에 컴포즈에 의해 관찰되지 않으며, 상태가 변경 되어도 `ReComposition`이 발생되지 않습니다.
+이 대신 관찰 가능한 데이터 홀더(`State<List<T>>`, `listOf()`)를 사용하는 것을 권장하고 있습니다.
 
 ---
 
