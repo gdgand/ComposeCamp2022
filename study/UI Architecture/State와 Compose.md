@@ -1,15 +1,18 @@
 # Compose State
 
 ## 목차
+
 - [State and composition](#state-and-composition)
 - [State in composbles](#state-in-composables)
 - [Other supported types of state](#other-supported-types-of-state)
 - [State hoisting](#state-hoisting)
+- [State holder in Compose](#state-holders-in-compose)
+- [Retrigger remember calculations when keys change](#retrigger-remember-calculations-when-keys-change)
 
 ---
 
 변수가 시간에 따라 변할 수 있는 모든 값을 앱의 `State`(상태)라고 합니다.  
-모든 Android 앱은 사용자에게 어떤 형태의 '상태'를 보여주며, 다음과 같은 몇가지 예시가 있습니다. 
+모든 Android 앱은 사용자에게 어떤 형태의 '상태'를 보여주며, 다음과 같은 몇가지 예시가 있습니다.
 
 - 네트워크 연결이 끊어졌을 때 나타나는 SnackBar
 - 블로그 포스트와 그에 딸린 댓글들
@@ -26,8 +29,8 @@
 컴포즈는 선언형 UI 프레임워크로 UI가 어떻게 보여야 하는지를 기술합니다.  
 이 때문에 컴포즈 UI를 업데이트하는 유일한 방법은 파라미터를 '상태' 값으로 사용하는 동일한 컴포저블을 새로운 인자로 다시 호출하는 것 입니다.
 
-이처럼 어떤 상태가 업데이트 되면 'ReComposition'이 됩니다. 
-그 결과로 컴포즈의 `TextField`와 같은 컴포저블은 명령형 XML 기반 뷰처럼 자동으로 업데이트되지 않고 새로운 상태 값을 명시적으로 알려줘야 합니다. 
+이처럼 어떤 상태가 업데이트 되면 'ReComposition'이 됩니다.
+그 결과로 컴포즈의 `TextField`와 같은 컴포저블은 명령형 XML 기반 뷰처럼 자동으로 업데이트되지 않고 새로운 상태 값을 명시적으로 알려줘야 합니다.
 
 ```kotlin 
 @Composable
@@ -48,7 +51,7 @@ private fun HelloContent() {
 ```
 
 위 코드를 실행하고 텍스트를 입력하면 아무런 반응도 일어나지 않음을 알 수 있습니다.   
-그 이유는 `TextField`가 자체적으로 업데이트되지 않기 때문입니다. 
+그 이유는 `TextField`가 자체적으로 업데이트되지 않기 때문입니다.
 
 `TextField`는 `value` 파라미터가 변경될 때 업데이트 됩니다.
 이는 컴포즈에서 `Composition`과 `ReComposition`이 어떻게 작동하는지를 알면 이해할 수 있습니다.
@@ -61,7 +64,7 @@ private fun HelloContent() {
 
 ## State in composables
 
-> - `remember` 사용 시 `Intial composition` 중 `Composition`에 저장되는 Composable 함수 안에 저장됨 
+> - `remember` 사용 시 `Intial composition` 중 `Composition`의 [특정 Slot](#slot)에 저장됨
 >   - ReComposition 시 `remember` 객체를 재사용 할 수 있어 성능 향상이 가능
 >   - 단, `Composition`에서 Composable 함수가 '제거'되면 거기에 종속된 `remember` 객체도 사라짐
 >   - Configuration Change 발생 시 `remember` 객체는 상태 유지 불가능, `rememberSaveable` 객체는 상태 유지 가능
@@ -87,7 +90,7 @@ private fun HelloContent() {
 `mutableStateOf`는 관찰이 가능한 `MutableState<T>`를 생성하는데, 이는 Compose-Runtime과 통합된 관찰 가능한 타입입니다.
 
 ```kotlin
-interface MutableState<T>: State<T> {
+interface MutableState<T> : State<T> {
     override var value: T
 }
 ```
@@ -114,23 +117,23 @@ val (value, setValue) = remember { mutableStateOf(default) }
 ```kotlin
 @Composable
 fun HelloContent() {
-   Column(modifier = Modifier.padding(16.dp)) { 
-       
-      var name by remember { mutableStateOf("") }
-      
-      if (name.isNotEmpty()) {
-         Text(
-            text = "Hello, $name!",
-            modifier = Modifier.padding(bottom = 8.dp),
-            style = MaterialTheme.typography.bodyMedium
-         )
-      }
-      OutlinedTextField(
-         value = name,
-         onValueChange = { name = it },
-         label = { Text("Name") }
-      )
-   }
+    Column(modifier = Modifier.padding(16.dp)) {
+
+        var name by remember { mutableStateOf("") }
+
+        if (name.isNotEmpty()) {
+            Text(
+                text = "Hello, $name!",
+                modifier = Modifier.padding(bottom = 8.dp),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Name") }
+        )
+    }
 }
 ```
 
@@ -149,7 +152,7 @@ fun HelloContent() {
 ## Other supported types of state
 
 > - `Flow` or `LiveData` 등 관찰 가능한 타입을 `State<T>`로 변환 가능하며 반드시 Composable 내부에서 변환해야 함
->   - 외부에서 `State<T>`로 변환한 뒤 Composable로 전달하면, `State<T>`의 변화를 감지하지 못해 `ReComposition`이 발생하지 않음   
+>   - 외부에서 `State<T>`로 변환한 뒤 Composable로 전달하면, `State<T>`의 변화를 감지하지 못해 `ReComposition`이 발생하지 않음
 >   - [produceState](https://developer.android.com/reference/kotlin/androidx/compose/runtime/package-summary#produceState(kotlin.Any,kotlin.coroutines.SuspendFunction1))를 사용하여 `State<T>`를 생성할 수 있음
 > - Stateful Composable : `remember`를 통해 `State<T>` 객체를 갖는 Composable
 > - Stateless Composable : `State<T>`를 가지지 않는 Composable
@@ -157,7 +160,7 @@ fun HelloContent() {
 ---
 
 컴포즈는 `State<T>` 저장을 반드시 `MutableState<T>`를 사용해야 하는 것은 아니며, 다른 관찰 가능한 타입들을 지원합니다.  
-컴포즈에서 다른 관찰 가능한 타입을 사용하기 전에, `State<T>`가 변경될 때 컴포저블이 자동으로 `ReComposition` 할 수 있도록 `State<T>`로 변환해야 합니다. 
+컴포즈에서 다른 관찰 가능한 타입을 사용하기 전에, `State<T>`가 변경될 때 컴포저블이 자동으로 `ReComposition` 할 수 있도록 `State<T>`로 변환해야 합니다.
 
 컴포즈는 Android 앱에서 일반적으로 사용되는 관찰 가능한 타입으로부터 `State<T>`를 생성하는 함수를 제공합니다.
 
@@ -171,7 +174,7 @@ fun HelloContent() {
 
 ### LiveData
 
-`observeAsState()`는 `LiveData`를 관찰하기 시작하고 그 값을 `State`로 변환합니다. 
+`observeAsState()`는 `LiveData`를 관찰하기 시작하고 그 값을 `State`로 변환합니다.
 
 ### 주의 사항
 
@@ -194,16 +197,19 @@ Stateless 컴포저블을 만드는 가장 간단한 방법은 'State Hoisting'�
 ## State hoisting
 
 > - State hoisting : Stateless Composable로 만들기 위해 `State<T>`를 상위 Composable로 이동시키는 패턴
->   - Composable안에서 `State<T>`를 생성하지 않고, `value: T`와 `onValueChange: (T) -> Unit` 파라미터로 대체
+    >
+- Composable안에서 `State<T>`를 생성하지 않고, `value: T`와 `onValueChange: (T) -> Unit` 파라미터로 대체
 > - State hoisting 특징
->   - single source of truth : 동일한 `State<T>` 제공, 일관성 보장 
+    >
+- single source of truth : 동일한 `State<T>` 제공, 일관성 보장
 >   - Encapsulated : 'Stateful Composable' 만 `State<T>` 수정 가능, 외부에서 무분별한 수정 방지
 >   - Shareable : 하나의 `State<T>`를 여러 Composable에 공유 가능
 >   - Interceptable : `State<T>` 변경 전 이벤트 무시 또는 수정 가능
 >   - Decoupled : `State<T>` 관리 로직을 `ViewModel`과 같은 다양한 곳에서 할 수 있음
 > - 단방향 데이터 흐름 : `State<T>`가 내려가고 `이벤트`가 올라가는 패턴
 > - State hoisting 규칙
->   - UI 트리 구조에서 상태를 사용하는 모든 Composable의 가장 낮은 Composable에 호이스팅 되어야 함
+    >
+- UI 트리 구조에서 상태를 사용하는 모든 Composable의 가장 낮은 Composable에 호이스팅 되어야 함
 >   - 상태는 변경될 수 있는 가장 높은 Composable까지 호이스팅되어야 함
 >   - 같은 이벤트에 변경되는 두 상태는 함께 호이스팅 되어야 함
 
@@ -286,19 +292,29 @@ fun HelloContent(name: String, onNameChange: (String) -> Unit) {
 
 ---
 
-## rememberSaveable의 저장 방식들
+## Restoring state in Compose
 
-Compose에서는 `rememberSaveable` API를 사용하여 ReComposition뿐만 아니라 `Activity`이나 `Process` 재생성에서의 상태를 유지할 수 있습니다.
+> - `rememberSaveable`은 Android의 `SavedInstanceState` 메커니즘을 이용해 `State<T>`를 유지함
+> - `SavedInstanceState` 메커니즘으로 인해 `Bundle`에 추가된 데이터 타입을 자동으로 저장함
+> - `rememberSaveable`을 Bundle 외에 저장하는 옵션
+>   - `@Parcelize` : 객체를 `Parcelable`로 변환하여 `Bundle`에 추가
+>   - `mapSaver` : 객체를 `Bundle`로 변환하여 저장, 복원 시 `Bundle Key`를 통해 `Bundle`에서 객체 복원
+>   - `listSaver` : 객체를 `List`로 변환하여 저장, 복원 시 `Key` 대신 인덱스를 `Key`로 사용하여 객체 복원
 
-### 상태 저장 방법
-`Bundle`에 추가된 모든 데이터 유형은 자동으로 저장됩니다. 
-`Bundle`에 추가할 수 없는 것을 저장하려면 아래와 같이 몇 가지 옵션이 있습니다.
+---
 
-### Parcelize
-가장 간단한 솔루션은 객체에 `@Parcelize` 어노테이션을 추가하는 것입니다. 
-이렇게 하면 객체가 `Parcelable`로 변환되어 `Bundle`에 추가될 수 있게 됩니다. 
+`rememberSaveable` API는 `remember`와 유사하게 동작하여 `ReComposition`시 `State<T>`를 유지합니다.  
+이에 더해 Android의 `SavedInstanceState` 메커니즘을 활용해 `Activity` 또는 `Process`가 다시 생성될 때에도 `State<T>`를 유지합니다.
 
-예를 들어, 다음 코드는 Parcelable `City` 데이터 타입을 만들고 이를 상태에 저장합니다.
+### Ways to store state
+
+`Bundle`에 추가된 모든 데이터 타입은 자동으로 저장됩니다.   
+만약 `Bundle`에 추가할 수 없는 것을 저장하고 싶다면 아래와 같은 여러 가지 옵션들이 있습니다.
+
+#### 1. Parcelize
+
+가장 간단한 해결책은 객체에 `@Parcelize` 어노테이션을 추가하는 것입니다.  
+이렇게 하면 객체가 `Parcelable`로 변환되어 `Bundle`에 추가될 수 있게 됩니다.
 
 ```kotlin
 @Parcelize
@@ -306,14 +322,14 @@ data class City(val name: String, val country: String) : Parcelable
 
 @Composable
 fun CityScreen() {
-    var selectedCity = rememberSaveable {
-        mutableStateOf(City("Madrid", "Spain"))
-    }
+    var selectedCity = rememberSaveable { mutableStateOf(City(name = "Madrid",country = "Spain")) }
 }
 ```
 
-### MapSaver
-어떤 이유로 `@Parcelize`가 적합하지 않다면, `mapSaver`를 사용하여 객체를 시스템이 `Bundle`에 저장할 수 있는 값의 집합으로 변환하는 규칙을 직접 정의할 수 있습니다.
+#### 2. MapSaver
+
+`@Parcelize`가 적용되지 않는 복잡한 객체나 특수한 저장 규칙이 필요한 경우,  
+`mapSaver`를 사용하여 객체를 값의 집합으로 변환하는 규칙을 정의하여 `Bundle`에 저장할 수 있습니다. 
 
 ```kotlin
 data class City(val name: String, val country: String)
@@ -330,13 +346,14 @@ val CitySaver = run {
 @Composable
 fun CityScreen() {
     var selectedCity = rememberSaveable(stateSaver = CitySaver) {
-        mutableStateOf(City("Madrid", "Spain"))
+        mutableStateOf(City(name = "Madrid", country =  "Spain"))
     }
 }
 ```
 
-### ListSaver
-맵의 키를 정의하는 것을 피하려면, `listSaver`를 사용하고 인덱스를 키로 사용할 수 있습니다:
+#### 3. ListSaver
+
+`Map`의 `Key` 정의를 피하려면, `listSaver`를 사용하여 인덱스를 `Key`로 사용할 수 있습니다.
 
 ```kotlin
 data class City(val name: String, val country: String)
@@ -349,30 +366,48 @@ val CitySaver = listSaver<City, Any>(
 @Composable
 fun CityScreen() {
     var selectedCity = rememberSaveable(stateSaver = CitySaver) {
-        mutableStateOf(City("Madrid", "Spain"))
+        mutableStateOf(City(name = "Madrid", country =  "Spain"))
     }
 }
 ```
 
 ---
 
-## remember 함수 블록 재실행
-`remember` API는 `MutableState`와 함께 사용되는 경우가 많습니다.
+## State holders in Compose
+
+> - `State<T>`와 'Composable logic'의 크기가 커지면, 'StateHolder'에게 위임하는 것은 좋은 패턴이 될 수 있음
+
+간단한 'state hoisting'은 컴포저블 함수 자체에서 관리될 수 있습니다.  
+그러나 추적해야 할 `State<T>`의 양이 증가하거나 컴포저블 함수에서 수행해야 할 로직이 복잡해지면,   
+로직과 `State<T>`를 **StateHolder** 클래스에게 위임하는 것이 좋습니다.
+
+StateHolders(상태 보유자)는 컴포저블의 로직과 상태를 관리합니다.  
+또는 StateHolder를 '호이스팅된 상태 객체'로도 부릅니다.
+
+---
+
+## Retrigger remember calculations when keys change
+
+> - 비용이 많이드는 '객체' 또는 '연산'을 `remember`를 통해 캐싱하여 `ReComposition`에서 성능 향상 가능
+> - `remember`의 `key` 파라미터 변경을 통해 `ReComposition` → `calculator` 람다 재실행으로 새로운 값 저장 가능
+>   - 앱의 최상위 상태(windowSize, SystemNavigationBar 등)를 'StateHolder'로 위임, 상태가 변경되지 않는 한 `ReComposition` 회피 패턴 적용 가능  
+
+---
+
+`remember` API와 `MutableState<T>`는 함께 사용되는 경우가 많습니다.  
+이는 `remember`를 사용하면 `ReComposition`을 거쳐도 `MutableState<T>`의 값이 유지가 되기 때문입니다.
 
 ```kotlin
 var name by remember { mutableStateOf("") } 
 ```
-여기서 `remember` 함수를 사용하면 `MutableState` 값이 ReComposition에서도 유지됩니다.
 
-### remember calculation
-일반적으로 `remember`는 `calculation` 람다 매개변수를 받습니다. 
-`remember`가 처음 실행될 때, 이 람다를 호출하고 그 결과를 저장합니다.
-ReComposition 도중에 `remember`는 마지막으로 저장된 값을 반환합니다.
+`remember`가 처음 실행될 때, `calculation` 람다 블록을 호출하고 람다의 결과를 `Composition`에 저장 합니다.  
+`ReComposition` 중에는 `remember`가 '마지막으로 저장된 값'을 반환합니다.
 
-상태 캐싱 외에도 `remember`를 사용하여 초기화 하거나 계산하는 데 비용이 많이 드는 Composition 내의 모든 객체나 연산 결과를 저장할 수 있습니다.
-이러한 계산을 모든 ReComposition에서 반복하고 싶지 않을 수 있습니다. 
+이처럼 `remember`는 `State<T>`를 캐싱하는 것 외에도 '초기화', '계산에 많은 비용이 드는 객체', '연산 결과' 등을 `Composition`에 저장하여, 
+모든 `ReComposition`에서 반복하고 싶지 않을 때 사용해 성능을 향상시킬 수 있습니다.
 
-아래의 비싼 연산인 `ShaderBrush` 객체를 생성하는 예제를 보시죠.
+예제 처럼 `ShaderBrush`와 같이 객체를 생성하는데 많이 드는 비용을 `remember`를 통해 성능을 향상시킬 수 있습니다.
 
 ```kotlin
 val brush = remember {
@@ -386,17 +421,14 @@ val brush = remember {
 }
 ```
 
-`remember`는 값이 Composition을 떠날 때까지 값을 저장합니다. 하지만, 캐시된 즉, Composable 내부에 저장된 값을 무효화하는 방법이 있습니다.   
-`remember`는 `key` 또는 `keys` 매개변수를 받습니다. 이들 중 어떤 것이 변경되면, 
-다음 ReComposition에서 `remember`는 캐시를 무효화하고 람다 블록 계산을 다시 실행합니다.
+`remember`의 값은 `remember`를 생성한 컴포저블이 `Composition`을 떠날때까지 저장됩니다.
 
-아래 예제는 이 메커니즘이 어떻게 작동하는지 보여줍니다.
+그러나 `remember`에 캐싱된 값을 무효화하고 싶은 경우에 이를 무효화할 수 있습니다.
 
-이 코드에서 `ShaderBrush`가 생성되어 `Box` composable의 `background`로 사용됩니다.   
-앞서 설명한 것처럼 `remember`는 `ShaderBrush` 인스턴스를 저장합니다. 
-이는 `avatarRes`가 선택된 배경 이미지로서 `key1` 매개변수로 `remember`에 전달되기 때문입니다. 
-만약 `avatarRes`가 변경되면, 브러시는 새 이미지로 recompose되고 `Box`에 다시 적용됩니다. 
-이는 사용자가 피커에서 다른 이미지를 배경으로 선택했을 때 발생할 수 있습니다.
+`remember`는 `key` 또는 `keys`를 파라미터로 받아 `key` 중 하나가 변경된다면, 
+다음 `ReComposition` 시 `remember`의 캐시를 무효화하고 `calculation` 람다 블록을 다시 실행할 수 있습니다.
+
+아래 예제는 위의 메커니즘의 동작 방식을 보여줍니다.
 
 ```kotlin
 @Composable
@@ -408,9 +440,7 @@ private fun BackgroundBanner(
     val brush = remember(key1 = avatarRes) {
         ShaderBrush(
             BitmapShader(
-               
-
- ImageBitmap.imageResource(res, avatarRes).asAndroidBitmap(),
+                ImageBitmap.imageResource(res, avatarRes).asAndroidBitmap(),
                 Shader.TileMode.REPEAT,
                 Shader.TileMode.REPEAT
             )
@@ -425,13 +455,11 @@ private fun BackgroundBanner(
 }
 ```
 
-아래 코드에서는 상태가 일반 `state holder class`인 `MyAppState`로 호이스팅됩니다. 
-이는 `rememberMyAppState` 함수를 통해 클래스 인스턴스를 초기화하는 데 사용됩니다. 
-이런 함수를 공개하여 ReComposition에서도 유지되는 인스턴스를 생성하는 것은 Compose에서 일반적인 패턴입니다. 
+비용이 드는 `ShaderBrush` 인스턴스를 `remember`로 저장하고, `Box`의 `background`로 사용됩니다.  
+추가로 `remember`는 배경 이미지인 `avatarRes`를 `key`로 사용하고, 
+`avatarRes` 변경 시 `ShaderBrush`는 다시 새로운 이미지로 ReCompose되어 `Box`에 적용될 것 입니다.
 
-`rememberMyAppState`는 `windowSizeClass`를 받아 `remember`의 `key` 매개변수로 사용합니다. 
-이 매개변수가 변경되면, 앱은 최신 값을 사용하여 `MyAppState`를 다시 생성해야 합니다. 
-이는 사용자가 스마트폰을 회전하는 등의 경우에 발생할 수 있습니다.
+추가로 아래 코드는 `State<T>`를 `MyAppState`('StateHolder') 클래스로 호이스팅하는 예제입니다.
 
 ```kotlin
 @Composable
@@ -448,3 +476,49 @@ class MyAppState(
     private val windowSizeClass: WindowSizeClass
 ) { /* ... */ }
 ```
+
+`MyAppState`는 `remember`를 통해 클래스의 인스턴스를 초기화하는 `rememberMyAppState`를 제공합니다.  
+이러한 패턴은 `ReComposition`을 거쳐도 `MyAppState`의 인스턴스를 유지할 수 있도록 합니다.
+
+또한 `rememberMyAppState`는 `remember`의 `key` 파라미터로 `windowSizeClass`를 받습니다.  
+즉, `windowSizeClass` 파라미터가 변경되면 앱은 최신 값으로 `MyAppState`를 다시 생성하여 사용합니다.
+
+---
+
+## Store state with keys beyond recomposition
+
+> - `rememberSaveable`은 `inputs` 파라미터를 통해 캐시 무효화 가능
+
+`rememberSaveable`은 데이터를 `Bundle`에 저장할 수 있는 `remember`의 wrapper 입니다.  
+`rememberSaveable`는 상태를 `ReComposition` 뿐만이 아니라 `Activity`, `Process` 종료에도 유지시킬 수 있습니다.
+
+`rememberSaveable`은 `remember`가 `key`를 받는 것과 동일한 목적으로 파라미터를 받습니다.
+즉, `key`가 변경된 후 `ReComposition`되면, `rememberSaveable`은 `calculator` 람다를 재실행하여 새로운 값을 저장합니다.
+
+주의할 점으로는 `rememberSaveable`은 파라미터 이름을 `key`가 아닌 `inputs`을 사용합니다.
+
+아래 예제의 `rememberSaveable`은 `typedQuery`가 변경될 때까지 `userTypedQuery`를 저장합니다.
+
+```kotlin
+var userTypedQuery by rememberSaveable(inputs = typedQuery, stateSaver = TextFieldValue.Saver) {
+    mutableStateOf(
+        TextFieldValue(text = typedQuery, selection = TextRange(typedQuery.length))
+    )
+}
+```
+
+---
+
+---
+
+---
+
+### SlotTable
+
+Compose 런타임은 내부적으로 `SlotTable`이라는 데이터 구조를 통해서 `Composition`의 `State<T>`와 구조(`Composable Node`)를 관리합니다.
+
+### Slot
+
+`remember`를 사용하여 `Composition`에 저장된 `State<T>` 객체는 `SlotTable`의 특정 `Slot`에 저장됩니다.
+
+`Slot`은 `Composition`의 특정 지점에 `State<T>` 객체를 저장하고 추적하는데 사용되며, 이는 `Composition`이 실행되는 동안 `State<T>` 객체의 생명주기를 관리하는데 중요합니다.
