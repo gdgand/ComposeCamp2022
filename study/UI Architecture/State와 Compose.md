@@ -485,6 +485,30 @@ class MyAppState(
 
 ---
 
+## Store state with keys beyond recomposition
+
+> - `rememberSaveable`은 `inputs` 파라미터를 통해 캐시 무효화 가능
+
+`rememberSaveable`은 데이터를 `Bundle`에 저장할 수 있는 `remember`의 wrapper 입니다.  
+`rememberSaveable`는 상태를 `ReComposition` 뿐만이 아니라 `Activity`, `Process` 종료에도 유지시킬 수 있습니다.
+
+`rememberSaveable`은 `remember`가 `key`를 받는 것과 동일한 목적으로 파라미터를 받습니다.
+즉, `key`가 변경된 후 `ReComposition`되면, `rememberSaveable`은 `calculator` 람다를 재실행하여 새로운 값을 저장합니다.
+
+주의할 점으로는 `rememberSaveable`은 파라미터 이름을 `key`가 아닌 `inputs`을 사용합니다.
+
+아래 예제의 `rememberSaveable`은 `typedQuery`가 변경될 때까지 `userTypedQuery`를 저장합니다.
+
+```kotlin
+var userTypedQuery by rememberSaveable(inputs = typedQuery, stateSaver = TextFieldValue.Saver) {
+    mutableStateOf(
+        TextFieldValue(text = typedQuery, selection = TextRange(typedQuery.length))
+    )
+}
+```
+
+---
+
 ---
 
 ---
