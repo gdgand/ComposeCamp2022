@@ -6,6 +6,8 @@
 - [State in composbles](#state-in-composables)
 - [Other supported types of state](#other-supported-types-of-state)
 - [State hoisting](#state-hoisting)
+- [State holder in Compose](#state-holders-in-compose)
+- [Retrigger remember calculations when keys change](#retrigger-remember-calculations-when-keys-change)
 
 ---
 
@@ -62,14 +64,12 @@ private fun HelloContent() {
 
 ## State in composables
 
-> - `remember` 사용 시 `Intial composition` 중 `Composition`에 저장되는 Composable 함수 안에 저장됨
-    >
-- ReComposition 시 `remember` 객체를 재사용 할 수 있어 성능 향상이 가능
+> - `remember` 사용 시 `Intial composition` 중 `Composition`의 [특정 Slot](#slot)에 저장됨
+>   - ReComposition 시 `remember` 객체를 재사용 할 수 있어 성능 향상이 가능
 >   - 단, `Composition`에서 Composable 함수가 '제거'되면 거기에 종속된 `remember` 객체도 사라짐
 >   - Configuration Change 발생 시 `remember` 객체는 상태 유지 불가능, `rememberSaveable` 객체는 상태 유지 가능
 > - `mutableStateOf` 사용 시 `MutableState<T>` 생성, 이는 Compose-Runtime이 '관찰 가능한 상태' 객체
-    >
-- `MutableState`의 값을 변경하면 이를 관찰하는 모든 Composable에 Compose-Runtime이 자동으로 `ReComposition` 예약
+>   - `MutableState`의 값을 변경하면 이를 관찰하는 모든 Composable에 Compose-Runtime이 자동으로 `ReComposition` 예약
 
 ---
 
@@ -152,10 +152,8 @@ fun HelloContent() {
 ## Other supported types of state
 
 > - `Flow` or `LiveData` 등 관찰 가능한 타입을 `State<T>`로 변환 가능하며 반드시 Composable 내부에서 변환해야 함
-    >
-- 외부에서 `State<T>`로 변환한 뒤 Composable로 전달하면, `State<T>`의 변화를 감지하지 못해 `ReComposition`이 발생하지 않음
->   - [produceState](https://developer.android.com/reference/kotlin/androidx/compose/runtime/package-summary#produceState(kotlin.Any,kotlin.coroutines.SuspendFunction1))
-      를 사용하여 `State<T>`를 생성할 수 있음
+>   - 외부에서 `State<T>`로 변환한 뒤 Composable로 전달하면, `State<T>`의 변화를 감지하지 못해 `ReComposition`이 발생하지 않음
+>   - [produceState](https://developer.android.com/reference/kotlin/androidx/compose/runtime/package-summary#produceState(kotlin.Any,kotlin.coroutines.SuspendFunction1))를 사용하여 `State<T>`를 생성할 수 있음
 > - Stateful Composable : `remember`를 통해 `State<T>` 객체를 갖는 Composable
 > - Stateless Composable : `State<T>`를 가지지 않는 Composable
 
@@ -388,26 +386,28 @@ StateHolders(상태 보유자)는 컴포저블의 로직과 상태를 관리합�
 
 ---
 
-## remember 함수 블록 재실행
+## Retrigger remember calculations when keys change
 
-`remember` API는 `MutableState`와 함께 사용되는 경우가 많습니다.
+> - 비용이 많이드는 '객체' 또는 '연산'을 `remember`를 통해 캐싱하여 `ReComposition`에서 성능 향상 가능
+> - `remember`의 `key` 파라미터 변경을 통해 `ReComposition` → `calculator` 람다 재실행으로 새로운 값 저장 가능
+>   - 앱의 최상위 상태(windowSize, SystemNavigationBar 등)를 'StateHolder'로 위임, 상태가 변경되지 않는 한 `ReComposition` 회피 패턴 적용 가능  
+
+---
+
+`remember` API와 `MutableState<T>`는 함께 사용되는 경우가 많습니다.  
+이는 `remember`를 사용하면 `ReComposition`을 거쳐도 `MutableState<T>`의 값이 유지가 되기 때문입니다.
 
 ```kotlin
 var name by remember { mutableStateOf("") } 
 ```
 
-여기서 `remember` 함수를 사용하면 `MutableState` 값이 ReComposition에서도 유지됩니다.
+`remember`가 처음 실행될 때, `calculation` 람다 블록을 호출하고 람다의 결과를 `Composition`에 저장 합니다.  
+`ReComposition` 중에는 `remember`가 '마지막으로 저장된 값'을 반환합니다.
 
-### remember calculation
+이처럼 `remember`는 `State<T>`를 캐싱하는 것 외에도 '초기화', '계산에 많은 비용이 드는 객체', '연산 결과' 등을 `Composition`에 저장하여, 
+모든 `ReComposition`에서 반복하고 싶지 않을 때 사용해 성능을 향상시킬 수 있습니다.
 
-일반적으로 `remember`는 `calculation` 람다 매개변수를 받습니다.
-`remember`가 처음 실행될 때, 이 람다를 호출하고 그 결과를 저장합니다.
-ReComposition 도중에 `remember`는 마지막으로 저장된 값을 반환합니다.
-
-상태 캐싱 외에도 `remember`를 사용하여 초기화 하거나 계산하는 데 비용이 많이 드는 Composition 내의 모든 객체나 연산 결과를 저장할 수 있습니다.
-이러한 계산을 모든 ReComposition에서 반복하고 싶지 않을 수 있습니다.
-
-아래의 비싼 연산인 `ShaderBrush` 객체를 생성하는 예제를 보시죠.
+예제 처럼 `ShaderBrush`와 같이 객체를 생성하는데 많이 드는 비용을 `remember`를 통해 성능을 향상시킬 수 있습니다.
 
 ```kotlin
 val brush = remember {
@@ -421,17 +421,14 @@ val brush = remember {
 }
 ```
 
-`remember`는 값이 Composition을 떠날 때까지 값을 저장합니다. 하지만, 캐시된 즉, Composable 내부에 저장된 값을 무효화하는 방법이 있습니다.   
-`remember`는 `key` 또는 `keys` 매개변수를 받습니다. 이들 중 어떤 것이 변경되면,
-다음 ReComposition에서 `remember`는 캐시를 무효화하고 람다 블록 계산을 다시 실행합니다.
+`remember`의 값은 `remember`를 생성한 컴포저블이 `Composition`을 떠날때까지 저장됩니다.
 
-아래 예제는 이 메커니즘이 어떻게 작동하는지 보여줍니다.
+그러나 `remember`에 캐싱된 값을 무효화하고 싶은 경우에 이를 무효화할 수 있습니다.
 
-이 코드에서 `ShaderBrush`가 생성되어 `Box` composable의 `background`로 사용됩니다.   
-앞서 설명한 것처럼 `remember`는 `ShaderBrush` 인스턴스를 저장합니다.
-이는 `avatarRes`가 선택된 배경 이미지로서 `key1` 매개변수로 `remember`에 전달되기 때문입니다.
-만약 `avatarRes`가 변경되면, 브러시는 새 이미지로 recompose되고 `Box`에 다시 적용됩니다.
-이는 사용자가 피커에서 다른 이미지를 배경으로 선택했을 때 발생할 수 있습니다.
+`remember`는 `key` 또는 `keys`를 파라미터로 받아 `key` 중 하나가 변경된다면, 
+다음 `ReComposition` 시 `remember`의 캐시를 무효화하고 `calculation` 람다 블록을 다시 실행할 수 있습니다.
+
+아래 예제는 위의 메커니즘의 동작 방식을 보여줍니다.
 
 ```kotlin
 @Composable
@@ -443,8 +440,6 @@ private fun BackgroundBanner(
     val brush = remember(key1 = avatarRes) {
         ShaderBrush(
             BitmapShader(
-
-
                 ImageBitmap.imageResource(res, avatarRes).asAndroidBitmap(),
                 Shader.TileMode.REPEAT,
                 Shader.TileMode.REPEAT
@@ -460,13 +455,11 @@ private fun BackgroundBanner(
 }
 ```
 
-아래 코드에서는 상태가 일반 `state holder class`인 `MyAppState`로 호이스팅됩니다.
-이는 `rememberMyAppState` 함수를 통해 클래스 인스턴스를 초기화하는 데 사용됩니다.
-이런 함수를 공개하여 ReComposition에서도 유지되는 인스턴스를 생성하는 것은 Compose에서 일반적인 패턴입니다.
+비용이 드는 `ShaderBrush` 인스턴스를 `remember`로 저장하고, `Box`의 `background`로 사용됩니다.  
+추가로 `remember`는 배경 이미지인 `avatarRes`를 `key`로 사용하고, 
+`avatarRes` 변경 시 `ShaderBrush`는 다시 새로운 이미지로 ReCompose되어 `Box`에 적용될 것 입니다.
 
-`rememberMyAppState`는 `windowSizeClass`를 받아 `remember`의 `key` 매개변수로 사용합니다.
-이 매개변수가 변경되면, 앱은 최신 값을 사용하여 `MyAppState`를 다시 생성해야 합니다.
-이는 사용자가 스마트폰을 회전하는 등의 경우에 발생할 수 있습니다.
+추가로 아래 코드는 `State<T>`를 `MyAppState`('StateHolder') 클래스로 호이스팅하는 예제입니다.
 
 ```kotlin
 @Composable
@@ -483,3 +476,25 @@ class MyAppState(
     private val windowSizeClass: WindowSizeClass
 ) { /* ... */ }
 ```
+
+`MyAppState`는 `remember`를 통해 클래스의 인스턴스를 초기화하는 `rememberMyAppState`를 제공합니다.  
+이러한 패턴은 `ReComposition`을 거쳐도 `MyAppState`의 인스턴스를 유지할 수 있도록 합니다.
+
+또한 `rememberMyAppState`는 `remember`의 `key` 파라미터로 `windowSizeClass`를 받습니다.  
+즉, `windowSizeClass` 파라미터가 변경되면 앱은 최신 값으로 `MyAppState`를 다시 생성하여 사용합니다.
+
+---
+
+---
+
+---
+
+### SlotTable
+
+Compose 런타임은 내부적으로 `SlotTable`이라는 데이터 구조를 통해서 `Composition`의 `State<T>`와 구조(`Composable Node`)를 관리합니다.
+
+### Slot
+
+`remember`를 사용하여 `Composition`에 저장된 `State<T>` 객체는 `SlotTable`의 특정 `Slot`에 저장됩니다.
+
+`Slot`은 `Composition`의 특정 지점에 `State<T>` 객체를 저장하고 추적하는데 사용되며, 이는 `Composition`이 실행되는 동안 `State<T>` 객체의 생명주기를 관리하는데 중요합니다.
