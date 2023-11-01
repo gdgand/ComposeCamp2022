@@ -375,6 +375,19 @@ fun CityScreen() {
 
 ---
 
+## State holders in Compose
+
+> - `State<T>`와 'Composable logic'의 크기가 커지면, 'StateHolder'에게 위임하는 것은 좋은 패턴이 될 수 있음
+
+간단한 'state hoisting'은 컴포저블 함수 자체에서 관리될 수 있습니다.  
+그러나 추적해야 할 `State<T>`의 양이 증가하거나 컴포저블 함수에서 수행해야 할 로직이 복잡해지면,   
+로직과 `State<T>`를 **StateHolder** 클래스에게 위임하는 것이 좋습니다.
+
+StateHolders(상태 보유자)는 컴포저블의 로직과 상태를 관리합니다.  
+또는 StateHolder를 '호이스팅된 상태 객체'로도 부릅니다.
+
+---
+
 ## remember 함수 블록 재실행
 
 `remember` API는 `MutableState`와 함께 사용되는 경우가 많습니다.
