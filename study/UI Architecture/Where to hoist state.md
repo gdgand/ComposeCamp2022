@@ -2,6 +2,8 @@
 
 - [Best practice](#best-practice)
 - [Types of UI state and UI logic](#types-of-ui-state-and-ui-logic-)
+- [UI logic](#ui-logic)
+- [Business logic](#business-logic)
 
 
 ## Best practice
