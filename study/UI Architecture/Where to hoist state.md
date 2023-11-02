@@ -2,6 +2,8 @@
 
 - [Best practice](#best-practice)
 - [Types of UI state and UI logic](#types-of-ui-state-and-ui-logic-)
+- [UI logic](#ui-logic)
+- [Business logic](#business-logic)
 
 
 ## Best practice
@@ -58,98 +60,144 @@ UI에 사용되는 `State<T>`를 사용하는 모든 컴포저블들의 가장 �
 
 ---
 
-## UI 로직
+## UI logic
 
-UI 로직이 상태를 사용하고 싶을 때는 UI의 생명 주기를 따라야 하며, 이를 위해서 상태를 적절한 레벨의 Composable에 호이스팅해야 합니다.
-이에 대한 대안으로 UI 생명 주기에 Scope가 지정된 [Plain State Holder Class](https://developer.android.com/topic/architecture/ui-layer/stateholders#ui-logic)에서 이를 수행할 수 있습니다.
+> - 다른 Composable이 `State<T>`를 제어할 필요가 없거나, `State<T>`와 'UI logic'이 단순한 경우 Composable 안에서 관리하는 것도 좋음
+> - 여러 Composable에서 'UI element state'를 공통으로 사용하면 가장 가까운 공통 Composable에 호이스팅 하는 것이 좋음
+>   - 하위 Composable에서 `State<T>`를 파라미터로 사용 시, 기본 값을 적용하면 UI Test와 Preview에 유용 
+> - Composable이 1~N개의 `State<T>`를 포함하는 복잡한 UI 로직을 다룰 때, 'StateHolderClass'로 위임하는 것은 좋은 패턴임
+>   - 'StateHolderClass'은 Composable-Lifecycle을 따르기에 `Composition` 안에서 생성 및 저장
+>   - `rememberNavController()`, `rememberLazyListState()`와 같이 상위 수준 Composable의 복잡성을 낮추기 위해 사용 
 
-### Composable이 상태를 관리
+---
 
-상태와 로직이 단순한 경우 Composable 내부에 UI 로직과 UI 요소 상태를 두는것도 좋은 방식입니다. 
-필요에 따라 Composable 내부에 상태를 두거나 호이스팅 할 수 있습니다.
+UI 로직이 `State<T>`를 사용할 때 UI 생명 주기에 따라 `State<T>`에 스코프를 지정해줘야 합니다. 
 
-### 필요하지 않은 State Hoisting 
+이를 위해서 적절한 수준의 컴포저블 안에 `State<T>`를 호이스팅 하거나,  
+UI 생명 주기와 맞게 스코프가 지정된 'StateHolder'에서 이를 수행할 수 있습니다.
 
-상태 호이스팅을 항상 할 필요는 없습니다. 
-다른 Composable이 그 상태를 제어할 필요가 없는 경우 상태는 Composable 내부에 두어도 괜찮습니다. 
+### Composable as state owner
 
-다음 클릭 시 확장되고 축소되는 Composable을 보시죠
+`State<T>`와 로직이 단순한 경우 UI 로직과 'UI element state'를 컴포저블 내부에 두는 것도 좋은 방식입니다.  
+또한 `State<T>`를 필요에 따라 호이스팅 할 수 있는 조건을 갖출 수 있습니다.
+
+### No state hoisting needed
+
+항상 `State<T>`를 호이스팅 할 필요는 없습니다.  
+다른 컴포저블이 `State<T>`를 제어할 필요가 없는 경우 컴포저블 내부에 유지할 수 있습니다.
 
 ```kotlin
 @Composable
-fun ChatBubble(
-    message: Message
-) {
-    var showDetails by rememberSaveable { mutableStateOf(false) } // UI 요소 확장 상태 정의
+fun ChatBubble(message: Message) {
+    var showDetails by rememberSaveable { mutableStateOf(false) }
 
     ClickableText(
         text = AnnotatedString(message.content),
-        onClick = { showDetails = !showDetails } // 간단한 UI 로직 적용
+        onClick = { showDetails = !showDetails }
     )
 
-    if (showDetails) {
-        Text(message.timestamp)
-    }
+    if (showDetails) Text(message.timestamp)
 }
 ```
 
-`showDetails` 변수는 UI 요소의 내부 상태입니다. 이는 이 Composable 내부에서만 읽히고 수정되며, 이에 적용되는 로직은 단순합니다.  
-따라서 위와 같은 경우에는 호이스팅의 큰 이점이 없어 내부에서 처리할 수 있습니다.
+위 코드에서 `showDetails`는 **UI element state** 입니다.
 
-> UI Element State를 Composable 내부에 유지 할 수 있습니다.   
-> 이는 상태와 그에 적용하는 로직이 단순하고 UI Layer의 다른 Composable들이 상태를 필요로 하지 않는 경우 괜찮습니다.   
-> 일반적으로 애니메이션 상태의 경우 사용될 수 있습니다.
+이 상태는 이 컴포저블 안에서만 사용되며, 적용되는 로직이 매우 간단합니다.  
+따라서 이 경우에 상태를 끌어올리는 것은 큰 이점을 가져다 주지 않으므로, 내부에 유지하는 것이 좋습니다.
 
-### Composable 내부에서 호이스팅
-UI Element State를 다른 Composable과 공유하여 다른 곳에서도 UI 로직을 적용한다면, UI 계층 구조에서 상위로 상태를 호이스팅 할 수 있습니다.   
-이는 Composable 재사용을 가능하게 하며 테스트도 간편합니다.
+이렇게 함으로써 컴포저블은 'StateOwner'이며, `State<T>`의 일관성을 유지할 수 있습니다.
+
+### Hoisting within composable
+
+만약 'UI element state'를 다른 컴포저블과 공유하고 여러 곳에서 UI 로직에 적용해야 한다면, 더 상위 컴포저블로 호이스팅 할 수 있습니다.
+이는 컴포저블의 재사용성을 높이고 간편한 테스트를 할 수 있게 합니다.
 
 다음은 두 가지 기능을 구현한 채팅 앱 예시입니다.
 
-<img src="../../resource/state-hoisting-chat.png" width="40%" height="auto">
+<img src="../../resource/state-hoisting-chat.png" width="50%">
 
-- `JumpToBottom` 버튼은 메시지 목록을 맨 아래로 '스크롤'합니다.
-- `MessagesList` 목록은 사용자가 새 메시지를 보낸 후 맨 아래로 '스크롤'합니다.
+- `JumpToBottom` 버튼은 메시지 목록을 맨 아래로 '스크롤'합니다. `Button`은 리스트 상태에 대한 UI 로직을 수행합니다.
+- `MessagesList`는 사용자가 새 메시지를 보낸 후 목록을 자동으로 아래로 '스크롤'합니다. `UserInput`은 리스트 상태에 대한 UI 로직을 수행합니다.
 
-각 항목들은 '스크롤'을 움직이는 UI 로직이 필요함에 따라 '목록 상태'에 대해서 UI 로직을 수행함을 알 수 있습니다.
+이런 경우, 메시지 리스트의 '스크롤 위치 상태'는 `JumpToBottom`과 `MessageList` 컴포저블 양쪽 모두에서 사용되므로,  
+이 '스크롤 위치 상태'는 두 컴포저블의 공통 조상에 호이스팅 되어야 합니다.
 
-위 채팅 앱의 Composable 계층 구조를 보시면 다음과 같습니다.
+위 채팅 앱의 컴포저블 구조를 보면 다음과 같습니다.
 
-<img src="../../resource/state-hoisting-initial-tree.png" width="40%" height="auto">
+<img src="../../resource/state-hoisting-initial-tree.png" width="50%">
 
-`LazyColumn` 상태는 `ConversationScreen`에 표시됩니다. 이에 따라 다음을 알 수 있습니다.
-1. `UserInput`과 `Button`에 `LazyListState`라는 목록을 관리하는 상태를 넘겨 UI 로직 수행
-2. UI 로직에 필요한 `LazyListState` 목록 상태를 모든 Composable에서 읽을 수 있음
+`LazyColumn`의 `LazyListState`는 `ConversationScreen`으로 호이스팅 되어,  
+`State<T>`를 필요로 하는 모든 컴포저블에서 UI 로직을 수행하고 사용되게 할 수 있습니다.
 
 <img src="../../resource/state-hoisting-animated.gif" width="50%" height="50%">
 
-[들어가서 자세한 코드를 보시면]((https://github.com/android/snippets/blob/e9e6e1fc71b9a6fb77277126ad44e985deea992d/compose/snippets/src/main/java/com/example/compose/snippets/state/StateHoistingSnippets.kt#L85-L123))
-`LazyListState`는 적용해야 하는 UI 로직에 따라 필요한 만큼 높이 호이스팅됩니다.   
-이는 Composable에서 초기화되므로, 해당 Composable의 생명 주기에 따라 Composition에 저장됩니다.
+코드를 보면 다음과 같습니다.
 
-`LazyListState`가 `MessagesList` 메서드에서 `rememberLazyListState()`의 기본 값으로 정의되어 있습니다.  
-이는, Compose에서는 흔히 볼 수 있는 패턴입니다. 이러한 패턴으로 인해 Composable이 더 유연하고 재사용성이 높아집니다.
-
-> 상태를 가장 가까운 공통 조상(Lowest Common Ancestor)에 호이스팅하고, 상태를 필요로 하지 않은 Composable에는 전달 하지마세요.
-
-<img src="../../resource/state-hoisting-lca.png" width="50%" height="auto">
-
-### plain state holder class를 상태 소유자로 사용
-
-Composable이 UI Element에 하나 or 여러 상태 필드를 포함하는 복잡한 UI 로직을 포함하고 있는 경우,   
-`State Holder`인 plain state holder class에 책임을 위임하여 사용해야 합니다.
-
-이러한 접근법은 '관심사 분리 원칙'을 지키며 Composable의 로직을 격리하여 더 쉽게 테스트할 수 있고, 복잡성을 줄일 수 있습니다.
+```kotlin
+@Composable
+private fun ConversationScreen() {
+    val scope = rememberCoroutineScope()
+  
+    val lazyListState = rememberLazyListState()
+  
+    MessageList(
+      scope = scope,
+      message = message,
+      lazyListState = lazyListState
+    )
     
-- Composabe : UI Element를 내보내는 것을 담당
-- State Holder : UI 로직과 UI Element 상태를 포함
+    UserInput(
+        onMessageSent = { 
+            scope.launch { lazyListState.scrollToItem(0)} 
+        }
+    )
+}
 
-Compose에서 제공되는 plain state holder class에는 다음과 같은 특징이 있습니다.
-- 기본적으로 제공되는 로직이 있어 일반 Composable 함수는 제공되는 로직을 사용하면 되기에 직접 코드를 작성할 필요가 없습니다.
-- Composable 생명주기를 따르기 때문에 Composition에서 생성되고 기억됩니다.
-- Compose 라이브러리에서 제공하는 `rememberNavController()` 또는 `rememberLazyListState()`와 같은 타입을 사용 수 있습니다.
+@Composable
+private fun MessageList(
+    scope: CoroutineScope = rememberCoroutineScope(),
+    messages: List<Message>,
+    lazyListState: LazyListState = rememberLazyListState()
+) {
+    LazyColumn(state = lazyListState) {
+        items(
+            item = messages,
+            key = { message -> message.id}
+        ) { message ->
+            Message(message)
+        }
+    }
+  
+  JumpToBottom(
+      onClick = { 
+          scope.launch { lazyListState.scrollToItem(0) }
+      }
+  )
+}
+```
 
-예시로 `LazyColumn` 또는 `LazyRow`의 UI 복잡성을 제어하기 위해 Compose에서 구현된 `LazyListState` plain state holder class가 있습니다.
+`lazyListState`는 필요한 UI 로직을 적용하기 위해 컴포저블 구조에서 필요한 만큼 높은 위치로 호이스팅 됩니다.  
+또한 이 'UI element state'는 컴포저블에서 초기화되기에, `Composition`에 저장되어 생명 주기를 따릅니다.
+
+`lazyListState`는 `MessageList` 컴포저블에서 기본 값으로 `rememberLazyListState()`로 정의되어 있습니다.  
+이는, 컴포즈에서 흔한 패턴으로 컴포저블의 재사용을 높이고 유연하게 만들어 줍니다.  
+
+대표적으로, 컴포저블을 테스트하거나 `Preview`에 사용하는 것과 같이 상태를 제어할 필요가 없는 다른 컴포저블에서 사용되게 할 수 있습니다.
+
+<img src="../../resource/state-hoisting-lca.png" width="50%">
+
+### Plain state holder class as state owner
+
+컴포저블이 하나 또는 여러 상태를 포함하는 복잡한 UI 로직을 다룰 때, 책임을 'StateHolderClass'로 위임하여 사용해야 합니다.
+
+이렇게 함으로써 컴포저블의 로직을 분리하고 테스트와 유지 보수를 쉽게 할 수 있습니다.  
+이런 접근 방식은 관심사 분리 원칙을 지킵니다. (컴포저블은 UI 요소를 출력하는 역할, 'StateHolderClass'는 UI 로직과 'UI element state' 관리)
+
+'StateHolderClass'는 컴포저블 호출자에게 편리한 함수를 제공하여, 호출자가 스스로 UI 로직을 작성할 필요가 없도록 합니다.  
+또한 'StateHolderClass'들은 컴포저블의 생명주기를 따르기에 `Composition` 내에서 생성되고 기억됩니다.   
+이에 따라 `rememberNavController()` 또는 `rememberLazyListState()`와 같은 컴포즈에서 제공하는 타입의 사용이 가능한 것 입니다.
+
+`LazyListState`는 컴포즈에서 구현된 'StateHolderClass'의 예시로, `LazyColumn` 또는 `LazyRow`의 UI 복잡성을 제어하는데 사용됩니다.
 
 ```kotlin
 @Stable
@@ -170,55 +218,60 @@ class LazyListState constructor(
 }
 ```
 
-`LazyListState`는 `LazyColumn`의 상태를 캡슐화하고, UI Element를 위한 `scrollPosition`을 저장합니다.   
-또한 주어진 항목으로 스크롤하는 등 스크롤 위치를 수정하는 방법을 제공합니다.
+`LazyListState`는 `LazyColumn`의 상태를 캡슐화하고 '스크롤 위치'를 저장합니다.  
+또한 주어진 아이템으로 스크롤하는 것과 같이 스크롤 위치를 수정하는 메서드를 외부에 제공합니다.
 
-애플리케이션의 복잡성을 관리하는 데 중요한 역할을 하는 'plain state holder class'는 
-글로벌하거나 애플리케이션 수준의 상태를 캡슐화하고, N개의 Composable에서 참조하거나 업데이트해야 하는 복잡한 로직을 캡슐화합니다. 
-이러한 클래스는 앱의 Root Composable에서 '네비게이션 상태'나 '기기 방향' 같은 앱 전체의 상태를 관리하는 것을 단순화 할 수 있습니다.
+이처럼, 컴포저블의 책임이 증가함에 따라 'StateHolder'의 필요성도 증가됩니다.  
+책임은 UI 로직에서 발생할 수 있고, 단순히 추적해야 할 `State<T>`의 수에 따라 달라질 수 있습니다.
 
-이런 클래스는 Compose에서 제공하는 `remember()` 함수를 사용하여 만들어지고, Composable 생명주기에 따라 생존합니다.
-만약 Activity 또는 Process가 다시 생성된 후에도 상태를 유지되게 하려면 `rememberSaveable()`을 사용하면 됩니다.
-
-이러한 클래스는 앱의 Root Composable 뿐만 아니라 다른 Composable에서도 사용될 수 있습니다.
-이렇게 하면 여러 Composable에서 동일한 로직을 반복 작성하는 대신 한 곳에 집중할 수 있으므로 코드의 재사용성이 향상됩니다.
-
-이상적으로, state holder class는 모든 상태 변경 로직을 캡슐화하고, Composable은 오직 UI를 그리는 데 집중하게 할 수 있습니다.
-이렇게 하면 Composable은 간결하고 가독성이 좋아지며, 테스트와 유지 보수가 더 쉬워집니다.
+또 다른 일반적인 패턴읜 앱의 'RootComposable'의 복잡성을 처리하기 위해,   
+'StateHolderClass'를 사용하여 앱의 'NavigationState'와 'WindowSize' 등을 캡슐화 할 수 있습니다.
 
 ---
 
-## 비지니스 로직
+## Business logic
 
-Composable과 plain state holder class가 UI 로직과 UI Element State를 관리합니다.
+> - 'Screen-level StateHolder'은 비즈니스 로직에 접근하여 데이터를 'Screen UI state'에 준비하는 역할
+> - `ViewModel`로 'UI State'를 호이스팅하면, `Composition` 밖으로 이동하게 됨
+>   - 상태는 Composable Lifecycle 대신 ViewModel Lifecycle을 따름 (Configuration Change가 발생해도 상태 유지 가능)
+>   - 상태가 `ReComposition`에서 벗어남, 그러나 `ViewModel`이 살아있는 동안 지속적으로 유지됨
+> - 'Screen UI State'는 'Screen-level StateHolder'(`ViewModel`)에서 호이스팅 됨을 의미
+> - 'Screen Ui State'는 반드시 'Screen-level Composable'에 주입해야 함, 하위 Composable에 ViewModel 인스턴스가 있으면 다음의 문제 발생
+>   - Composable이 `ViewModel`과 결합되어 재사용성이 떨어지고 Test 및 Preview가 어려워짐
+>   - 여러 Composable이 `ViewModel`의 'Screen UI State' 수정 시 'State Hoist' 특징 중 2가지가 위반됨
+>     - 'Single source of truth'와 'Encapsulated'
+> - 컴포즈는 'wrapper class'로 `State<T>`와 이벤트를 캡슐화하는 것보다 'Property drilling'을 Best practice로 간주
+>   -  Composable에 이벤트를 개별적 람다 파라미터로 노출하는 것은 그 책임의 가시성을 극대화 시켜줌
+> - 'UI element state' 값을 사용하는 비즈니스 로직이 필요한 상황에서는 상태를 Composable에서 'Screen-level StateHolder'로 호이스팅 가능
+> - `suspend` 함수를 사용히는 일부 'UI element state'를 `ViewModel`로 호이스팅 시 주의해야 함 
+>   - 'UI element state'의 `suspend` 함수 사용 시 `viewModelScope` 사용하면 **런타임 에러** 발생
+>   - `viewModelScope` 대신 `Composition`의 `CoroutineScope`를 얻어와 `CoroutineScope`를 전환해야 함
 
-이와 같이 screen level의 state holder가 존재하는데 이는 다음 역할을 담당합니다.
+---
 
-- 다른 부분에 위치한 애플리케이션의 비즈니스 로직(Domain 및 Data Layer 등)에 대한 접근을 제공합니다.
-- 특정 화면에서의 표시를 위해 Data를 준비하는 것이며, 이는 화면 UI State가 됩니다.
+컴포저블과 'StateHolderClass'가 UI 로직과 'UI element state'를 관리하는 것과 마찬가지로,   
+화면 수준의 'StateHolder'는 다음과 같은 작업을 담당합니다.
 
-### state 소유자로 ViewModel 사용
+1. Domain 또는 Data 레이어의 비즈니스 로직에 대한 접근을 제공합니다.
+2. 'Screen UI state'가 되는 데이터를 준비합니다.
 
-`ViewModel`의 이점은 화면에서 비즈니스 로직에 대한 접근을 제공하고, 화면에 표시할 데이터를 준비하는데 적합합니다.
+### ViewModels as state owner
 
-UI 상태를 `ViewModel`에서 호이스팅하면, 그 상태는 Composition 밖으로 벗어납니다.
+`ViewModel`의 이점은 비즈니스 로직에 접근하고 화면에 표시할 데이터를 준비하는데 있습니다.  
+`ViewModel`에 UI 상태를 호이스팅하면 이 상태는 `Composition` 밖으로 이동하게 됩니다.
 
-<img src="../../resource/state-hoisting-vm.png" width="50%" height="auto">
+<img src="../../resource/state-hoisting-vm.png" width="50%">
 
-`ViewModel`은 Composition의 일부로 저장되지 않습니다. 이는 프레임워크에 의해 제공되며, 
-`Activity`, `Fragment`, `navigation graph`, `destination of navigation graph`와 같은 `ViewModelStoreOwner`에 범위가 지정됩니다.
+`ViewModel`은 `Composition`의 일부가 아닌, `ViewModelStoreOwner`의 스코프로 지정됩니다.  
+(`ViewModelStoreOwner`는 `Activity`, `Fragment`, `NavigationGraph`, `NavigationDestination` 등이 될 수 있습니다.)
 
-따라서, `ViewModel`은 UI 상태에 대한 **가장 가까운 공통 조상**이며 신뢰할 수 있는 정보 출처가 됩니다.
+이는, `ViewModel`이 UI 상태에 대한 가장 가까운 공통 상위 존재가 될 수 있으며, 'Single source of truth'가 됨을 의미합니다.
 
 ### Screen UI State
 
-Screen UI state는 비즈니스 규칙을 적용하여 생성된 데이터를 의미합니다.   
-Screen UI state는 일반적으로 특정 화면에 표시되는 정보를 관리하며, 그것이 사용자에게 보여지는 방식을 정의합니다.  
+'Screen UI state'는 비즈니스 규칙을 적용하여 생성되며, 이는 'Screen-level StateHolder'(`ViewModel`)에서 호이스팅된다는 것을 의미합니다.
 
-Screen level state holder는 Screen UI state를 관리하는 역할을 합니다. 
-이는 주로 `ViewModel`에서 수행되며, 이를 통해 UI State는 앱의 비즈니스 로직과 분리되어 보다 재사용성이 높은 코드를 작성할 수 있습니다.
-
-예를 들어, 아래 채팅 앱의 `ConversationViewModel`는 Screen UI State를 제공하고 이를 변경하는 이벤트를 노출하고 있습니다.
+아래는 `ConversationViewModel`는 'Screen UI State'를 제공하고 이를 수정하는 이벤트를 노출하고 있습니다.
 
 ```kotlin
 class ConversationViewModel(
@@ -238,18 +291,18 @@ class ConversationViewModel(
     fun sendMessage(message: Message) { /* ... */ }
 }
 ```
-Composable은 `ViewModel`에서 관리하는 Screen UI State를 사용하므로,   
-비즈니스 로직에 접근하기 위해 Screen-Level Composable에 `ViewModel` 인스턴스를 주입해야 합니다.
 
-아래 예제는 `ViewModel`이 Screen-Level Composable에서 어떻게 사용되는지 보여줍니다.   
-여기서 `ConversationScreen()`은 `ViewModel`에서 Screen UI State를 가져옵니다.
+컴포저블은 `ViewModel`에서 호이스팅된 'Screen UI state'를 사용하기에,  
+비즈니스 로직에 접근할 수 있도록 `ViewModel` 인스턴스를 반드시 'Screen-level 컴포저블'에 주입해야 합니다.
+
+아래는 Screen-level 컴포저블에서 사용된 `ViewModel`의 예제입니다.  
+여기에서 `ConversationScreen()`은 `ViewModel`에서 Screen UI State를 가져옵니다.
 
 ```kotlin
 @Composable
 private fun ConversationScreen(
     conversationViewModel: ConversationViewModel = viewModel()
 ) {
-
     val messages by conversationViewModel.messages.collectAsStateWithLifecycle()
 
     ConversationScreen(
@@ -269,23 +322,34 @@ private fun ConversationScreen(
 }
 ```
 
+#### Property drilling
+
+'Property drilling'은 데이터를 여러 개의 중첩된 자식 컴포넌트를 통해 그 데이터가 읽혀지는 위치까지 전달되는 것을 의미합니다.
+
+컴포즈에서 'Property drilling'이 나타날 수 있는 전형적인 예시는 'Screen-level StateHolder'(`ViewModel`)을 통해 'Screen UI State'와 이벤트를 하위 컴포저블로 전달하는 경우 입니다.
+
+이처럼 이벤트를 개별적으로 람다 파라미터로 노출하는 것은 함수 시그니처에 과부하를 발생 시킬 수 있지만,  
+이는 컴포저블의 책임을 한눈에 볼 수 있어 그 책임의 가시성을 극대화 시켜줍니다.
+
+또한 상태와 이벤트를 캡슐화하는 '래퍼 클래스'를 사용하는 것보다 'Property drilling'을 더 선호해야 합니다.  
+'래퍼 클래스'가 없다면 컴포저블에 필요한 파라미터만 전달할 가능성이 높아지기에, 앞서 말한것처럼 책임의 가시성이 극대화 됩니다.   
+**컴포즈는 이를 Best practice로 간주**합니다.
+
 ### UI Element State
 
-비즈니스 로직이 해당 데이터를 읽거나 쓰는 경우, UI Element State를 Screen Level State Holder로 가져올 수 있습니다.
+비즈니스 로직에서 'UI element state'를 사용할 필요가 있는 경우, 'Screen-level StateHolder'로 올릴 수 있습니다.  
 
-계속해서 채팅 앱을 예로들어 보죠.
+아래 그림을 보면 사용자가 `@+hint`를 입력 시 그룹 채팅에서 `사용자 추천`을 표시합니다.
+이러한 추천은 Data 계층에서 데이터를 받아오며, 이런 로직은 비즈니스 로직으로 간주됩니다.
 
-사용자가 `@`와 `힌트`를 입력하면 그룹 채팅에 `사용자 제안`을 표시합니다.   
-`사용자 제안`은 Data Layer에서 데이터를 불러오며, 이 데이터를 불러오는 로직은 비즈니스 로직으로 간주됩니다.
-
-<img src="../../resource/state-hoisting-suggestions.png" width="50%" height="auto">
+<img src="../../resource/state-hoisting-suggestions.png" width="50%">
 
 이 기능을 구현하는 `ViewModel`은 다음과 같이 구성됩니다:
 
 ```kotlin
 class ConversationViewModel(/*...*/) : ViewModel() {
 
-    // 상향된 상태
+    // Hoisted state
     var inputMessage by mutableStateOf("")
         private set
 
@@ -306,32 +370,34 @@ class ConversationViewModel(/*...*/) : ViewModel() {
 }
 ```
 
-`inputMessage`는 `TextField` 상태를 저장하는 변수입니다. 사용자가 새로운 입력을 타이핑 할 때마다, 
-앱은 `사용자 제안`을 생성하기 위해 비즈니스 로직을 호출합니다.
+`inputMessage`는 `TextField`의 'UI element State'입니다. 
+사용자의 새로운 입력이 들어올 때마다 앱은 비즈니스 로직을 호출하여 `사용자 추천`을 제공해야 합니다.
 
-`suggestions`는 화면 UI 상태이며, `StateFlow`로부터 수집하여 Compose UI에서 사용됩니다.
+만약 비즈니스 로직이 필요하지 않다면, 'Screen-level StateHolder'로 호이스팅하면 안됩니다.
+
+`suggestions`는 'Screen UI State'이며, `StateFlow`로부터 수집하여 컴포저블이 사용합니다.
 
 ### 주의사항
 
-Compose에서 UI Element State를 `ViewModel`로 옮길 때는 각별한 주의가 필요합니다.  
-특히, 일부 UI Element의 State Holder는 `State`를 변경하는 메서드를 제공하며, 이 중 일부는 애니메이션을 제어하는 `suspend` 함수입니다.
-이런 함수들은 Composition에 범위가 지정되지 않은 `CoroutineScope`에서 호출하면 `예외`를 발생시킵니다.
+일부 'UI element state'를 `ViewModel`로 호이스팅 하는 경우 주의해야 할 점이 있습니다.
 
-예를 들어, 앱의 서랍(drawer) 컨텐츠가 동적으로 변경되고, 사용자가 서랍을 닫은 후, 데이터 계층에서 가져온 새로운 데이터로 서랍 내용을 새로 고침해야 하는 상황을 생각해 봅시다. 
-이 경우, 해당 UI Element와 관련된 UI 및 비즈니스 로직을 모두 호출할 수 있도록 서랍 상태를 `ViewModel`로 호이스팅하는 것이 좋습니다.
+'UI element state'를 보유한 'StateHolder'는 보유한 상태를 수정하는 메서드를 외부에 노출합니다.  
 
-그런데 문제는, Compose UI의 `DrawerState`의 `close()` 메서드를 호출할 때 `viewModelScope`를 사용하면, 
-"MonotonicFrameClock이 이 `CoroutineContext`에서 사용할 수 없다"는 메시지와 함께 `IllegalStateException`이 발생한다는 것입니다. 
+이 중 일부는 `Animation`을 트리거하는 `suspend` 함수가 될 수 있는데,
+이 `suspend` 함수들은 `Composition`에 스코프된 `CoroutineScope`가 아닌 다른 `CoroutineScope`에서 호출하면 `excpetion`을 발생시킵니다.
 
-이것은 애니메이션을 제어하는 `suspend` 함수가 Composition에 종속된 `CoroutineContext`에서만 정상적으로 작동한다는 것을 의미합니다.
+예를 들어 앱의 `Drawer` 내용이 동적이고, 닫힌 후에 Data 계층에서 새로고침해야 한다고 가정해보면,  
+`Drawer`의 상태를 `ViewModel`로 호이스팅하여 `Drawer`에 대한 UI 로직과 비즈니스 로직을 모두 호출할 수 있어야 합니다.  
+그러나 `viewModelScope`를 사용하여 `DrawerState`의 `close()`를 호출하면,
+"해당 `CoroutineContext`에서 `MonotonicFrameClock`를 사용할 수 없습니다" 메시지와 함께 `IllegalStateException` 런타임 에러가 발생합니다
 
-이 문제를 해결하기 위해서는, Composition에 범위가 지정된 `CoroutineScope`를 사용해야 합니다. 
-이렇게 하면 `suspend` 함수가 필요로 하는 MonotonicFrameClock을 `CoroutineContext`에 제공할 수 있습니다.
+이 문제를 해결하려면 `Composition`의 `CoroutineScope`를 사용해야 합니다.  
+이 `CoroutineScope`는 `suspend` 함수 작동에 필요한 `CoroutineContext`에 `MonotonicFrameClock`을 제공합니다.
 
-따라서 `ViewModel`에서 코루틴의 `CoroutineContext`를 Composition에 범위가 지정된 것으로 전환하는 것이 좋습니다.  
-이를 통해 `LazyListState.animateScrollTo()`와 `DrawerState.close()` 등의 함수를 안전하게 호출할 수 있습니다.
+이처럼 `Animation`을 트리거하는 'UI element state'에서 노출된 일부 `suspend` 함수를
+`Composition`에 스코프된 `CoroutineScope`가 아닌 다른 곳에서 호출하면 예외가 발생합니다.
 
-이를 구현하는 방법은 아래의 코틀린 코드 예시를 참조하세요.
+이 충돌을 해결하려면 `ViewModel` 내의 `CoroutineContext`를 `Composition`에서 스코프된 것으로 전환해야 합니다.
 
 ```kotlin
 class ConversationViewModel(/*...*/) : ViewModel() {
@@ -362,9 +428,3 @@ private fun ConversationScreen(
     ConversationScreen(onCloseDrawer = { conversationViewModel.closeDrawer(uiScope = scope) })
 }
 ```
-
-여기서는 `viewModelScope.launch`를 사용하여 코루틴을 시작하고, 
-`withContext(uiScope.coroutineContext)`를 사용하여 Composition에 범위 지정된 `CoroutineScope`로 `Context`를 전환합니다.
-
-이렇게 하면 `drawerState.close()`와 같은 애니메이션 `suspend` 함수를 안전하게 호출할 수 있습니다.
-또한, 서랍(drawer) 컨텐츠를 새로 고침하는 비즈니스 로직도 이 곳에서 호출할 수 있습니다.
