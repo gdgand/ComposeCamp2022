@@ -197,8 +197,7 @@ Stateless 컴포저블을 만드는 가장 간단한 방법은 'State Hoisting'�
 ## State hoisting
 
 > - State hoisting : Stateless Composable로 만들기 위해 `State<T>`를 상위 Composable로 이동시키는 패턴
-    >
-- Composable안에서 `State<T>`를 생성하지 않고, `value: T`와 `onValueChange: (T) -> Unit` 파라미터로 대체
+>   - Composable안에서 `State<T>`를 생성하지 않고, `value: T`와 `onValueChange: (T) -> Unit` 파라미터로 대체
 > - State hoisting 특징
 >   - single source of truth : 동일한 `State<T>` 제공, 일관성 보장
 >   - Encapsulated : 'Stateful Composable' 만 `State<T>` 수정 가능, 외부에서 무분별한 수정 방지
