@@ -243,20 +243,49 @@ fun SomeComposable() {
 
 ---
 
-## CompositionLocal 대안
+## Alternatives to consider
 
-`CompositionLocal`은 일부 사용 사례에 대해 과도한 해결책이 될 수 있습니다.   
-[CompositionLocal 사용 시기 결정](#compositionlocal-사용시기-결정)에 명시된 기준을 충족하지 않는다면, 다른 해결책이 더 적합할 가능성이 큽니다.
+> - `CompositionLocal` 사용 기준에 충족하지 못하면 `CompositionLocal`의 사용은 더 복잡한 해결책 일 수 있음
+> - 이에 대한 다른 방안들
+>   - Composable의 파라미터를 명확히 표현하여 필요한 데이터만 전달
+>   - 하위 Composable에게 의존성을 전달하지 않고, 상위 Composable이 그 역할을 대신 수행하는 '제어 역전 원칙' 사용 
 
-### 명시적인 파라미터 전달
+---
 
-composable의 종속성에 대해 명확하게 표현하는 것은 좋은 습관이며, 분리와 재사용을 위해 각 Composable은 최소한의 정보만을 가지고 있어야 합니다.
+[CompositionLocal 사용 시기](#deciding-whether-to-use-compositionlocal)에 명시된 기준을 충족하지 않는다면,
+다른 해결 방안이 더 적합할 수 있습니다.
 
-### 제어 역전
+### Pass explicit parameters
 
-composable에 불필요한 종속성 전달을 피하는 또 다른 방법은 제어 역전을 하는 방법입니다.
- 
-어떤 로직을 실행하기 위한 종속성을 하위 Composable에게 전달하지 않고, 상위 Composable이 로직을 실행하도록 하는 제어 역전 원칙을 사용하세요.
+컴포저블의 의존성을 명시적으로 표현하는 것은 좋은 습관입니다. 즉, 컴포저블에게 필요한 것만 전달하도록 권장합니다.  
+컴포저블의 재사용성과 결합도를 낮추기 위해, 각 컴포저블은 가능한 적은 양의 데이터만을 가지고 있어야 합니다.
+
+```kotlin
+@Composable
+fun MyComposable(
+  myViewModel: MyViewModel = viewModel()
+) {
+    // ...
+    val data: DataToDisplay = myViewModel.data
+    MyDescendant(data = data)
+}
+
+// 하위 컴포저블이 필요한 데이터만 넘기세요.
+// CompositionLocal을 통해 ViewModel 종속성을 암시적으로 전달 X
+@Composable
+fun MyDescendant(myViewModel: MyViewModel) { /* ... */ }
+
+// 필요한 데이터만 넘기세요.
+@Composable
+fun MyDescendant(data: DataToDisplay) {
+    // Display data
+}
+```
+
+### Inversion of control
+
+컴포저블에게 필요하지 않은 의존성을 전달하지 않는 또 다른 방법은 '제어를 역전'하는 것입니다.  
+하위 컴포저블이 어떤 로직을 수행하기 위해 의존성을 가져오는 대신, 상위 컴포저블이 그 역할을 대신합니다.
 
 ```kotlin
 @Composable
@@ -274,10 +303,9 @@ fun ReusableLoadDataButton(onLoadClick: () -> Unit) {
 }
 ```
 
-이러한 접근법은 하위 Composable을 상위 Composable들로부터 분리하는 것으로, 일부 사용 사례에 더 적합할 수 있습니다. 
-상위 composable은 더 유연한 하위 composable을 가지기 위해 더 복잡해지는 경향이 있습니다.
-
-유사하게, `@Composable`의 `content lambda`도 같은 이점을 얻기 위해 다음과 같은 방식으로 사용될 수 있습니다.
+이러한 접근법은 하위 컴포저블을 직접적인 상위 컴포저블로부터 분리함으로써 일부 Usecase에 더 적합할 수 있습니다.  
+또한 더 유연한 하위 레벨의 컴포저블들을 위해 상위 컴포저블들이 더 복잡해질 수 있습니다.  
+마찬가지로, `@Composable` 'Content 람다'를 사용하는 방식도 이러한 분리를 실현하는 또 다른 방식입니다.
 
 ```kotlin
 @Composable
@@ -285,9 +313,7 @@ fun MyComposable(myViewModel: MyViewModel = viewModel()) {
     // ...
     ReusablePartOfTheScreen(
         content = {
-            Button(
-              onClick = { myViewModel.loadData() }
-            ) {
+            Button(onClick = { myViewModel.loadData() }) {
                 Text("Confirm")
             }
         }
