@@ -116,73 +116,80 @@ fun FruitText(fruitSize: Int) {
 }
 ```
 
-## 고유한 CompositionLocal 만들기
-`CompositionLocal`은 Composition을 통해 데이터를 암시적으로 전달하는데 사용됩니다.
+## Creating your own CompositionLocal
 
-`CompositionLocal`을 사용하는 주요 케이스 중 하나는 파라미터가 여러 계층을 관통(cross-cutting)하고 중간 구현 계층이 해당 파라미터를 인식할 필요가 없는 경우입니다.  
-이는 중간 계층이 해당 파라미터를 인식하게 되면, 그 composable의 활용성이 제한될 수 있기 때문입니다.
-
-예를 들어, 안드로이드에서 권한 요청을 처리하는 작업은 내부적으로 `CompositionLocal`을 이용합니다.   
-여기서 'Media Picker Composable'은 디바이스에서 권한으로 보호된 컨텐츠에 액세스하는 새로운 기능을 추가할 수 있습니다.
-이는 Media Picker Composable이 추가 기능을 구현할 때 그 기능을 사용하는 다른 코드에서 API 변경을 인지하거나, 추가된 컨텍스트에 대해 알 필요가 없습니다.
-
-이러한 상황에서는 `CompositionLocal`을 사용하여 특정 composable의 내부 구현 세부사항을 숨기고 동시에 새로운 기능을 추가할 수 있습니다. 
-그 결과, composable의 API는 동일하게 유지되지만 그 아래의 구현은 `CompositionLocal`에 의해 암시적으로 제어됩니다. 
-이렇게 하면 composable이 가지고 있는 기능을 확장하거나 변경하는 데 필요한 유연성을 제공하게 됩니다.
-
-### CompositionLocal 단점
-`CompositionLocal`이 항상 최선의 해결책은 아닙니다. 
-`CompositionLocal`의 과도한 사용은 여러 단점을 가지고 있기에 사용에 주의해야 합니다.
-
-#### Composable의 동작을 이해하기 어려움
-`CompositionLocal`은 암시적인 의존성을 만들어내기 때문에, 이를 사용하는 composable 함수를 호출하는 개발자들은 모든 `CompositionLocal`에 대한 값을 만족시키는 것을 확인해야 합니다.
-즉, `CompositionLocal`에 값이 제공되어야 하는데, 그렇지 않으면 런타임 에러가 발생할 수 있습니다.
-
-#### 의존성에 대한 명확한 근거가 없을 수 있음
-`CompositionLocal`은 Composable의 어느 부분에서든 변경될 수 있기 때문에, 이 의존성에 대한 명확한 근거가 없을 수 있습니다. 
-이로 인해 문제가 발생했을 때 디버깅이 어려울 수 있습니다.
-
-예를 들어, 문제가 발생한 Composable이 특정 `CompositionLocal`의 `current` 값을 사용하고 있다고 가정해보겠습니다. 
-이 경우 문제를 해결하기 위해서는 `current` 값이 어디에서 제공되었는지 확인해야 합니다. 
-이는 Composition의 계층을 거슬러 올라가며 확인해야 하므로 디버깅이 어려울 수 있습니다.
+> - `CompositionLocal` UseCase 중 하나로, '중간 계층 Composable'에 데이터 의존성 없이 '하위 계층'으로 데이터 전달 시 사용
+>   - 특정 Composable에서만 사용되는 '권한 요청'과 같이 전역적으로 사용되는 작업
+> - `CompositionLocal`의 단점
+>   - `CompositionLocal` 값을 검증한 뒤 사용해야 하기에 Composable 행동 추론이 어려움
+>   - 명확한 의존성이 없어 SSOT가 없을 가능성이 있고 `Composition` 어느 부분에서든 수정이 가능해 디버깅이 어려움
+> - `CompositionLocal` 사용을 결정하기 전, 아래 조건을 만족하는 지 확인
+>   - `CompositionLocal`이 적절한 'DefaultValue'를 갖는지 확인
+>   - `CompositionLocal`이 몇몇 특정 컴포저블이 사용하는 것이 아닌, 모든 하위 컴포저블이 잠재적으로 사용할 수 있는지 확인
+>   - 'Bad practice' : `CompositionLocal`을 통해 `ViewModel`을 하위 컴포저블들이 접근할 수 있게 하는 패턴은 나쁜 패턴임
+> - `CompositionLocal` 생성을 위한 2가지 API
+>   - `compositionLocalOf` : 값 업데이트 시 값을 사용하는 Composable만 'ReComposition' 수행
+>   - `staticCompositionLocalOf` : 값을 추적하지 않기에, `CompositionLocal`이 제공한 `content` 람다 전체를 'ReComposition' 수행
 
 ---
 
-### CompositionLocal 사용시기 결정
+`CompositionLocal`은 `Composition`을 통해 데이터를 효과적으로 전달하기 위한 도구입니다.  
+주로 그 데이터가 트리의 많은 레벨에 걸쳐 공통적으로 필요할 때 사용되며, `Composition`의 여러 계층에 걸쳐 암시적으로 전달되도록 합니다.
 
-아래의 조건이 충족될 때 `CompositionLocal`은 요구 사항에 적절한 해결책이 될 수 있습니다.
+`CompositionLocal`을 사용하는 케이스 중 하나로, 파라미터가 '교차 관심사(cross-cutting)'일 때 입니다. 
 
-1. `CompositionLocal`은 적절한 기본값을 가져야 합니다.
-기본값이 없다면, 개발자가 `CompositionLocal`에 대한 값을 제공하지 않는 상황을 가능한 피할 수 있도록 해야 합니다.
-기본값을 제공하지 않으면, 해당 `CompositionLocal`을 사용하는 composable을 테스트하거나 미리보기 할 때 항상 명시적으로 제공해야 하므로 문제와 혼란을 야기할 수 있습니다.
+교차 관심사는 여러 계층에 걸쳐서 고려되어야 할 필요가 있는 사항을 말하며, 
+이런 경우에 `CompositionLocal`을 사용하면 중간 계층이 해당 파라미터의 존재를 알 필요 없이 데이터를 하위 계층으로 전달할 수 있습니다.  
+이렇게 하면, 중간 계층을 데이터 전달의 매개체로 만들지 않음으로써, 해당 컴포저블의 재사용성과 분리를 유지할 수 있습니다.
 
-2. `CompositionLocal`은 트리 범위 또는 하위 계층 범위의 개념에 사용되어야 합니다. 
-즉, `CompositionLocal`은 특정 몇 개의 항목에 의해 사용되는 것이 아닌 모든 후손에 의해 잠재적으로 사용될 수 있을 때 의미가 있습니다.
+예를 들어 '권한 요청' 작업은 앱의 많은 부분에서 공통적으로 필요할 수 있습니다.  
+각 컴포저블이나 화면에서 직접 권한을 처리하는 로직을 구현하기보단, `CompositionLocal`을 사용하여 이를 내부적으로 처리할 수 있습니다.
 
-`CompositionLocal`의 나쁜 사용 예로는, 특정 화면의 `ViewModel`을 보유하도록 만드는 것이 있습니다.   
-이 경우 해당 화면의 모든 composable들이 `ViewModel`에 대한 참조를 얻어 어떤 로직을 수행하게 되지만, 
-이는 모든 composable이 `ViewModel`에 대해 알 필요가 없다는 점 때문에 좋지 않은 방법입니다.
+그러나, `CompositionLocal`은 몇 가지 단점이 있기에 남용하는 것은 좋지 않습니다.
 
-올바른 접근법은, [상태가 아래로 흐르고 이벤트가 위로 흐르는 패턴](../용어.md#단방향-데이터-흐름)을 따라 composable에 필요한 정보만 전달하는 것입니다. 
-이 방식은 composable을 더욱 재사용하기 쉽게 만들고 테스트를 용이하게 합니다.
+1. `CompositionLocal`은 컴포저블의 행동을 추론하기 어렵게 만듭니다.
+이들이 암시적 의존성을 생성하기에, `CompositionLocal`을 사용하는 컴포저블을 호출하는 개발자들은 모든 `CompositionLocal`의 값이 만족하는지 검증해야 합니다.
+
+2. 의존성에 대한 명확한 SSOT(Single Source of Truth)가 없을 가능성이 있고, `Composition`의 어느 부분에서든 수정이 가능합니다.
+따라서 문제가 발생한 경우 디버깅에 어려움이 있을 수 있습니다.
 
 ---
 
-### CompositionLocal 생성하기
+### Deciding whether to use CompositionLocal
 
-| 생성 API                     | 설명                                                                                                                                                                                             | 
-|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `compositionLocalOf`       | 재구성(recomposition) 중에 제공된 값이 변경되면, **`current` 값을 읽는 `content`만** 무효화 합니다.                                                                                                                     |
-| `staticCompositionLocalOf` | `compositionLocalOf`와 달리, `staticCompositionLocalOf`의 읽기는 Compose에 의해 추적되지 않습니다. </br> 값이 변경되면 `CompositionLocal`이 제공된 `content` 람다의 전체가 재구성되고, Composition에서 `current` 값을 읽는 위치만 재구성되지 않습니다.  |
+`CompositionLocal` 사용 유무 결정하기 전, 특정 조건을 만족하면 좋은 패턴이 될 수 있습니다.
 
-**`CompositionLocal`에 제공된 값이 거의 변하지 않거나 절대로 변경되지 않을 경우, 성능의 이점을 얻기 위해 `staticCompositionLocalOf`를 사용하는것이 좋습니다.**
+첫째, `CompositionLocal`은 적절한 기본값을 가져야 합니다.  
+만약 기본 값이 없다면, 개발자가 실수로 `CompositionLocal` 값을 제공하지 않는 상황이 발생하지 않도록 해야 합니다.  
+기본 값이 없을때 테스트나 Preview를 생성 시 항상 해당 값을 명시적으로 제공해야 하는 불편함이 발생할 수 있습니다.
 
-예를 들어, 다음과 같이 그림자에 대한 값을 UI 트리 전체에 전파되어야 할때에 다음과 같이 `CompositionLocal`을 사용합니다. 
-`CompositionLocal` 값은 시스템 테마에 따라 조건적으로 유도되므로, `compositionLocalOf`를 사용합니다.
+둘째, `CompositionLocal`은 모든 하위 컴포저블이 잠재적으로 사용할 수 있을 때 의미가 있습니다.  
+만약 몇몇 특정 컴포저블만이 값을 사용하면, `CompositionLocal`은 적절한 해결책이 아닐 수 있습니다.
+
+'Bad practice' 예시로, 특정 화면의 `ViewModel`을 갖는 `CompositionLocal`을 생성하여,  
+그 화면의 모든 컴포저블들이 일부 로직을 수행하기 위해 `ViewModel`을 참조할 수 있게 허용 하는 것입니다.  
+이는 특정 UI 트리 아래의 모든 컴포저블들이 `ViewModel`에 대해 알 필요가 없기에 좋지 않은 방법입니다.
+
+'Best practice'는 상태가 아래로 흐르고 이벤트가 위로 흐르는 패턴을 따라 컴포저블에 필요한 정보만을 전달하는 것입니다.  
+이를 통해 컴포저블을 더 재사용하기 쉽고 테스트하기 쉽게 만들 수 있습니다.
+
+---
+
+### Creating a CompositionLocal
+
+컴포즈는 `CompositionLocal` 생성을 위한 2가지 API를 제공합니다.
+
+`compositionLocalOf`는 값이 변할 때 값을 사용하는 컴포저블만 'ReComposition' 되도록 합니다.  
+따라서, 제공된 값이 자주 변할 가능성이 있다면 `compositionLocalOf`를 사용하는 것이 좋습니다.
+
+`staticCompositionLocalOf`는 제공되는 값을 추적하지 않기에, 값이 변경되면 `CompositionLocal`이 제공한 `content` 람다의 전체가 'ReComposition' 됩니다. 
+이는 값이 거의 변경되지 않을 때 사용하기 적합하며, 불필요한 추적과 'ReComposition'을 방지하여 성능을 향상 시킬 수 있습니다.
+
+예를 들어, 앱의 디자인 시스템은 컴포넌트에 '그림자'를 사용하여 컴포저블이 돋보이게 하는 방식을 적용할 때,  
+다양한 'elevations'이 UI 트리 전체에 전파되어야 하므로 `CompositionLocal`을 사용할 수 있습니다.  
+`CompositionLocal` 값이 시스템 테마에 따라 변경될 수 있기 때문에, `compositionLocalOf`를 사용하는 것이 적합합니다.
 
 ```kotlin
-// LocalElevations.kt 파일
-
 data class Elevations(val card: Dp = 0.dp, val default: Dp = 0.dp)
 
 // 기본값을 가진 CompositionLocal 글로벌 객체 정의
@@ -190,14 +197,12 @@ data class Elevations(val card: Dp = 0.dp, val default: Dp = 0.dp)
 val LocalElevations = compositionLocalOf { Elevations() }
 ```
 
-위의 코드에서 `Elevations`은 `card`와 `default`라는 두 가지 상태를 가지고 있으며, 각각의 기본값은 `0.dp`입니다.   
-`LocalElevations`는 이 `Elevations`를 기본값으로 가지는 `CompositionLocal`이며, 앱의 어느 곳에서나 접근하여 사용할 수 있습니다.   
-`compositionLocalOf`를 사용하므로, 이 값이 변경되면 해당 `CompositionLocal`을 참조하는 composable 함수들이 재구성됩니다.
+---
 
-### CompositionLocal으로 값 제공
+### Providing values to a CompositionLocal
 
-`CompositionLocalProvider` Composable은 주어진 계층에 대해 `CompositionLocal` 인스턴스에 값을 연결합니다.
-`CompositionLocal` 키를 `value`에 연결하는 `provides`를 사용하여 새 값을 제공할 수 있습니다.
+`CompostionLocalProvider` 컴포저블은 주어진 계층에 대한 `CompositionLocal` 인스턴스의 값들을 바인딩 합니다.  
+`CompositionLocal`에 새로운 값을 제공하려면, `provides` infix 함수를 사용하여 `CompositionLocal`의 키와 해당 값을 연결하면 됩니다.
 
 ```kotlin
 class MyActivity : ComponentActivity() {
@@ -205,7 +210,7 @@ class MyActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            // 시스템 Theme에 따라 elevation 계산
+            // 시스템 테마에 따라 elevation 계산
             val elevations = if (isSystemInDarkTheme()) {
                 Elevations(card = 1.dp, default = 1.dp)
             } else {
@@ -223,7 +228,8 @@ class MyActivity : ComponentActivity() {
 }
 ```
 
-### CompositionLocal 사용
+### Consuming the CompositionLocal
+
 `CompositionLocal.current`은 `CompositionLocal`에 값을 제공하는 가장 가까운 `CompositionLocalProvider`가 제공한 값을 반환합니다.
 
 ```kotlin
