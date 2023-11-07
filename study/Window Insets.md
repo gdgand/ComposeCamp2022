@@ -65,13 +65,20 @@ Android 내부 'Inset Type'들은 [WindowInsets을 통해 사용이 가능](http
 
 ---
 
-## Insets 적용하기
+## Insets setup
 
-1. `Activity.onCreate`에서 `WindowCompat.setDecorFitsSystemWindows(window, false)`를 호출합니다. 
-    이 호출은 앱이 시스템 UI 뒤에 표시되도록 요청합니다. 그러면 앱이 이러한 `insets`가 UI를 조정하는 데 어떻게 사용되는지를 제어하게 됩니다.
+> - `WindowCompat.setDecorFitsSystemWindows` : '앱 컨텐츠'가 'System UI' 뒤에 표시되도록 요청 
+> - `android:windowSoftInputMode="adjustResize"` : 소프트웨어 키보드가 화면에 나타날 때 그 크기만큼 UI가 조정되도록 요청
 
-2. `Activity`의 `AndroidManifest.xml` 항목에서 `android:windowSoftInputMode="adjustResize"`를 설정합니다. 
-   이 설정을 통해 앱은 소프트웨어 `IME`의 크기를 `insets`로 받을 수 있으며, `IME`가 앱에 나타나거나 사라질 때 적절하게 콘텐츠를 패딩하고 배치하는 데 사용할 수 있습니다.
+'앱 컨텐츠'의 그리는 위치를 전적으로 제어하려면 다음 설정을 해야합니다.  
+만약 이 단계를 거치지 않으면 앱이 'System UI' 뒤에 검은색이나 단색을 그리거나, 소프트웨어 키보드와 동기화되어 애니메이션이 되지 않을 수 있습니다.
+
+1. `Activity.onCreate()`에서 `WindowCompat.setDecorFitsSystemWindows(window, false)`를 호출합니다.   
+    이 호출은 앱이 'System UI' 뒤에 표시되도록 요청합니다. 그러면 앱이 'Inset'을 사용하여 UI를 조정하는 방법을 제어하게 됩니다.
+
+2. `AndroidManifest.xml`의 `Activity` 항목에서 `android:windowSoftInputMode="adjustResize"`를 설정합니다.  
+    이 설정은 앱이 소프트웨어 IME의 크기를 'Inset'으로 받아들이게 하여, IME가 앱에 나타나거나 사라질 때 컨텐츠를 적절하게 채우고 배치할 수 있게 합니다.
+
 ```xml
 <!-- in your AndroidManifest.xml file: -->
 <activity
@@ -79,10 +86,10 @@ Android 내부 'Inset Type'들은 [WindowInsets을 통해 사용이 가능](http
   android:label="@string/app_name"
   android:windowSoftInputMode="adjustResize"
   android:theme="@style/Theme.MyApplication"
-  android:exported="true">
+  android:exported="true"/>
 ```
 
-3. 앱의 테마에서 시스템 바와 아이콘의 색상을 투명으로 조정합니다.
+3. 앱 테마에서 'StatusBar', 'NavigationBar' 등 시스템 바와 아이콘의 색상을 투명으로 조정합니다.
 
 ```xml
 <style name="Theme.MyApplication" parent="Theme.Material.DayNight.NoActionBar">
