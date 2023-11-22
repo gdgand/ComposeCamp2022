@@ -21,6 +21,9 @@ Compose는 이러한 요구사항을 충족하기 위해 다양한 'Side-Effect 
 >   - `LaunchedEffect`가 Composition 진입 시, `Block`을 'Coroutine'으로 시작 
 >   - `LaunchedEffect`가 Composition을 떠나면, 'Coroutine' 취소
 >   - `LaunchedEffect`의 `Key` 변경 시, 'Coroutine' 취소 후, 새로운 'Coroutine'으로 재시작
+> - rememberCoroutineScope : 'Composable Lifecycle'에 연결된 `CoroutineScope` 생성
+>   - Composable '외부'에서 'Coroutine' 실행 가능 (`ViewModel`에서 Composable Animation 처리)
+>   - 해당 Composable이 'Composition'을 떠나면 모든 'Child Coroutine' 취소 처리 
 
 컴포저블은 UI 작업 외, 'Side-Effect' 작업을 하지 않는게 좋습니다.  
 하지만, 때떄로 앱의 '상태'를 변경해야 하는 경우 `Effect` API를 통해 처리할 수 있습니다.
@@ -71,26 +74,27 @@ fun MyScreen(
 }
 ```
 
-### rememberCoroutineScope: Composable 외부에서 Coroutine을 시작하려면 Composition에서 인식하는 Scope를 사용
+---
 
-`LaunchedEffect`는 Composable 함수이므로, 다른 Composable 함수 내에서만 사용할 수 있습니다.
+### rememberCoroutineScope: obtain a composition-aware scope to launch a coroutine outside a composable
 
-`rememberCoroutineScope`를 이용하면 composable 외부에서 코루틴을 시작하면서도 그 코루틴이 현재 composable의 생명주기에 따라 자동으로 취소되게 할 수 있습니다. 
-이는 Composable이 Composition에 제거되면 자동으로 해당 코루틴을 정리하므로 메모리 누수나 기타 이슈를 방지하는데 도움이 됩니다.
+`LaunchedEffect`는 컴포저블이기에, 다른 컴포저블에서만 사용할 수 있습니다.  
 
-예를 들어, 사용자가 특정 UI 요소를 클릭하면 애니메이션을 시작하고 다른 요소를 클릭하면 애니메이션을 중단하려면, 
-각 클릭 이벤트가 발생할 때마다 코루틴을 시작하고 중지하는 작업을 수행해야 합니다. 이런 경우에 `rememberCoroutineScope`를 사용하면 편리합니다.
+만약 컴포저블 '외부'에서 'Coroutine'을 실행하고 싶고, 컴포저블 생명주기에 맞춰 'Coroutine'이 자동으로 관리되도록 `Scope`를 설정하고 싶은 경우 `rememberCoroutineScope`를 사용할 수 있습니다. 
 
-`rememberCoroutineScope`를 이용해 생성된 `CoroutineScope`는 Composable의 **생명주기에 바인딩**되므로, 
-Composable이 Composition에서 제거되면 연결된 모든 코루틴도 자동으로 취소됩니다. 이를 통해 사용자 이벤트에 따라 여러 코루틴의 생명주기를 수동으로 제어할 수 있게 됩니다.
+또한 사용자 이벤트에 반응하여 'Coroutine'으로 애니메이션을 시작하고 중단하는 경우에도 `rememberCoroutineScope`를 사용하여 편하게 처리할 수 있습니다.
 
-앞선 예제를 이어, 사용자가 `Button`을 탭하면 Snackbar가 표시되도록 이 코드를 사용할 수 있습니다.
+`rememberCoroutineScope`으로 생성된 `CoroutineScope`는 컴포저블이 존재하는 'Composition'에 연결됩니다.  
+즉, `CoroutineScope`가 해당 컴포저블의 생명주기를 따름을 의미합니다. 
+만약  컴포저블이 화면에서 제거되어 'Composition'에서 떠나면, `rememberCoroutineScope`로 생성된 `CoroutineScope` 내에서 실행 중인 모든 'Child Coroutine'은 자동으로 '취소'됩니다.
+
+앞선 예제를 이어서 보면, 사용자가 `Button` 클릭 시 Snackbar가 표시되도록 사용 할 수 있습니다.
 
 ```kotlin
 @Composable
 fun MoviesScreen(snackbarHostState: SnackbarHostState) {
 
-    // MoviesScreen의 생명주기에 바인딩된 CoroutineScope를 생성
+    // `MoviesScreen` Composable Lifecycle에 연결된 CoroutineScope 생성
     val scope = rememberCoroutineScope()
 
     Scaffold(
@@ -98,10 +102,12 @@ fun MoviesScreen(snackbarHostState: SnackbarHostState) {
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { contentPadding ->
-        Column(Modifier.padding(contentPadding)) {
+        Column(
+          Modifier.padding(contentPadding)
+        ) {
             Button(
                 onClick = {
-                    // 이벤트 핸들러에서 새 코루틴을 생성하여 스낵바를 표시
+                    // 'Child Coroutine' 생성하여 'Snackbar' 표시
                     scope.launch {
                         snackbarHostState.showSnackbar("Something happened!")
                     }
@@ -113,6 +119,9 @@ fun MoviesScreen(snackbarHostState: SnackbarHostState) {
     }
 }
 ```
+
+---
+
 ### rememberUpdatedState: 값이 변경되어도 재시작하면 안 되는 효과 내에서의 값을 참조
 
 `LaunchedEffect`는 `키(key)` 매개 변수가 변경될 때마다 `lambda`를 재시작합니다.  
