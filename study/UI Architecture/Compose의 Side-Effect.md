@@ -17,23 +17,29 @@ Compose는 이러한 요구사항을 충족하기 위해 다양한 'Side-Effect 
 
 ## State and effect use cases
 
+> - `LaunchedEffect` : Composable에서 'suspend function'을 안전하게 호출하는 'Effect Composable'
+>   - `LaunchedEffect`가 Composition 진입 시, `Block`을 'Coroutine'으로 시작 
+>   - `LaunchedEffect`가 Composition을 떠나면, 'Coroutine' 취소
+>   - `LaunchedEffect`의 `Key` 변경 시, 'Coroutine' 취소 후, 새로운 'Coroutine'으로 재시작
+
 컴포저블은 UI 작업 외, 'Side-Effect' 작업을 하지 않는게 좋습니다.  
 하지만, 때떄로 앱의 '상태'를 변경해야 하는 경우 `Effect` API를 통해 처리할 수 있습니다.
 
-`Effect`는 UI를 생성하지 않고, 'Composition'이 완료될 때, 'Side-Effect'를 실행하는 컴포저블입니다.  
+`Effect`는 UI를 생성하지 않고, 'Composition'이 완료될 때, 'Side-Effect'를 실행하는 '컴포저블'입니다.  
 `Effect`는 쉽게 남용될 수 있기에 수행되는 작업이 UI와 관련되어 있는지, 단방향 데이터 흐름을 깨뜨리지 않는지, 유의해서 사용해야 합니다.
 
-### LaunchedEffect: Composable 범위에서 suspend 함수 실행
+### LaunchedEffect: run suspend functions in the scope of a composable
 
-Composable 내부에서 `suspend` 함수를 안전하게 호출하기 위해 `LaunchedEffect`를 사용합니다.   
+컴포저블에서 안전하게 'suspend function'을 호출하려면 `LaunchedEffect`를 사용하면 됩니다.
 
-`LaunchedEffect`가 Composition에 진입하면, 매개변수로 전달된 코드 블럭과 함께 코루틴을 시작합니다.   
-그러나 `LaunchedEffect`가 Composition에서 벗어나면 해당 코루틴은 취소가 됩니다. 
+`LaunchedEffect`가 'Composition'에 들어갈 때, `block` 파라미터를 'Coroutine'으로 시작합니다.  
+만약 `LaunchedEffect`가 'Composition'에서 벗어나면 해당 'Coroutine'을 취소합니다.
 
-`LaunchedEffect`가 다른 `Key`와 함께 `Re-Composition`되면, 
-기존의 코루틴은 취소되고, 새로운 `suspend` 함수가 새로운 코루틴에서 실행됩니다.
+또한 `LuanchedEffect`의 `Key` 값이 변경되면, '`Effect` 컴포저블'이 'ReComposition'되어서 
+기존 'Coroutine'을 취소하고, 새로운 'suspend function'을 새로운 'Coroutine'에서 시작하게 됩니다.
 
-예를 들어, `Scaffold` 내에서 `Snackbar`를 표시하는 것은 `SnackbarHostState.showSnackbar` 함수를 사용하며, 이는 `suspend` 함수입니다.
+예를 들어 `Scaffold` 안에서 `Snackbar`를 표시하는 예시입니다.   
+`SnackbarHostState.showSnackbar`는 'suspend function' 입니다.
 
 ```kotlin
 @Composable
@@ -44,11 +50,12 @@ fun MyScreen(
     // UI 상태에 오류가 있으면 Snackbar 표시
     if (state.hasError) {
 
-        // `scaffoldState.snackbarHostState`가 변경되면 `LaunchedEffect`는 취소되고 재실행
+        // `snackbarHostState` 변경 시, `LaunchedEffect` 취소 후 다시 시작
         LaunchedEffect(snackbarHostState) {
-            // 코루틴을 사용하여 Snackbar 표시, 코루틴이 취소되면 Snackbar는 자동으로 해제됩니다. 
-            // 이 코루틴은 `state.hasError`가 false일 때 취소되고, `state.hasError`가 true일 때 시작합니다
-            // 또는 `scaffoldState.snackbarHostState`가 변경될 때 시작됩니다.
+            // 'Coroutine'으로 snackbar 표시, 'Coroutine'이 취소되면 자동으로 snackbar 해제
+            // 'LaunchedEffect Composable'의 Composition 진입과 해제는 `state.hasError`가 변경될 때마다 수행됨 
+            // 이 'Coroutine'은 'state.hasError'의 값에 따라 취소되고 시작됨
+            // 또는 `scaffoldState.snackbarHostState`가 변경될 때 다시 시작됩니다.
             snackbarHostState.showSnackbar(
                 message = "Error message",
                 actionLabel = "Retry message"
@@ -63,10 +70,6 @@ fun MyScreen(
     }
 }
 ```
- 
-`LaunchedEffect`의 호출 위치가 `if`문 내부에 있기 때문에, `state.hasError`가 `true`일 때만 `LaunchedEffect`가 실행되며 코루틴이 실행됩니다.   
-그러나, `if` 문이 `false`일 경우, 만약 Composition 내에 `LaunchedEffect`가 있었다면 제거되고 코루틴은 취소됩니다.
-
 
 ### rememberCoroutineScope: Composable 외부에서 Coroutine을 시작하려면 Composition에서 인식하는 Scope를 사용
 
