@@ -1,36 +1,27 @@
-# Compose: Side-Effect
+# Side-effects in Compose
+
+'Side-Effect'는 컴포저블 'Scope' 외부에서 '앱의 상태'가 변경되는 것을 말합니다.
+
+컴포저블은 'ReComposition'의 순서가 바뀌거나, 중단될 수 있기에 예측할 수 없습니다.  
+이러한 특징으로 인해 이상적으로는 컴포저블에 'Side-Effect'가 없어야 합니다.
+
+하지만 때때로 앱의 특정 '상태'에 따라 SnackBar를 보여주거나 다른 화면으로 네비게이션하는 등의 작업이 필요한데,    
+이와 같은 작업들은 일회성 이벤트를 트리거하는 'Side-Effect'의 예시로써 볼 수 있습니다.
+
+'Side-Effect'는 컴포저블의 생명주기를 고려하여 통제된 방식으로 수행되어야 합니다.  
+즉, 컴포저블이 화면에 존재하는 동안만 'Side-Effect'가 실행되고, 컴포저블이 화면에서 제거되면 'Side-Effect'도 중단되어야 합니다.
+
+Compose는 이러한 요구사항을 충족하기 위해 다양한 'Side-Effect API'를 제공합니다.
 
 ---
 
-`Side-Effect`는 Composable 함수의 **범위 밖**에서 일어나는 **앱의 상태 변화를 의미**합니다.
+## State and effect use cases
 
-Composable들이 가지는 특징들로 인해 Composable은 사이드 이펙트를 가지지 않아야 합니다.  
-Composable들이 가지는 특징들에는 아래와 같이 있을 수 있습니다. 
-- 예측할 수 없는 재구성
-- 재구성의 순서 변경
-- 중지되는 재구성
+컴포저블은 UI 작업 외, 'Side-Effect' 작업을 하지 않는게 좋습니다.  
+하지만, 때떄로 앱의 '상태'를 변경해야 하는 경우 `Effect` API를 통해 처리할 수 있습니다.
 
-그러나 가끔 `Side-Effect`가 필요한 경우가 있습니다. 예를 들어, 다음과 같습니다. 
-- 특정 상태에 따라 스낵바 노출
-- 다른 화면으로 이동하는 등의 일회성 이벤트 시작
-
-위 동작들은 Composable의 생명주기를 이해하고, 재구성이 언제 이루어지는지 알고 있는 `Side-Effect API`를 통해 호출되어야 합니다.
-
----
-
-## State와 Effect 사용 사례
-
-Composable은 UI를 그리는데 집중해야 합니다. 따라서 UI를 그리는 작업 외에는 다른 작업(`Side-Effect`)을 수행하지 않아야 합니다.  
-예를 들어, 네트워크 호출이나 데이터베이스 액세스와 같은 작업은 Composable 함수 외부에서 수행되어야 합니다.
-
-만약 앱의 상태를 변경해야 할 경우, 사이드 이펙트가 예측 가능한 방식으로 실행되도록 `Effect API`를 사용해야 합니다.
-
-### Effect API
-`Effect API`는 UI를 출력하지 않지만, Composable의 생명주기를 고려하여 네트워크 호출이나 DB 액세스와 같은 Side-Effect를 실행하는 Composable 함수입니다.
-
-`Effect API`는 쉽게 남용할 수 있으므로, 수행하는 작업이 UI와 관련되어 있고, 단방향 데이터 흐름을 깨뜨리지 않도록 유의해서 사용해야 합니다.
-
-반응형 UI는 본질적으로 비동기적이며, Compose는 이를 코루틴을 통해 해결하고 있습니다.
+`Effect`는 UI를 생성하지 않고, 'Composition'이 완료될 때, 'Side-Effect'를 실행하는 컴포저블입니다.  
+`Effect`는 쉽게 남용될 수 있기에 수행되는 작업이 UI와 관련되어 있는지, 단방향 데이터 흐름을 깨뜨리지 않는지, 유의해서 사용해야 합니다.
 
 ### LaunchedEffect: Composable 범위에서 suspend 함수 실행
 
