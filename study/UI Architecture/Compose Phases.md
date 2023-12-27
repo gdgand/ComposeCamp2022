@@ -77,18 +77,15 @@ println(padding)
 > - 컴포즈는 3가지 단계에서 어떤 상태를 확인하는지 자동으로 추적할 수 있으며, 이를 통해 특정 단계만을 실행하도록 알릴 수 있음
 > - 중요한 점은 `SnapshotState`가 생성되는 지점이 아닌, 어디서 확인(읽는)하는지 이며, 이를 통해 컴포즈가 상태를 추적하도록 함
 > - Composable or Composable Block에서 상태를 확인하면 `Composition - Layout - Drawing` 3 단계에 영향을 미침
-    >
-- 상태 값이 변경된 경우 리컴포저는 해당 상태 값을 읽은 모든 컴포저블 함수를 다시 실행하도록 예약
+>   - 상태 값이 변경된 경우 리컴포저는 해당 상태 값을 읽은 모든 컴포저블 함수를 다시 실행하도록 예약
 >   - 만약 상태 값이 변경되지 않았다면 런타임은 일부 또는 모든 Composable 함수를 건너뛸 수 있음
 >   - `Composition` 결과에 따라 `Layout - Drawing`을 실행하지만, UI 요소의 크기나 레이아웃이 변경되지 않았다면 건너뛸 수 있음
 > - '측정'과 '배치' 단계에서 상태를 확인하면 `Layout - Drawing` 단계에 영향을 미칠 수 있음
-    >
-- '측정'에서 상태를 Layout 컴포저블에 전달된 `measurePolicy`, `LayoutModifier` 인터페이스의 `MeasureScope.measure` 메서드 등에서 사용한 경우
+>   - '측정'에서 상태를 Layout 컴포저블에 전달된 `measurePolicy`, `LayoutModifier` 인터페이스의 `MeasureScope.measure` 메서드 등에서 사용한 경우
 >   - '배치'에서 상태를 Layout 컴포저블의 배치 블록, `Modifier.offset { … }`의 람다 블록 등에서 사용하는 경우
 > - '측정'과 '배치' 단계는 별도의 재시작 범위를 가지지만, [서로 얽혀있기에 서로의 재시작 범위에 영향을 줄 수 있음](#측정과-배치-서로의-영향)
 > - UI를 그리는 중 상태를 확인하면 `Drawing` 단계만 영향을 줌
-    >
-- `Canvas`, `Modifier.drawBehind`, `Modifier.drawWithContent` 등의 그리기 코드에서 상태를 사용하는 경우
+>   - `Canvas`, `Modifier.drawBehind`, `Modifier.drawWithContent` 등의 그리기 코드에서 상태를 사용하는 경우
 
 컴포즈의 3가지 주요 단계가 있고, 각 단계에서 어떤 상태를 확인했는지 컴포즈가 자동으로 추적합니다.  
 이를 통해 컴포즈는 특정 UI 요소에 영향을 주는 작업을 수행해야 하는 특정 단계만을 알릴 수 있습니다.

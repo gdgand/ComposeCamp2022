@@ -17,13 +17,38 @@ Compose는 이러한 요구사항을 충족하기 위해 다양한 'Side-Effect 
 
 ## State and effect use cases
 
-> - `LaunchedEffect` : Composable에서 'suspend function'을 안전하게 호출하는 'Effect Composable'
->   - `LaunchedEffect`가 Composition 진입 시, `Block`을 'Coroutine'으로 시작 
->   - `LaunchedEffect`가 Composition을 떠나면, 'Coroutine' 취소
->   - `LaunchedEffect`의 `Key` 변경 시, 'Coroutine' 취소 후, 새로운 'Coroutine'으로 재시작
-> - rememberCoroutineScope : 'Composable Lifecycle'에 연결된 `CoroutineScope` 생성
+> - LaunchedEffect
+>   - Composable에서 'suspend function'을 안전하게 호출하는 'Effect Composable'
+>   - 'Composition' 진입 시, `Block`을 'Coroutine'으로 시작, 'Composition'을 떠나면, 'Coroutine' 취소
+>   - `Key` 변경 시, 'Coroutine' 취소 후, 새로운 'Coroutine'으로 재시작
+> - rememberCoroutineScope
+>   - 'Composable Lifecycle'에 연결된 `CoroutineScope` 생성
 >   - Composable '외부'에서 'Coroutine' 실행 가능 (`ViewModel`에서 Composable Animation 처리)
->   - 해당 Composable이 'Composition'을 떠나면 모든 'Child Coroutine' 취소 처리 
+>   - 해당 Composable이 'Composition'을 떠나면 모든 'Child Coroutine' 취소 처리
+> - rememberUpdatedState
+>   - 'Composable'의 'ReComposition' 시, 참조 값 유지
+>   - `Effect`에서 '오래 지속되는 작업', '비용이 많이 드는 작업' 처리 시 유용
+> - DisposableEffect 
+>   - 'Composable'이 'Composition'에서 제거 또는 `Key` 변경 시, 정리가 필요한 'Side-Effect' 관리
+>   - `DisposableEffect`에서 `onDispose` 블록 포함을 잊으면 안됨 
+>   - `onDispose`가 '빈' 경우, `DisposableEffect`가 필요하지 않는 상황일 수 있기에 다른 방식을 생각해보아야 함
+> - SideEffect
+>   - 'Compose State'를 'Non-Compose Code'에 공유할 때 사용
+>   - 매번 '성공적인 Composition(ReComposition 포함)' 후, `SideEffect` 내부 코드 블록 실행 보장
+> - produceState
+>   - 'Non-Compose State'를 'Compose State'로 변환할 때 사용
+>   - 'Composition'과 연관된 'Coroutine' 실행 후, '반환된 State'를 `value`를 통해 푸시하는 기능 제공
+>   - `Flow`, `LiveData`, `RxJava`와 같은 '구독 기반 State'를 'Composition'으로 가져올 때 유용
+>   - 내부에서 `LuanchedEffect`를 사용, 이에 따라 'Composition' 진입 시 'Coroutine' 실행 'Composition'을 떠날 때 'Coroutine' 취소
+>   - '반환된 State'는 같은 값을 설정해도 'ReComposition'을 트리거하지 않음
+>   - 'Coroutine' 생성으로 인해, 'Non-suspend DataSource'를 관찰 가능, `awaitDispose`로 구독 제거 필요
+> - derivedStateOf
+>   - 'Compose'에서 'State', 'Composable 입력'이 실제 필요한 UI 업데이트 보다 자주 변경될 때 사용
+>   - 'Scroll Position'과 같이 빈번하게 변경되지만 특정 시기에만 반응해야 하는 'State'를 다룰 때 사용
+> - snapshotFlow
+>   - 'Compose' `State<T>`를 `Flow`로 변환할 때 사용
+>   - '터미널 연산' 호출 시, '람다 블록'을 실행하며 'State' 결과를 내보냄
+>   - '람다 블록'에서 읽힌 'State' 중 하나라도 변경되면 '람다 블록'을 재실행
 
 컴포저블은 UI 작업 외, 'Side-Effect' 작업을 하지 않는게 좋습니다.  
 하지만, 때떄로 앱의 '상태'를 변경해야 하는 경우 `Effect` API를 통해 처리할 수 있습니다.
@@ -122,21 +147,16 @@ fun MoviesScreen(snackbarHostState: SnackbarHostState) {
 
 ---
 
-### rememberUpdatedState: 값이 변경되어도 재시작하면 안 되는 효과 내에서의 값을 참조
+### rememberUpdatedState: refrence a value in an effect that shouldn't restart if the value changes
 
-`LaunchedEffect`는 `키(key)` 매개 변수가 변경될 때마다 `lambda`를 재시작합니다.  
-그런데 어떤 상황에서는 특정 값이 변경되더라도 그에 따라 `Effect`가 재시작되는 것을 원하지 않을 수 있습니다. 
-예를 들어, 긴 시간이 소요되는 작업이나 비용이 많이 드는 작업을 수행하는 경우에는 값의 변화에도 불구하고 작업을 재시작하고 싶지 않는 상황이 있을겁니다.
- 
-`rememberUpdatedState`를 사용하면 값을 `기억(remember)`하게 되며, 해당 값이 변경되어도 `Effect`를 재시작하지 않습니다. 
-이는 `Effect` 내부에서 사용되는 값이 최신 상태를 유지하면서도, 값의 변화에 따라 `Effect`가 재시작되는 것을 방지할 수 있습니다.
+`LaunchedEffect`는 `Key` 파라미터가 변경될 때마다 재시작됩니다.   
+그러나 특정 상황에서 `Key`가 변경 되어도 `Effect`를 재시작하고 싶지 않을 수 있습니다.
 
-> 보통의 Effect API는 **Effect의 값의 변화 -> Effect 재시작** 이라는 일반적인 흐름을 가지지만,  
-> `rememberUpdatedState`는 **값의 변화 -> 값만 업데이트, Effect 그대로 유지**라는 흐름을 가지도록 돕는 API입니다.   
-> 이를 통해 비용이 많이 드는 작업을 효율적으로 관리할 수 있습니다.
+이를 위해 `rememberUpdatedState`를 통해 특정 값을 참조하면서 해당 값이 변경되더라도 컴포저블이 'ReComposition'될 때마다 해당 참조를 유지하게 할 수 있습니다.
+이는 '오래 지속되는 작업'이나 '비용이 많이 드는 작업'을 실행하는 `Effect`에서 유용하게 사용될 수 있습니다.
 
-예를 들어, 앱에 일정 시간 후 사라지는 `LandingScreen`이 있다고 가정해 보겠습니다.   
-`LandingScreen`이 재구성 되더라도 타이머 기능이 재시작 되어서는 안 됩니다.
+일정 시간 후 사라지는 `LandingScreen`은 'ReComposition' 되더라도, 
+일정 시간을 기다린 후 시간이 지났음을 알리는 `Effect`의 재시작은 원하지 않을 수 있습니다.
 
 ```kotlin
 @Composable
@@ -144,31 +164,24 @@ fun LandingScreen(onTimeout: () -> Unit) {
 
     // LandingScreen이 재구성되더라도 항상 최신 onTimeout 함수 참조
     val currentOnTimeout by rememberUpdatedState(onTimeout)
-
+  
+    // LandingScreen 생명 주기에 맞는 Effect 실행
+    // LandingScreen ReComposition 되어도 currentOnTimeout 함수 참조는 유지됨
     LaunchedEffect(true) {
         delay(SplashWaitTimeMillis)
         currentOnTimeout()
     }
-    
 }
 ```
 
-특정 경우에는 이 `LaunchedEffect`가 해당 composable의 생명주기 동안 단 한 번만 실행되기를 원할 수 있습니다.  
-그런 경우에는 변하지 않는 값(예: `true`나 `Unit`과 같은 상수)를 `LaunchedEffect`의 `Key` 값으로 사용합니다.   
-이렇게 하면, 이 composable이 재구성되더라도 `Key` 값이 변하지 않으므로 `LaunchedEffect` 내의 코드 블록이 재실행되지 않습니다.
+---
 
-> 👀 경고: LaunchedEffect(true)는 그 특성상 필요한 경우가 아니라면 
-> **무한 루프**를 만들 수 있는 동작을 하므로 사용을 자제해야 합니다.
+### DisposableEffect: effects that require cleanup
 
+`DisposableEffect`는 'Composable'이 'Composition'에서 제거되거나, `DisposableEffect`에 제공된 `Key`가 변경될 때 정리가 필요한 'Side-Effect'를 관리하는 데 사용됩니다.
 
-### DisposableEffect: Effect API 정리
-
-`DisposableEffect`는 `Key`가 변경되거나 composable이 Composition에서 제거된 후에 정리해야 하는 Side-Effect를 처리하기 위해 사용합니다.   
-
-`DisposableEffect`의 `Key`가 변경되면, composable은 현재의 Effect를 정리하고(즉, **cleanup을 수행**하고), Effect를 다시 호출함으로써 리셋해야 합니다.
-
-예를 들어, `LifecycleObserver`를 사용하여 `Lifecycle` 이벤트에 기반한 분석 이벤트를 보냅니다.   
-Compose에서 이러한 이벤트를 수신하기 위해, 필요할 때 `observer`를 등록하고 해제하는 `DisposableEffect`를 사용할 수 있습니다.
+예를 들어 `DisposableEffect`를 `LifecycleObserver`와 함께 사용하여,
+'Composable' 내에서 `Lifecycle Event`를 기반으로 'Analytics Event'를 처리할 수 있습니다. 
 
 ```kotlin
 @Composable
@@ -191,10 +204,9 @@ fun HomeScreen(
             }
         }
 
-        // observer를 lifecycle에 추가
         lifecycleOwner.lifecycle.addObserver(observer)
 
-        // effect가 Composition을 떠날 때 observer를 제거
+        // Effect가 Composition을 떠날 때 observer 제거
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
@@ -202,25 +214,21 @@ fun HomeScreen(
 }
 ```
 
-위의 코드에서 Effect는 `observer`를 `lifecycleOwner`에 추가합니다. 
-`lifecycleOwner`가 변경되면, Effect는 제거되고 새 `lifecycleOwner`로 재시작됩니다.
+`DisposableEffect`에서 `onDispose` 블록 포함을 잊으면 안됩니다.  
+만약 빈 `onDispose`를 작성하는 경우, `DisposableEffect`가 필요하지 않는 상황일 수 있기에 다른 방식을 생각해보아야 합니다.
 
-`DisposableEffect`는 반드시 그 코드 블록의 마지막 문장으로 `onDispose` 절을 포함해야 합니다.
+---
 
-> `onDispose`에 빈 블록을 두는 것은 좋은 방법이 아닙니다.  
-> 항상 다시 확인하여 사용 사례에 더 적합한 Effect가 있는지 확인해야 합니다.
+### SideEffect: publish Compose state to non-Compose code
 
-### SideEffect: Compose와 Non-Compose 코드 간 상태 공유
+`SideEffect`는 'Compose'가 관리하지 않는 객체에 'Compose State'를 공유할 때 사용됩니다.  
 
-App은 UI 외에도 여러 가지 다른 요소들을 갖고 있습니다. 
-예를 들어, 네트워크 라이브러리, 데이터베이스, 분석 도구 등이 있습니다. 
-이러한 요소들은 Compose 시스템이 아닌 외부 시스템입니다.
+`SideEffect` 내부의 코드는 'ReComposition'이 성공적으로 완료된 후 실행되는 것을 보장합니다.  
+즉, 'ReComposition'이 성공적으로 완료되기 전 `SideEffect`를 사용하여 `Effect`를 수행하는 것은 잘못된 접근 방식입니다.
 
-Compose는 변경된 상태를 시스템 외부와 공유하기 위해서 `SideEffect` Composable을 사용합니다.
-Composable 내부에 `SideEffect` 호출 시 상태가 변경되어 재구성 될 때마다 호출됩니다.
+예를 들어, Analytics 라이브러리는 사용자 집단을 세분화하기 위해 '사용자 정의 메타데이터'를 모든 이벤트에 첨부해야 합니다.  
+이때, 현재 사용자 유형을 Analytics 라이브러리에 전달하기 위해 `SideEffect`를 사용하여 해당 값을 업데이트 할 수 있습니다.
 
-예를 들어, 분석 라이브러리는 사용자를 세분화하기 위해 사용자 정의 메타데이터를 첨부하는 기능을 제공할 수 있습니다. 
-사용자의 사용자 유형을 분석 라이브러리에 전달하기 위해 `SideEffect`를 사용하여 그 값을 업데이트합니다.
 ```kotlin
 @Composable
 fun rememberFirebaseAnalytics(user: User): FirebaseAnalytics {
@@ -228,30 +236,30 @@ fun rememberFirebaseAnalytics(user: User): FirebaseAnalytics {
         FirebaseAnalytics()
     }
 
-    // userType Firebase Analytics 업데이트
+    // 매번 성공적인 Composition 후, 현재 사용자 유형 FirebaseAnalytics 업데이트 보장
     SideEffect {
         analytics.setUserProperty("userType", user.userType)
     }
     return analytics
 }
 ```
-이 코드는 Composable이 성공적으로 구현될 때 마다 `SideEffect`가 `FirebaseAnalytics`의 "userType" 사용자 속성을 현재 `User`의 `userType`으로 업데이트합니다.
 
+---
 
-### produceState: Non-Compose 상태를 Compose 상태로 변환
+### produceState: convert non-Compose state into Compose state
 
-`produceState`는 반환된 `State`에 값을 푸시할 수 있는 Composition 범위의 코루틴을 실행합니다.   
-이는 Non-Compose 상태를 Compose 상태로 변환하는 데 사용될 수 있으며, 
-예를 들어 `Flow`, `LiveData`, `RxJava`와 같은 외부 구독 기반 상태를 Composition으로 가져올 때 사용할 수 있습니다.
+`produceState`는 'Composition'과 연관된 'Coroutine'을 시작하여, '반환된 State'로 값을 푸시하는 기능을 제공합니다.  
+이를 통해 'Non-Compose State'를 'Compose State'로 변환할 수 있습니다.  
+예를 들어 `Flow`, `LiveData`, `RxJava`와 같은 '구독 기반 State'를 'Composition'으로 가져올 때 유용합니다.
 
-생산자(producer)는 `produceState`가 Composition에 진입 시 실행되며, Composition에서 빠져나갈 때 취소됩니다.   
-반환된 `State`는 누산(conflate)되며, 이를 통해 동일한 값을 설정해도 재구성(recomposition)을 트리거하지 않습니다.
+`produceState`가 'Composition'으로 진입할 때 실행되며, 'Composition'에서 떠날 때 취소됩니다.  
+'반환된 State'는 같은 값을 설정해도 'ReComposition'을 트리거하지 않는 특성을 가집니다.
 
-`produceState`가 코루틴을 생성하는 것이지만, Non-suspend 데이터 소스를 관찰하는 데도 사용할 수 있습니다.   
-해당 소스에 대한 구독을 제거하려면 `awaitDispose` 함수를 사용합니다.
+또한 `produceState`는 'Coroutine'을 생성하지만, 'Non-suspend DataSource'를 관찰할 때에도 사용할 수 있습니다.  
+만약 해당 DataSource에 대한 구독을 제거하려면 `awaitDispose`를 사용하면 됩니다.
 
 아래 예제는 `produceState`를 사용하여 네트워크에서 이미지를 로드하는 방법을 보여줍니다.   
-`loadNetworkImage` composable 함수는 다른 composables에서 사용할 수 있는 `State`를 반환합니다.
+`loadNetworkImage`은 다른 'Composable'에서 사용할 수 있는 `State`를 반환합니다.
 
 ```kotlin
 @Composable
@@ -269,11 +277,11 @@ fun loadNetworkImage(
         imageRepository
     ) {
 
-        // 코루틴 내에서는 suspend 호출을 할 수 있음
+        // 'Coroutine'이 실행되기에 suspend 호출 가능
         val image = imageRepository.load(url)
 
         // Error 또는 Success 결과를 가진 State 업데이트
-        // 이 State를 읽는 Composable에 재구성을 트리거
+        // 이 State를 읽는 Composable에 ReComposition 트리거
         value = if (image == null) {
             Result.Error
         } else {
@@ -283,85 +291,69 @@ fun loadNetworkImage(
 }
 ```
 
-> 반환 타입을 가진 Composables은 일반적인 Kotlin 함수와 같이 소문자로 시작하는 이름을 사용해야 합니다.
-> 반환 타입을 가지지 않은 Composable은 Class와 같이 대문자로 시작하는 이름을 사용해야 했습니다.
+중요한 점은 `produceState`는 내부에서 초기값으로 `remember { mutableStateOf(initialValue) }`를 사용하여 결과를 유지하고, 
+`LuanchedEffect`를 사용하여 `produceState` 블록을 트리거하며, `value`가 업데이트될 때마다 `State`를 새로운 값으로 업데이트하며 알립니다.
 
+---
 
-#### `produceState`의 내부 동작
+### derivedStateOf: convert one or multiple state objects into another state
+
+`derivedStateOf`는 'Compose'에서 '하나 이상의 State'를 '다른 State'로 변환하는데 사용됩니다.
+
+'Compose'에서는 'State'나 'Composable 입력'이 변경될 때마다 'ReComposition'이 발생합니다. 
+하지만 'State'나 'Composable 입력'이 실제로 필요한 UI 업데이트 보다 자주 변경된다면 불필요한 'ReComposition'으로 이어질 수 있습니다.
+
+예를 들어 'Scroll Position'과 같이 빈번하게 변경되지만 'Composable'이 특정 임계값을 넘었을 때만 반응해야 하는 경우에 자주 사용될 수 있습니다.
+이처럼 `drivedStateOf`는 필요한 만큼만 업데이트 되는 새로운 'Compose State'를 생성할 수 있습니다.  
+이 방식은 `Flow`의 `distinctUntilChanged()`와 유사하게 동작합니다.
+
+아래는 `drivedStateOf`에 대한 '적절한 사용 사례' 입니다.
+
 ```kotlin
 @Composable
-fun <T> produceState(
-    initialValue: T,
-    producer: suspend ProduceStateScope<T>.() -> Unit
-): State<T> {
-    val result = remember { mutableStateOf(initialValue) }
-    LaunchedEffect(Unit) {
-        ProduceStateScopeImpl(result, coroutineContext).producer()
-    }
-    return result
-}
-```
-1. `remember` 함수를 사용하여 `mutableStateOf(initialValue)`의 결과를 저장합니다.   
-여기서 `mutableStateOf(initialValue)`는 초기값이 `initialValue`인 변경 가능한 상태를 생성합니다.
-`remember` 함수는 이 상태를 저장하여 Compose 라이프사이클 내에서 이 상태를 유지합니다. 
-이렇게 하면 이 상태가 변경되면 관련된 UI를 자동으로 다시 그릴 수 있습니다.  
-
-2. `LaunchedEffect`는 `produceState`에서 주어진 `producer 블록`(즉, 상태를 업데이트하는 데 사용되는 코드 블록)를 실행하는 코루틴을 실행합니다.  
-이 코루틴은 새로운 상태를 계산하고 이 상태를 `mutableStateOf`로 저장된 상태에 저장합니다.
-
-3. `producer 블록`에서 `value`를 업데이트하면, 이 값이 `mutableStateOf`에 저장된 상태로 설정되고, 이로 인해 관련된 UI가 자동으로 다시 그려집니다.
- 
-### derivedStateOf: 하나 이상의 상태 객체를 다른 상태로 변환
-`derivedStateOf`는 특정한 상태가 다른 상태 객체들로부터 계산되거나 파생될 때 사용되는 함수입니다. 
-이 함수를 사용하면 계산에 사용되는 상태 중 어느 하나가 변경될 때 마다 계산이 이루어진다는 것을 보장할 수 있습니다.
-
-다음 예제는 사용자가 정의한 고 우선순위 키워드를 가진 작업이 먼저 나타나는 기본적인 TODO List를 보여줍니다.
-```kotlin
-@Composable
-fun TodoList(highPriorityKeywords: List<String> = listOf("Review", "Unblock", "Compose")) {
-
-    val todoTasks = remember { mutableStateListOf<String>() }
-
-    // todoTasks 또는 highPriorityKeywords가 변경될 때만 고 우선순위 작업을 계산하고, 매번 재구성할 때마다 계산하지 않음
-    val highPriorityTasks by remember(highPriorityKeywords) {
-        derivedStateOf {
-            todoTasks.filter { task ->
-                highPriorityKeywords.any { keyword ->
-                    task.contains(keyword)
-                }
-            }
+fun MessageList(messages: List<Message>) {
+    Box {
+        val listState = rememberLazyListState()
+      
+        LazyColumn(state = listState) {
+            // ...
         }
-    }
-
-    Box(Modifier.fillMaxSize()) {
-        LazyColumn {
-            items(highPriorityTasks) { /* ... */ }
-            items(todoTasks) { /* ... */ }
+        
+        // 첫 번째로 보이는 항목을 지나면 버튼 표시
+        // 불필요한 ReComposition을 최소화 하기 위해 remember 사용
+        val showButton by remember { 
+            derviedStateOf { listState.firstVisibleItemIndex > 0 }
         }
-        /* 사용자가 목록에 요소를 추가할 수 있는 나머지 UI */
+        
+        AnimatedVisibility(visible = showButton) {
+            ScrollToTopButton()
+        }
     }
 }
 ```
-위 코드는 `derivedStateOf`는 `todoTasks`가 변경될 때마다 `highPriorityTasks` 계산이 이루어지고 UI가 그에 따라 업데이트됨을 보장하고 있습니다.
 
-`derivedStateOf`를 사용하는 것은 `todoTasks` 또는 `highPriorityKeywords`가 변경될 때만 `highPriorityTasks`를 계산하게 하기 위함입니다. 
-만약 이런 최적화를 하지 않으면, 매번 화면이 다시 그려질 때마다 (즉, 매번 재구성될 때마다) `highPriorityTasks`가 계산될 것입니다. 이는 비효율적입니다.
 
-또한 `derivedStateOf`에 의해 생성된 상태의 업데이트는 그것이 선언된 Composable 함수가 다시 Compose되게 만들지 않습니다.   
-이는 `derivedStateOf`로 생성된 상태가 변경되어도, 이 상태를 사용하는 UI가 모두 업데이트되는 것이 아닌, 이 상태를 실제로 읽는 UI만 업데이트되도록 하기 위함입니다. 
-위 예제에서는 `LazyColumn`이 해당됩니다.
+2개의 'Compose State' 결합 시, `derivedStateOf`를 사용하는 것은 '잘못된 사용 방식'입니다.
 
-마지막으로, 이 코드는 `highPriorityKeywords`가 `todoTasks`보다 훨씬 덜 자주 변경된다고 가정하고 있습니다. 
-만약 그렇지 않다면, `remember(todoTasks, highPriorityKeywords)`를 사용하여 
-두 상태가 모두 변경될 때마다 `highPriorityTasks`를 다시 계산하도록 할 수 있습니다.
+```kotlin
+// 사용하지 마세요. 잘못된 사용 방식 입니다.
+val firstName by remember { mutableStateOf("") }
+val lastName by remember { mutableStateOf("") }
+
+val fullName by remember { derivedStateOf { "$firstName $lastName" } } // 잘못된 사용 방식
+val fullNameCorrect = "$firstName $lastName" // 올바른 사용 방식
+```
+
+---
 
 ### snapshotFlow: convert Compose's State into Flows
-`snapshotFlow`는 Compose의 `State<T>` 객체를 `Cold Flow`로 변환하는 데 사용됩니다.  
-`snapshotFlow`는 `Collect`시 실행되고, 그 안에서 읽히는 `State` 객체의 결과를 `emit` 합니다.   
-`snapshotFlow` 블록 내에서 읽히는 `State` 객체 중 하나가 변경되면, `Flow`는 새 값을 수집기에 `emit` 합니다.   
-이 새 값이 이전에 `emit` 된 값과 **같지 않은 경우에만 이런 동작이 발생**합니다 (`Flow.distinctUntilChanged`의 동작과 유사합니다).
 
-다음 예는 사용자가 리스트의 첫 번째 아이템을 스크롤하여 지나갈 때 analytics에 이를 기록하는 `Side-Effect`를 보여줍니다:
+`snapshotFlow`는 'Compose'의 `State<T>`를 `Flow`로 변환하는데 사용됩니다.
+
+`snapshotFlow`는 '터미널 연산'이 호출되면 `block`을 실행하고, 그 안에 읽힌 `State` 결과를 내보냅니다.  
+또한 `block` 내에서 읽힌 `State` 중 하나가 변경되면 `block`을 다시 실행합니다. 그 후 새로운 값이 이전에 내보낸 값과 다를 경우, `Flow`는 새로운 값을 내보냅니다.
+
+다음 예제는 사용자 목록의 첫 번째 항목을 스크롤할 때 Analytics 기록하는 'Side-Effect'의 예시입니다.
 
 ```kotlin
 val listState = rememberLazyListState()
@@ -381,46 +373,43 @@ LaunchedEffect(listState) {
 }
 ```
 
-위의 코드에서 `listState.firstVisibleItemIndex`는 `Flow`의 연산자의 확장 함수들을 활용할 수 있는 `Flow`로 변환됩니다.
-
 ---
 
-## Effects 재실행
-`LaunchedEffect`, `produceState`, `DisposableEffect`와 같은 몇몇 `Effect API`들은 실행 중인 작업을 취소하고, 
-새로운 `Key`와 함께 새 작업을 시작하기 위해 `숫자 타입의 가변 인자`나 `Key`를 받습니다.
+## Restarting effects
 
-일반적으로, 위에서 언급한 `Effect API`들의 형태는 다음과 같습니다.
+> - `Key` 파라미터를 통해 `Effect` 재시작 관리
+> - `Effect`를 적절하게 관리하기 위한 원칙
+>   - `Effect` 'Block 내부'에 사용되는 변수들은 `Effect`의 `Key`로 전달되어야 함
+>   - 변수 변경이 `Effect`를 재시작하게 하지 않는 경우 해당 변수를 `rememberUpdatedState`로 래핑해서 사용
+>   - 변수가 `remember`로 래핑되고 `Key`가 없어 변하지 않는다면, 해당 변수를 `Effect`의 `Key`로 전달할 필요가 없음
+
+'Compose'에서 특정 `Effect`(`LaunchedEffect`, `produceState`, `DisposableEffect` 등)은 `Key`를 파라미터로 받습니다. 
+이 `Key`는 실행 중인 `Effect`를 '취소'하고 새로운 `Key`로 새로운 `Effect`를 시작하는데 사용됩니다.
+
+위 `Effect`들의 일반적인 형태는 다음과 같습니다.
 
 ```kotlin
 EffectName(ifThisKeyChanges, orThisKeyChanges, orThisKeyChanges, ...) { block }
 ```
 
-`EffectName`은 실행하려는 `Effect`이고 뒤이어 나오는 매개변수들은 이 `Effect`가 변경되어 재실행되어야 할 때를 지정합니다.  
-이러한 변경은 `ifThisKeyChanges`, `orThisKeyChanges`등의 `key`가 변화할 때 발생합니다.
+`Effect`를 재시작하는 데 사용되는 `Key` 파라미터가 올바르지 않으면 다음과 같은 문제가 발생할 수 있습니다.
 
-그러나 위 방식은 아래와 같은 문제점이 발생할 수 있습니다.
+1. 사용자 입력에 따라 'State'가 변경되어 `Effect`를 재시작하는 경우에 만약 해당 'State'가 `Effect`의 `Key`로 사용되지 않으면, 
+   사용자 입력에 따른 'State' 변화가 반영되지 않아 앱에 버그를 유발할 수 있습니다.
+2. 'State' 변화가 UI 업데이트에 영향을 주지 않음에도 불구하고 `Effect`를 재시작 하게되면 불필요한 리소스가 소모될 수 있습니다. 
 
-### Effect 재실행 시 발생 할 수 있는 문제점
-- 필요한 만큼 `Effect`가 재실행되지 않으면 앱에서 버그가 발생할 수 있습니다. 
-  예를 들어, UI가 적절하게 업데이트 되지 않을 수 있습니다.  
-- 필요한 것 보다 `Effect`더 자주 재실행되면 비효율적일 수 있습니다. 
-  예를 들어, 네트워크 호출을 불필요하게 많이 발생시킬 수 있습니다.
+이에 따라 아래는 `Effect`를 적절하게 관리하기 위한 방식 입니다.
 
-이를 위해 다음과 같은 규칙들이 제안되었습니다.
+1. `Effect` 'Block 내부'에 사용되는 변수들은 `Effect`의 `Key`로 전달되어야 합니다.  
+   `Effect` 'Block' 안에서 사용되는 '가변•불변 변수'들은 해당 `Effect`가 재시작 되어야 하는 기준이 됩니다. 해당 변수들이 변경될 떄 `Effect`가 재시작되어야 올바른 동작을 보장할 수 있습니다. 
+2. 필요에 따라 `Effect`를 강제로 재시작 하기 위해 추가적인 파라미터를 넣을 수 있습니다.  
+3. 변수의 변경이 `Effect`를 재시작하게 하지 않아야 하는 경우에는 해당 변수를 `rememberUpdatedState`로 래핑해야 합니다.  
+   이는 변수의 최신 상태를 유지하면서도 `Effect`의 재시작을 유발하지 않습니다.
+4. 변수가 `remember`로 래핑되어 있고, `Key`가 없어서 변하지 않는다면, 그 변수를 `Effect`의 `Key`로 전달할 필요가 없습니다.
 
-### Effect 재실행 규칙
-- `Effect` 코드 블록 내에서 사용되는 모든 `mutable` 또는 `immutable` 변수는 `Effect` Composable의 매개변수로 추가되어야 합니다.
-  - 이를 통해, 이 변수들의 변화가 `Effect`의 재실행을 적절히 트리거 할 수 있습니다.
-- `Effect`를 강제로 재실행하고 싶은 경우에는, 더 많은 `Key`를 매개변수로 추가 할 수 있습니다.
-  - 이는 특정 `Effect`가 필요한 시점보다 덜 실행되는 상황을 방지하는데 사용됩니다.
-- 만약 변수의 변경이 `Effect`를 재실행시킬 필요가 없다면, 이 변수는 `rememberUpdatedState`를 사용하여 감싸야 합니다.
-  - 이는 `Effect`가 불필요하게 재실행되는 것을 방지하는데 사용됩니다.
-- 변수가 `remember`함수에 의해 감싸져 있고, `key`가 없어 변하지 않는다면, 이 변수를 `Effect`의 `Key`로 전달할 필요는 없습니다.
-  - 이는 `Effect`가 불필요하게 재실행되는 것을 방지하는 또 다른 방법입니다. 
+---
 
-> `Effect`에서 사용되는 모든 변수들은 `Effect` Composable 함수의 매개변수로 추가되거나, `rememberUpdatedState`로 감싸져야 합니다.
-> 이렇게 하면, `Effect`의 재실행이 적절히 관리되어 앱의 성능과 정확성이 향상될 수 있습니다.
+### Constants as keys
 
-## 상수를 키로 사용하기
-호출 위치의 `Lifecycle`을 따르게 하려면 상수를 `Effect`의 `Key`로 사용할 수 있습니다.   
-그러나 이렇게 실행하기 전에 두 번 생각하고 그것이 정말 필요한지 확인하십시오.
+`Effect`에서 상수(`true`)를 `Key`로 사용하는 것은 해당 `Effect`를 'Call site'의 생명 주기에 따르게 하기 위한 방법 중 하나 입니다. 
+그러나 상수를 `Key`로 사용하면 `Effect`는 재시작되지 않습니다. 즉, 한 번만 실행되는 경우에 유용할 수 있습니다.
