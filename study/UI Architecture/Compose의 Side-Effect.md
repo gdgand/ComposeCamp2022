@@ -375,41 +375,39 @@ LaunchedEffect(listState) {
 
 ---
 
-## Effects 재실행
-`LaunchedEffect`, `produceState`, `DisposableEffect`와 같은 몇몇 `Effect API`들은 실행 중인 작업을 취소하고, 
-새로운 `Key`와 함께 새 작업을 시작하기 위해 `숫자 타입의 가변 인자`나 `Key`를 받습니다.
+## Restarting effects
 
-일반적으로, 위에서 언급한 `Effect API`들의 형태는 다음과 같습니다.
+> - `Key` 파라미터를 통해 `Effect` 재시작 관리
+> - `Effect`를 적절하게 관리하기 위한 원칙
+>   - `Effect` 'Block 내부'에 사용되는 변수들은 `Effect`의 `Key`로 전달되어야 함
+>   - 변수 변경이 `Effect`를 재시작하게 하지 않는 경우 해당 변수를 `rememberUpdatedState`로 래핑해서 사용
+>   - 변수가 `remember`로 래핑되고 `Key`가 없어 변하지 않는다면, 해당 변수를 `Effect`의 `Key`로 전달할 필요가 없음
+
+'Compose'에서 특정 `Effect`(`LaunchedEffect`, `produceState`, `DisposableEffect` 등)은 `Key`를 파라미터로 받습니다. 
+이 `Key`는 실행 중인 `Effect`를 '취소'하고 새로운 `Key`로 새로운 `Effect`를 시작하는데 사용됩니다.
+
+위 `Effect`들의 일반적인 형태는 다음과 같습니다.
 
 ```kotlin
 EffectName(ifThisKeyChanges, orThisKeyChanges, orThisKeyChanges, ...) { block }
 ```
 
-`EffectName`은 실행하려는 `Effect`이고 뒤이어 나오는 매개변수들은 이 `Effect`가 변경되어 재실행되어야 할 때를 지정합니다.  
-이러한 변경은 `ifThisKeyChanges`, `orThisKeyChanges`등의 `key`가 변화할 때 발생합니다.
+`Effect`를 재시작하는 데 사용되는 `Key` 파라미터가 올바르지 않으면 다음과 같은 문제가 발생할 수 있습니다.
 
-그러나 위 방식은 아래와 같은 문제점이 발생할 수 있습니다.
+1. 사용자 입력에 따라 'State'가 변경되어 `Effect`를 재시작하는 경우에 만약 해당 'State'가 `Effect`의 `Key`로 사용되지 않으면, 
+   사용자 입력에 따른 'State' 변화가 반영되지 않아 앱에 버그를 유발할 수 있습니다.
+2. 'State' 변화가 UI 업데이트에 영향을 주지 않음에도 불구하고 `Effect`를 재시작 하게되면 불필요한 리소스가 소모될 수 있습니다. 
 
-### Effect 재실행 시 발생 할 수 있는 문제점
-- 필요한 만큼 `Effect`가 재실행되지 않으면 앱에서 버그가 발생할 수 있습니다. 
-  예를 들어, UI가 적절하게 업데이트 되지 않을 수 있습니다.  
-- 필요한 것 보다 `Effect`더 자주 재실행되면 비효율적일 수 있습니다. 
-  예를 들어, 네트워크 호출을 불필요하게 많이 발생시킬 수 있습니다.
+이에 따라 아래는 `Effect`를 적절하게 관리하기 위한 방식 입니다.
 
-이를 위해 다음과 같은 규칙들이 제안되었습니다.
+1. `Effect` 'Block 내부'에 사용되는 변수들은 `Effect`의 `Key`로 전달되어야 합니다.  
+   `Effect` 'Block' 안에서 사용되는 '가변•불변 변수'들은 해당 `Effect`가 재시작 되어야 하는 기준이 됩니다. 해당 변수들이 변경될 떄 `Effect`가 재시작되어야 올바른 동작을 보장할 수 있습니다. 
+2. 필요에 따라 `Effect`를 강제로 재시작 하기 위해 추가적인 파라미터를 넣을 수 있습니다.  
+3. 변수의 변경이 `Effect`를 재시작하게 하지 않아야 하는 경우에는 해당 변수를 `rememberUpdatedState`로 래핑해야 합니다.  
+   이는 변수의 최신 상태를 유지하면서도 `Effect`의 재시작을 유발하지 않습니다.
+4. 변수가 `remember`로 래핑되어 있고, `Key`가 없어서 변하지 않는다면, 그 변수를 `Effect`의 `Key`로 전달할 필요가 없습니다.
 
-### Effect 재실행 규칙
-- `Effect` 코드 블록 내에서 사용되는 모든 `mutable` 또는 `immutable` 변수는 `Effect` Composable의 매개변수로 추가되어야 합니다.
-  - 이를 통해, 이 변수들의 변화가 `Effect`의 재실행을 적절히 트리거 할 수 있습니다.
-- `Effect`를 강제로 재실행하고 싶은 경우에는, 더 많은 `Key`를 매개변수로 추가 할 수 있습니다.
-  - 이는 특정 `Effect`가 필요한 시점보다 덜 실행되는 상황을 방지하는데 사용됩니다.
-- 만약 변수의 변경이 `Effect`를 재실행시킬 필요가 없다면, 이 변수는 `rememberUpdatedState`를 사용하여 감싸야 합니다.
-  - 이는 `Effect`가 불필요하게 재실행되는 것을 방지하는데 사용됩니다.
-- 변수가 `remember`함수에 의해 감싸져 있고, `key`가 없어 변하지 않는다면, 이 변수를 `Effect`의 `Key`로 전달할 필요는 없습니다.
-  - 이는 `Effect`가 불필요하게 재실행되는 것을 방지하는 또 다른 방법입니다. 
-
-> `Effect`에서 사용되는 모든 변수들은 `Effect` Composable 함수의 매개변수로 추가되거나, `rememberUpdatedState`로 감싸져야 합니다.
-> 이렇게 하면, `Effect`의 재실행이 적절히 관리되어 앱의 성능과 정확성이 향상될 수 있습니다.
+---
 
 ## 상수를 키로 사용하기
 호출 위치의 `Lifecycle`을 따르게 하려면 상수를 `Effect`의 `Key`로 사용할 수 있습니다.   
