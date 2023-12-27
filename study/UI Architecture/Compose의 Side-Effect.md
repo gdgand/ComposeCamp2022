@@ -42,6 +42,9 @@ Compose는 이러한 요구사항을 충족하기 위해 다양한 'Side-Effect 
 >   - 내부에서 `LuanchedEffect`를 사용, 이에 따라 'Composition' 진입 시 'Coroutine' 실행 'Composition'을 떠날 때 'Coroutine' 취소
 >   - '반환된 State'는 같은 값을 설정해도 'ReComposition'을 트리거하지 않음
 >   - 'Coroutine' 생성으로 인해, 'Non-suspend DataSource'를 관찰 가능, `awaitDispose`로 구독 제거 필요
+> - derivedStateOf
+>   - 'Compose'에서 'State', 'Composable 입력'이 실제 필요한 UI 업데이트 보다 자주 변경될 때 사용
+>   - 'Scroll Position'과 같이 빈번하게 변경되지만 특정 시기에만 반응해야 하는 'State'를 다룰 때 사용
 
 컴포저블은 UI 작업 외, 'Side-Effect' 작업을 하지 않는게 좋습니다.  
 하지만, 때떄로 앱의 '상태'를 변경해야 하는 경우 `Effect` API를 통해 처리할 수 있습니다.
@@ -289,49 +292,55 @@ fun loadNetworkImage(
 
 ---
 
-### derivedStateOf: 하나 이상의 상태 객체를 다른 상태로 변환
-`derivedStateOf`는 특정한 상태가 다른 상태 객체들로부터 계산되거나 파생될 때 사용되는 함수입니다. 
-이 함수를 사용하면 계산에 사용되는 상태 중 어느 하나가 변경될 때 마다 계산이 이루어진다는 것을 보장할 수 있습니다.
+### derivedStateOf: convert one or multiple state objects into another state
 
-다음 예제는 사용자가 정의한 고 우선순위 키워드를 가진 작업이 먼저 나타나는 기본적인 TODO List를 보여줍니다.
+`derivedStateOf`는 'Compose'에서 '하나 이상의 State'를 '다른 State'로 변환하는데 사용됩니다.
+
+'Compose'에서는 'State'나 'Composable 입력'이 변경될 때마다 'ReComposition'이 발생합니다. 
+하지만 'State'나 'Composable 입력'이 실제로 필요한 UI 업데이트 보다 자주 변경된다면 불필요한 'ReComposition'으로 이어질 수 있습니다.
+
+예를 들어 'Scroll Position'과 같이 빈번하게 변경되지만 'Composable'이 특정 임계값을 넘었을 때만 반응해야 하는 경우에 자주 사용될 수 있습니다.
+이처럼 `drivedStateOf`는 필요한 만큼만 업데이트 되는 새로운 'Compose State'를 생성할 수 있습니다.  
+이 방식은 `Flow`의 `distinctUntilChanged()`와 유사하게 동작합니다.
+
+아래는 `drivedStateOf`에 대한 '적절한 사용 사례' 입니다.
+
 ```kotlin
 @Composable
-fun TodoList(highPriorityKeywords: List<String> = listOf("Review", "Unblock", "Compose")) {
-
-    val todoTasks = remember { mutableStateListOf<String>() }
-
-    // todoTasks 또는 highPriorityKeywords가 변경될 때만 고 우선순위 작업을 계산하고, 매번 재구성할 때마다 계산하지 않음
-    val highPriorityTasks by remember(highPriorityKeywords) {
-        derivedStateOf {
-            todoTasks.filter { task ->
-                highPriorityKeywords.any { keyword ->
-                    task.contains(keyword)
-                }
-            }
+fun MessageList(messages: List<Message>) {
+    Box {
+        val listState = rememberLazyListState()
+      
+        LazyColumn(state = listState) {
+            // ...
         }
-    }
-
-    Box(Modifier.fillMaxSize()) {
-        LazyColumn {
-            items(highPriorityTasks) { /* ... */ }
-            items(todoTasks) { /* ... */ }
+        
+        // 첫 번째로 보이는 항목을 지나면 버튼 표시
+        // 불필요한 ReComposition을 최소화 하기 위해 remember 사용
+        val showButton by remember { 
+            derviedStateOf { listState.firstVisibleItemIndex > 0 }
         }
-        /* 사용자가 목록에 요소를 추가할 수 있는 나머지 UI */
+        
+        AnimatedVisibility(visible = showButton) {
+            ScrollToTopButton()
+        }
     }
 }
 ```
-위 코드는 `derivedStateOf`는 `todoTasks`가 변경될 때마다 `highPriorityTasks` 계산이 이루어지고 UI가 그에 따라 업데이트됨을 보장하고 있습니다.
 
-`derivedStateOf`를 사용하는 것은 `todoTasks` 또는 `highPriorityKeywords`가 변경될 때만 `highPriorityTasks`를 계산하게 하기 위함입니다. 
-만약 이런 최적화를 하지 않으면, 매번 화면이 다시 그려질 때마다 (즉, 매번 재구성될 때마다) `highPriorityTasks`가 계산될 것입니다. 이는 비효율적입니다.
 
-또한 `derivedStateOf`에 의해 생성된 상태의 업데이트는 그것이 선언된 Composable 함수가 다시 Compose되게 만들지 않습니다.   
-이는 `derivedStateOf`로 생성된 상태가 변경되어도, 이 상태를 사용하는 UI가 모두 업데이트되는 것이 아닌, 이 상태를 실제로 읽는 UI만 업데이트되도록 하기 위함입니다. 
-위 예제에서는 `LazyColumn`이 해당됩니다.
+2개의 'Compose State' 결합 시, `derivedStateOf`를 사용하는 것은 '잘못된 사용 방식'입니다.
 
-마지막으로, 이 코드는 `highPriorityKeywords`가 `todoTasks`보다 훨씬 덜 자주 변경된다고 가정하고 있습니다. 
-만약 그렇지 않다면, `remember(todoTasks, highPriorityKeywords)`를 사용하여 
-두 상태가 모두 변경될 때마다 `highPriorityTasks`를 다시 계산하도록 할 수 있습니다.
+```kotlin
+// 사용하지 마세요. 잘못된 사용 방식 입니다.
+val firstName by remember { mutableStateOf("") }
+val lastName by remember { mutableStateOf("") }
+
+val fullName by remember { derivedStateOf { "$firstName $lastName" } } // 잘못된 사용 방식
+val fullNameCorrect = "$firstName $lastName" // 올바른 사용 방식
+```
+
+---
 
 ### snapshotFlow: convert Compose's State into Flows
 `snapshotFlow`는 Compose의 `State<T>` 객체를 `Cold Flow`로 변환하는 데 사용됩니다.  
