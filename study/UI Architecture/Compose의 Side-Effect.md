@@ -45,6 +45,10 @@ Compose는 이러한 요구사항을 충족하기 위해 다양한 'Side-Effect 
 > - derivedStateOf
 >   - 'Compose'에서 'State', 'Composable 입력'이 실제 필요한 UI 업데이트 보다 자주 변경될 때 사용
 >   - 'Scroll Position'과 같이 빈번하게 변경되지만 특정 시기에만 반응해야 하는 'State'를 다룰 때 사용
+> - snapshotFlow
+>   - 'Compose' `State<T>`를 `Flow`로 변환할 때 사용
+>   - '터미널 연산' 호출 시, '람다 블록'을 실행하며 'State' 결과를 내보냄
+>   - '람다 블록'에서 읽힌 'State' 중 하나라도 변경되면 '람다 블록'을 재실행
 
 컴포저블은 UI 작업 외, 'Side-Effect' 작업을 하지 않는게 좋습니다.  
 하지만, 때떄로 앱의 '상태'를 변경해야 하는 경우 `Effect` API를 통해 처리할 수 있습니다.
@@ -343,12 +347,13 @@ val fullNameCorrect = "$firstName $lastName" // 올바른 사용 방식
 ---
 
 ### snapshotFlow: convert Compose's State into Flows
-`snapshotFlow`는 Compose의 `State<T>` 객체를 `Cold Flow`로 변환하는 데 사용됩니다.  
-`snapshotFlow`는 `Collect`시 실행되고, 그 안에서 읽히는 `State` 객체의 결과를 `emit` 합니다.   
-`snapshotFlow` 블록 내에서 읽히는 `State` 객체 중 하나가 변경되면, `Flow`는 새 값을 수집기에 `emit` 합니다.   
-이 새 값이 이전에 `emit` 된 값과 **같지 않은 경우에만 이런 동작이 발생**합니다 (`Flow.distinctUntilChanged`의 동작과 유사합니다).
 
-다음 예는 사용자가 리스트의 첫 번째 아이템을 스크롤하여 지나갈 때 analytics에 이를 기록하는 `Side-Effect`를 보여줍니다:
+`snapshotFlow`는 'Compose'의 `State<T>`를 `Flow`로 변환하는데 사용됩니다.
+
+`snapshotFlow`는 '터미널 연산'이 호출되면 `block`을 실행하고, 그 안에 읽힌 `State` 결과를 내보냅니다.  
+또한 `block` 내에서 읽힌 `State` 중 하나가 변경되면 `block`을 다시 실행합니다. 그 후 새로운 값이 이전에 내보낸 값과 다를 경우, `Flow`는 새로운 값을 내보냅니다.
+
+다음 예제는 사용자 목록의 첫 번째 항목을 스크롤할 때 Analytics 기록하는 'Side-Effect'의 예시입니다.
 
 ```kotlin
 val listState = rememberLazyListState()
@@ -367,8 +372,6 @@ LaunchedEffect(listState) {
         }
 }
 ```
-
-위의 코드에서 `listState.firstVisibleItemIndex`는 `Flow`의 연산자의 확장 함수들을 활용할 수 있는 `Flow`로 변환됩니다.
 
 ---
 
