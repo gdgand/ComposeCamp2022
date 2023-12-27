@@ -29,6 +29,8 @@ Compose는 이러한 요구사항을 충족하기 위해 다양한 'Side-Effect 
 > - DisposableEffect : Composable이 Composition에서 제거, `Key` 변경 시 정리 필요한 'Side-Effect' 관리
 >   - `DisposableEffect`에서 `onDispose` 블록 포함을 잊으면 안됨 
 >   - `onDispose`가 '빈' 경우, `DisposableEffect`가 필요하지 않는 상황일 수 있기에 다른 방식을 생각해보아야 함
+> - SideEffect : Compose State를 Non-Compose Code에 공유
+>   - 매번 '성공적인 Composition(ReComposition 포함)' 후, `SideEffect` 내부 코드 블록 실행 보장
 
 컴포저블은 UI 작업 외, 'Side-Effect' 작업을 하지 않는게 좋습니다.  
 하지만, 때떄로 앱의 '상태'를 변경해야 하는 경우 `Effect` API를 통해 처리할 수 있습니다.
@@ -199,17 +201,16 @@ fun HomeScreen(
 
 ---
 
-### SideEffect: Compose와 Non-Compose 코드 간 상태 공유
+### SideEffect: publish Compose state to non-Compose code
 
-App은 UI 외에도 여러 가지 다른 요소들을 갖고 있습니다. 
-예를 들어, 네트워크 라이브러리, 데이터베이스, 분석 도구 등이 있습니다. 
-이러한 요소들은 Compose 시스템이 아닌 외부 시스템입니다.
+`SideEffect`는 'Compose'가 관리하지 않는 객체에 'Compose State'를 공유할 때 사용됩니다.  
 
-Compose는 변경된 상태를 시스템 외부와 공유하기 위해서 `SideEffect` Composable을 사용합니다.
-Composable 내부에 `SideEffect` 호출 시 상태가 변경되어 재구성 될 때마다 호출됩니다.
+`SideEffect` 내부의 코드는 'ReComposition'이 성공적으로 완료된 후 실행되는 것을 보장합니다.  
+즉, 'ReComposition'이 성공적으로 완료되기 전 `SideEffect`를 사용하여 `Effect`를 수행하는 것은 잘못된 접근 방식입니다.
 
-예를 들어, 분석 라이브러리는 사용자를 세분화하기 위해 사용자 정의 메타데이터를 첨부하는 기능을 제공할 수 있습니다. 
-사용자의 사용자 유형을 분석 라이브러리에 전달하기 위해 `SideEffect`를 사용하여 그 값을 업데이트합니다.
+예를 들어, Analytics 라이브러리는 사용자 집단을 세분화하기 위해 '사용자 정의 메타데이터'를 모든 이벤트에 첨부해야 합니다.  
+이때, 현재 사용자 유형을 Analytics 라이브러리에 전달하기 위해 `SideEffect`를 사용하여 해당 값을 업데이트 할 수 있습니다.
+
 ```kotlin
 @Composable
 fun rememberFirebaseAnalytics(user: User): FirebaseAnalytics {
@@ -217,15 +218,15 @@ fun rememberFirebaseAnalytics(user: User): FirebaseAnalytics {
         FirebaseAnalytics()
     }
 
-    // userType Firebase Analytics 업데이트
+    // 매번 성공적인 Composition 후, 현재 사용자 유형 FirebaseAnalytics 업데이트 보장
     SideEffect {
         analytics.setUserProperty("userType", user.userType)
     }
     return analytics
 }
 ```
-이 코드는 Composable이 성공적으로 구현될 때 마다 `SideEffect`가 `FirebaseAnalytics`의 "userType" 사용자 속성을 현재 `User`의 `userType`으로 업데이트합니다.
 
+---
 
 ### produceState: Non-Compose 상태를 Compose 상태로 변환
 
