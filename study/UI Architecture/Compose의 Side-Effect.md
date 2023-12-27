@@ -409,6 +409,7 @@ EffectName(ifThisKeyChanges, orThisKeyChanges, orThisKeyChanges, ...) { block }
 
 ---
 
-## 상수를 키로 사용하기
-호출 위치의 `Lifecycle`을 따르게 하려면 상수를 `Effect`의 `Key`로 사용할 수 있습니다.   
-그러나 이렇게 실행하기 전에 두 번 생각하고 그것이 정말 필요한지 확인하십시오.
+### Constants as keys
+
+`Effect`에서 상수(`true`)를 `Key`로 사용하는 것은 해당 `Effect`를 'Call site'의 생명 주기에 따르게 하기 위한 방법 중 하나 입니다. 
+그러나 상수를 `Key`로 사용하면 `Effect`는 재시작되지 않습니다. 즉, 한 번만 실행되는 경우에 유용할 수 있습니다.
