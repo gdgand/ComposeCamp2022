@@ -26,6 +26,9 @@ Compose는 이러한 요구사항을 충족하기 위해 다양한 'Side-Effect 
 >   - 해당 Composable이 'Composition'을 떠나면 모든 'Child Coroutine' 취소 처리
 > - rememberUpdatedState : Composable의 ReComposition 시, 참조 값 유지
 >   - `Effect`에서 '오래 지속되는 작업', '비용이 많이 드는 작업' 처리 시 유용
+> - DisposableEffect : Composable이 Composition에서 제거, `Key` 변경 시 정리 필요한 'Side-Effect' 관리
+>   - `DisposableEffect`에서 `onDispose` 블록 포함을 잊으면 안됨 
+>   - `onDispose`가 '빈' 경우, `DisposableEffect`가 필요하지 않는 상황일 수 있기에 다른 방식을 생각해보아야 함
 
 컴포저블은 UI 작업 외, 'Side-Effect' 작업을 하지 않는게 좋습니다.  
 하지만, 때떄로 앱의 '상태'를 변경해야 하는 경우 `Effect` API를 통해 처리할 수 있습니다.
@@ -153,14 +156,12 @@ fun LandingScreen(onTimeout: () -> Unit) {
 
 ---
 
-### DisposableEffect: Effect API 정리
+### DisposableEffect: effects that require cleanup
 
-`DisposableEffect`는 `Key`가 변경되거나 composable이 Composition에서 제거된 후에 정리해야 하는 Side-Effect를 처리하기 위해 사용합니다.   
+`DisposableEffect`는 'Composable'이 'Composition'에서 제거되거나, `DisposableEffect`에 제공된 `Key`가 변경될 때 정리가 필요한 'Side-Effect'를 관리하는 데 사용됩니다.
 
-`DisposableEffect`의 `Key`가 변경되면, composable은 현재의 Effect를 정리하고(즉, **cleanup을 수행**하고), Effect를 다시 호출함으로써 리셋해야 합니다.
-
-예를 들어, `LifecycleObserver`를 사용하여 `Lifecycle` 이벤트에 기반한 분석 이벤트를 보냅니다.   
-Compose에서 이러한 이벤트를 수신하기 위해, 필요할 때 `observer`를 등록하고 해제하는 `DisposableEffect`를 사용할 수 있습니다.
+예를 들어 `DisposableEffect`를 `LifecycleObserver`와 함께 사용하여,
+'Composable' 내에서 `Lifecycle Event`를 기반으로 'Analytics Event'를 처리할 수 있습니다. 
 
 ```kotlin
 @Composable
@@ -183,10 +184,9 @@ fun HomeScreen(
             }
         }
 
-        // observer를 lifecycle에 추가
         lifecycleOwner.lifecycle.addObserver(observer)
 
-        // effect가 Composition을 떠날 때 observer를 제거
+        // Effect가 Composition을 떠날 때 observer 제거
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
@@ -194,13 +194,10 @@ fun HomeScreen(
 }
 ```
 
-위의 코드에서 Effect는 `observer`를 `lifecycleOwner`에 추가합니다. 
-`lifecycleOwner`가 변경되면, Effect는 제거되고 새 `lifecycleOwner`로 재시작됩니다.
+`DisposableEffect`에서 `onDispose` 블록 포함을 잊으면 안됩니다.  
+만약 빈 `onDispose`를 작성하는 경우, `DisposableEffect`가 필요하지 않는 상황일 수 있기에 다른 방식을 생각해보아야 합니다.
 
-`DisposableEffect`는 반드시 그 코드 블록의 마지막 문장으로 `onDispose` 절을 포함해야 합니다.
-
-> `onDispose`에 빈 블록을 두는 것은 좋은 방법이 아닙니다.  
-> 항상 다시 확인하여 사용 사례에 더 적합한 Effect가 있는지 확인해야 합니다.
+---
 
 ### SideEffect: Compose와 Non-Compose 코드 간 상태 공유
 
