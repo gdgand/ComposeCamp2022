@@ -17,20 +17,31 @@ Compose는 이러한 요구사항을 충족하기 위해 다양한 'Side-Effect 
 
 ## State and effect use cases
 
-> - `LaunchedEffect` : Composable에서 'suspend function'을 안전하게 호출하는 'Effect Composable'
->   - `LaunchedEffect`가 Composition 진입 시, `Block`을 'Coroutine'으로 시작 
->   - `LaunchedEffect`가 Composition을 떠나면, 'Coroutine' 취소
->   - `LaunchedEffect`의 `Key` 변경 시, 'Coroutine' 취소 후, 새로운 'Coroutine'으로 재시작
-> - rememberCoroutineScope : 'Composable Lifecycle'에 연결된 `CoroutineScope` 생성
+> - LaunchedEffect
+>   - Composable에서 'suspend function'을 안전하게 호출하는 'Effect Composable'
+>   - 'Composition' 진입 시, `Block`을 'Coroutine'으로 시작, 'Composition'을 떠나면, 'Coroutine' 취소
+>   - `Key` 변경 시, 'Coroutine' 취소 후, 새로운 'Coroutine'으로 재시작
+> - rememberCoroutineScope
+>   - 'Composable Lifecycle'에 연결된 `CoroutineScope` 생성
 >   - Composable '외부'에서 'Coroutine' 실행 가능 (`ViewModel`에서 Composable Animation 처리)
 >   - 해당 Composable이 'Composition'을 떠나면 모든 'Child Coroutine' 취소 처리
-> - rememberUpdatedState : Composable의 ReComposition 시, 참조 값 유지
+> - rememberUpdatedState
+>   - 'Composable'의 'ReComposition' 시, 참조 값 유지
 >   - `Effect`에서 '오래 지속되는 작업', '비용이 많이 드는 작업' 처리 시 유용
-> - DisposableEffect : Composable이 Composition에서 제거, `Key` 변경 시 정리 필요한 'Side-Effect' 관리
+> - DisposableEffect 
+>   - 'Composable'이 'Composition'에서 제거 또는 `Key` 변경 시, 정리가 필요한 'Side-Effect' 관리
 >   - `DisposableEffect`에서 `onDispose` 블록 포함을 잊으면 안됨 
 >   - `onDispose`가 '빈' 경우, `DisposableEffect`가 필요하지 않는 상황일 수 있기에 다른 방식을 생각해보아야 함
-> - SideEffect : Compose State를 Non-Compose Code에 공유
+> - SideEffect
+>   - 'Compose State'를 'Non-Compose Code'에 공유할 때 사용
 >   - 매번 '성공적인 Composition(ReComposition 포함)' 후, `SideEffect` 내부 코드 블록 실행 보장
+> - produceState
+>   - 'Non-Compose State'를 'Compose State'로 변환할 때 사용
+>   - 'Composition'과 연관된 'Coroutine' 실행 후, '반환된 State'를 `value`를 통해 푸시하는 기능 제공
+>   - `Flow`, `LiveData`, `RxJava`와 같은 '구독 기반 State'를 'Composition'으로 가져올 때 유용
+>   - 내부에서 `LuanchedEffect`를 사용, 이에 따라 'Composition' 진입 시 'Coroutine' 실행 'Composition'을 떠날 때 'Coroutine' 취소
+>   - '반환된 State'는 같은 값을 설정해도 'ReComposition'을 트리거하지 않음
+>   - 'Coroutine' 생성으로 인해, 'Non-suspend DataSource'를 관찰 가능, `awaitDispose`로 구독 제거 필요
 
 컴포저블은 UI 작업 외, 'Side-Effect' 작업을 하지 않는게 좋습니다.  
 하지만, 때떄로 앱의 '상태'를 변경해야 하는 경우 `Effect` API를 통해 처리할 수 있습니다.
@@ -228,20 +239,20 @@ fun rememberFirebaseAnalytics(user: User): FirebaseAnalytics {
 
 ---
 
-### produceState: Non-Compose 상태를 Compose 상태로 변환
+### produceState: convert non-Compose state into Compose state
 
-`produceState`는 반환된 `State`에 값을 푸시할 수 있는 Composition 범위의 코루틴을 실행합니다.   
-이는 Non-Compose 상태를 Compose 상태로 변환하는 데 사용될 수 있으며, 
-예를 들어 `Flow`, `LiveData`, `RxJava`와 같은 외부 구독 기반 상태를 Composition으로 가져올 때 사용할 수 있습니다.
+`produceState`는 'Composition'과 연관된 'Coroutine'을 시작하여, '반환된 State'로 값을 푸시하는 기능을 제공합니다.  
+이를 통해 'Non-Compose State'를 'Compose State'로 변환할 수 있습니다.  
+예를 들어 `Flow`, `LiveData`, `RxJava`와 같은 '구독 기반 State'를 'Composition'으로 가져올 때 유용합니다.
 
-생산자(producer)는 `produceState`가 Composition에 진입 시 실행되며, Composition에서 빠져나갈 때 취소됩니다.   
-반환된 `State`는 누산(conflate)되며, 이를 통해 동일한 값을 설정해도 재구성(recomposition)을 트리거하지 않습니다.
+`produceState`가 'Composition'으로 진입할 때 실행되며, 'Composition'에서 떠날 때 취소됩니다.  
+'반환된 State'는 같은 값을 설정해도 'ReComposition'을 트리거하지 않는 특성을 가집니다.
 
-`produceState`가 코루틴을 생성하는 것이지만, Non-suspend 데이터 소스를 관찰하는 데도 사용할 수 있습니다.   
-해당 소스에 대한 구독을 제거하려면 `awaitDispose` 함수를 사용합니다.
+또한 `produceState`는 'Coroutine'을 생성하지만, 'Non-suspend DataSource'를 관찰할 때에도 사용할 수 있습니다.  
+만약 해당 DataSource에 대한 구독을 제거하려면 `awaitDispose`를 사용하면 됩니다.
 
 아래 예제는 `produceState`를 사용하여 네트워크에서 이미지를 로드하는 방법을 보여줍니다.   
-`loadNetworkImage` composable 함수는 다른 composables에서 사용할 수 있는 `State`를 반환합니다.
+`loadNetworkImage`은 다른 'Composable'에서 사용할 수 있는 `State`를 반환합니다.
 
 ```kotlin
 @Composable
@@ -259,11 +270,11 @@ fun loadNetworkImage(
         imageRepository
     ) {
 
-        // 코루틴 내에서는 suspend 호출을 할 수 있음
+        // 'Coroutine'이 실행되기에 suspend 호출 가능
         val image = imageRepository.load(url)
 
         // Error 또는 Success 결과를 가진 State 업데이트
-        // 이 State를 읽는 Composable에 재구성을 트리거
+        // 이 State를 읽는 Composable에 ReComposition 트리거
         value = if (image == null) {
             Result.Error
         } else {
@@ -273,34 +284,11 @@ fun loadNetworkImage(
 }
 ```
 
-> 반환 타입을 가진 Composables은 일반적인 Kotlin 함수와 같이 소문자로 시작하는 이름을 사용해야 합니다.
-> 반환 타입을 가지지 않은 Composable은 Class와 같이 대문자로 시작하는 이름을 사용해야 했습니다.
+중요한 점은 `produceState`는 내부에서 초기값으로 `remember { mutableStateOf(initialValue) }`를 사용하여 결과를 유지하고, 
+`LuanchedEffect`를 사용하여 `produceState` 블록을 트리거하며, `value`가 업데이트될 때마다 `State`를 새로운 값으로 업데이트하며 알립니다.
 
+---
 
-#### `produceState`의 내부 동작
-```kotlin
-@Composable
-fun <T> produceState(
-    initialValue: T,
-    producer: suspend ProduceStateScope<T>.() -> Unit
-): State<T> {
-    val result = remember { mutableStateOf(initialValue) }
-    LaunchedEffect(Unit) {
-        ProduceStateScopeImpl(result, coroutineContext).producer()
-    }
-    return result
-}
-```
-1. `remember` 함수를 사용하여 `mutableStateOf(initialValue)`의 결과를 저장합니다.   
-여기서 `mutableStateOf(initialValue)`는 초기값이 `initialValue`인 변경 가능한 상태를 생성합니다.
-`remember` 함수는 이 상태를 저장하여 Compose 라이프사이클 내에서 이 상태를 유지합니다. 
-이렇게 하면 이 상태가 변경되면 관련된 UI를 자동으로 다시 그릴 수 있습니다.  
-
-2. `LaunchedEffect`는 `produceState`에서 주어진 `producer 블록`(즉, 상태를 업데이트하는 데 사용되는 코드 블록)를 실행하는 코루틴을 실행합니다.  
-이 코루틴은 새로운 상태를 계산하고 이 상태를 `mutableStateOf`로 저장된 상태에 저장합니다.
-
-3. `producer 블록`에서 `value`를 업데이트하면, 이 값이 `mutableStateOf`에 저장된 상태로 설정되고, 이로 인해 관련된 UI가 자동으로 다시 그려집니다.
- 
 ### derivedStateOf: 하나 이상의 상태 객체를 다른 상태로 변환
 `derivedStateOf`는 특정한 상태가 다른 상태 객체들로부터 계산되거나 파생될 때 사용되는 함수입니다. 
 이 함수를 사용하면 계산에 사용되는 상태 중 어느 하나가 변경될 때 마다 계산이 이루어진다는 것을 보장할 수 있습니다.
