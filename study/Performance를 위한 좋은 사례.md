@@ -58,17 +58,21 @@ fun ContactList(
 
 ---
 
-### Lazy Layout 사용시 Key 적용
+## Use Lazy layout keys
 
-`Lazy` 접두어를 사용하는 레이아웃들은 아이템을 최대한 재사용하고, 필요할 때만 재성성하거나 재구성하도록 합니다.   
-추가로, 개발자들은 Key를 사용하여 이러한 동작을 더 최적화할 수 있습니다.
+> - 'Compose'는 목록 중 하나의 항목이 이동되었을 때, 해당 항목만 'ReComposition' 하지 않고, 전체 목록을 'ReComposition' 함 
+>   이를 위해 'Lazy Layout'에 Key를 제공하여 'ReComposition'을 최소화하여 해당 항목만 'ReComposition' 되도록 처리
+
+'Lazy layout'은 목록에서 항목이 이동할 때마다 모든 항목을 'ReComposition' 또는 'ReGenerate' 하는 것을 피할 수 있도록 도와줍니다.  
+특히, 목록에서 항목의 순서가 자주 변경되는 경우에 'Lazy 레이아웃'을 사용하는 것이 효율적 입니다.
+
+아래 예시는 '수정한 시간 별'로 정렬된 노트 목록을 보여주고 있습니다.
 
 ```kotlin
 @Composable
 fun NotesList(notes: List<Note>) {
     LazyColumn {
         items(
-            key = { note -> note.id },
             items = notes
         ) { note ->
             NoteRow(note)
@@ -76,8 +80,32 @@ fun NotesList(notes: List<Note>) {
     }
 }
 ```
-위처럼 `key`를 적용하지 않은 경우, `note` 목록이 변경될 경우 모든 `note`를 재구성하겠지만, 
-위와 같이 해당 아이템에 `key`를 제공함으로써, 재구성 시 변경된 노트만 재구성을 하여 불필요한 재구성을 피할 수 있습니다. 
+
+이 때 사용자가 가장 아래에 있던 노트를 가장 최근에 수정하여 목록의 맨 위로 이동한다면,   
+위 방식의 'Lazy layout'은 변경되지 않은 노트 항목들도 'ReComposition' 될 수 있습니다.  
+이는 'Compose'가 단순히 목록에서 항목들이 이동헸다는 것을 인지하지 않고, 각 항목이 삭제되고 새로 생성된 것으로 간주하기 때문입니다.  
+이런 방식은 효율성이 떨어지고 불필요한 'ReComposition'을 야기합니다.
+
+이 문제를 해결하기 위해 각 항목에 대한 'Stable Key'를 제공하는 것이 좋습니다.  
+이 'Key'는 각 항목을 '고유하게 식별'할 수 있게 해주며, 'Compose'가 항목이 단순히 이동했음을 인식하고 
+데이터 변경이 없는 항목에 대해서는 'ReComposition'을 '스킵'할 수 있도록 합니다.
+
+```kotlin
+@Composable
+fun NotesList(notes: List<Note>) {
+    LazyColumn {
+        items(
+            items = notes,
+            key = { note ->
+                // Key 
+                note.id
+            }
+        ) { note ->
+            NoteRow(note)
+        }
+    }
+}
+```
 
 ---
 
