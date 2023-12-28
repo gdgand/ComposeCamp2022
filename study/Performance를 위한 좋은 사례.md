@@ -282,16 +282,25 @@ Box(
 
 ---
 
-### backwards write 피하기
-Compose는 이미 읽은 상태에 대해서 다시 쓰기 작업을 하지 않을 것이라는 기본 가정을 가지고 있습니다.  
-만약 이것을 수행하면, 이를 역방향 쓰기(backwards write)라고 하며, 이는 프레임마다 무한하게 재구성을 발생시킬 수 있습니다.
+## Avoid backwards writes
+
+> - 'backwards write' : 'Composition 단계'에서 'State write' 하는 것
+> - 'backwards write'는 무한 'ReComposition'이 발생됨
+> - 'backwards write' 방지
+>   - 'Composition 단계'에서의 'State write' 코드 제거
+>   - `onClick`과 같은 'Event'에 반응하여 'lambda' 내에서 'State write'
+
+'Compose'에는 'State'를 이미 읽은 후에는 결코 'State'에 'write' 하지 않을 것이라는 핵심 가정이 있습니다.  
+이를 위반 하는 것을 'backwards write'라고 하며, 이는 끊임 없이 매 Frame 마다 'ReComposition'을 발생시킬 수 있습니다.
+
+아래 코드는 'backwards write'를 발생시키는 예시 입니다.
 
 ```kotlin
 @Composable
 fun BadComposable() {
     var count by remember { mutableStateOf(0) }
 
-    // 클릭 시 재구성 발생
+    // 클릭 시 ReComposition 발생
     Button(
         onClick = { count++ }, 
         modifier = Modifier.wrapContentSize()
@@ -300,18 +309,12 @@ fun BadComposable() {
     }
 
     Text("$count")
-    count++ // 역방향 쓰기, 이미 읽은 상태에 다시 쓰기
+    count++ // backwards write, 무한 ReComposition 발생
 }
 ```
-이 코드는 Composable의 끝에서 `count`를 업데이트합니다. 이는 이미 앞서 읽은 상태를 업데이트하므로 역방향 쓰기로 간주됩니다.
 
-1. `BadComposable`가 처음 호출되면 `count`는 0으로 초기화됩니다.
-2. 사용자가 버튼을 클릭하면 `onClick` 이벤트가 발생하고 `count` 상태가 증가합니다. 이 상태 변경은 Compose에게 이 Composable을 재구성하도록 지시합니다.
-3. 재구성이 발생하면 `count` 상태는 이미 변경되었으므로 `Text("$count")`는 새로운 값을 표시합니다.
-4. 그러나 이어서 `count++` 코드가 실행되면, `count` 상태는 이미 읽은 후에 다시 쓰여지게 됩니다. 즉, 역방향 쓰기가 발생합니다.
-5. 이렇게 역방향 쓰기가 발생하면 Compose는 무언가 잘못됐다고 판단하고 이 Composable을 다시 재구성하도록 스케줄링합니다. 이로 인해 `count` 값이 무한히 증가하는 문제가 발생하며, 이 Composable은 끊임없이 재구성됩니다.
+위 코드는 'State'를 읽은 후 'State'를 업데이트 하고 있습니다.  
+`Button`을 클릭하면, 'Composable'이 'ReComposition'을 발생시키고 `count`가 무한으로 증가하는 것을 알 수 있습니다.
 
-이 문제를 해결하는 방법은 역방향 쓰기를 피하는 것입니다. 
-Composable 내에서 상태를 업데이트하는 대신, 가능하면 이벤트(`onClick` 이벤트)에 응답하여 상태를 업데이트해야 합니다. 
-이렇게 하면 Compose는 상태 변경에 대해 알게 되고, 필요할 때만 Composable을 재구성하게 됩니다. 
-따라서 UI가 필요 이상으로 빈번하게 재구성되는 것을 피할 수 있습니다.
+'State'를 'Composition 단계'에서 'write'하는 것을 피함으로써 'backwards write'를 방지할 수 잇습니다.  
+또한 가능하다면, 위 `onClick`과 같이 'Event'에 반응하여 'lambda' 내에서 'State write'를 하는 것이 좋습니다. 
