@@ -60,3 +60,33 @@ data class Contact(var name: String, var number: String)
 'ReComposition' 중 `Contact`가 변경되지 않았다고 확신할 수 없기에 해당되는 'Composable'을 'skip' 할 수 없습니다.
 
 따라서 이전 예시의 `ContactRow`는 `selected`가 변경될 때마다 'ReCompose' 됩니다.
+
+---
+
+## Implementation in Compose
+
+Compose 컴파일러는 코드를 실행할 때 각 함수와 타입에 여러 태그 중 하나를 부여하며,  
+이 태그는 ReComposition 중 Compose가 함수 또는 타입을 어떻게 처리하는지를 나타냅니다.
+
+### Functions
+
+Compose는 함수를 'skippable', 'restartable'으로 표시할 수 있습니다.  
+하나의 함수는 '둘 중 하나', '둘 다', '둘 다 아닌 것'으로 표시될 수 있습니다.
+
+- 'skippable Composable'은 모든 'argument'가 이전 값과 동일하면 'ReComposition' 중 해당 'Composable'을 건너뛸 수 있습니다.
+- 'restartable Composable'은 'ReComposition'을 시작할 수 있는 'Scope'로 표시됩니다.  
+    즉, 상태 변경 후 'ReComposition'을 위한 코드 재실행 진입점 역할을 할 수 있습니다.
+
+### Types
+
+Compose는 타입을 'immutable type' 또는 'stable type'으로 표시하며, 각 타입은 '둘 중 하나'로 표시됩니다.
+
+- 'immutable type' : 타입의 속성 값이 절대 변경되지 않고, 모든 메서드가 '참조 투명성(referentially transparent)'을 가진 경우 'immutable type'으로 표시합니다. 
+  이 떄 모든 원시 타입은 'immutable type'으로 표시됩니다. (`String`, `Int`, `Float`, ...)
+
+- 'stable type' : 생성 후 속성이 변경될 수 있으며, 런타임 중 속성이 변경되면 'Compose'는 변경 사항을 인지할 수 있습니다.
+
+'skippable Composable'이 되려면 파라미터가 불변 타입인 것이 이상적이지만, Compose Runtime이 모든 상태 변경 사항을 인지할 수 있다면 'mutable type'도 'skippable Composable'이 될 수 있습니다.
+
+이를 위해 Compose는 `MutableState`, `SnapshotStateMap`, `SnapshotStateList` 같은 가변 클래스를 제공합니다.  
+위 클래스들은 Compose가 모든 변경을 감지하고, 필요한 경우 Composable을 자동으로 업데이트할 수 있도록 해줍니다.
