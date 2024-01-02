@@ -1,5 +1,12 @@
 # Stability in Compose
 
+> - Composable Parameter Type
+>   - Stable Type : 'Immutable State' 또는 Compose Runtime이 상태 변화를 감지 가능 할 수 있는 경우
+>   - Unstable Type : Compose Runtime이 상태 변화를 감지 할 수 없는 경우
+> - ReComposition skip 여부
+>   - Parameter가 'Stable Type'이고 상태가 변하지 않았을 경우, 해당 Composable 'skip' 가능 
+>   - Parameter가 'Unstable Type'이면, 'Parent composable'이 ReComposition 될 때마다 항상 해당 Composable 'ReCompose'
+
 'Compose'는 'Composable'의 파라미터를 'stable type'과 'unstable type'으로 분류하며,  
 타입 안전성은 'ReComposition' 중 해당 값의 변경 여부를 알 수 있는지에 따라 결정됩니다.
 
@@ -64,6 +71,13 @@ data class Contact(var name: String, var number: String)
 ---
 
 ## Implementation in Compose
+
+> - Composable과 Parameter Type에 여러 태그 중 하나 부여, ReComposition 중 해당 Composable을 어떻게 처리하는 지 나타냄
+>   - skippable tag : 모든 argument가 이전 값과 동일하면 해당 Composable skip 가능
+>   - restartable tag : Composable 상태 변경 후 ReComposition을 위한 재실행 진입점 제공
+>   - immutable type tag : 타입의 속성 값이 절대 변경되지 않고, 모든 메서드가 참조 투명성을 가진 경우, 모든 원시 타입
+>   - stable type tag : 런타임 중 상태 변경 시 Compose가 변경 사항을 인지할 수 있는 경우
+> - Compose가 모든 변경을 감지하는 `MutableState`, `SnapshotStateMap`, `SnapshotStateList` 등의 가변 객체를 통해서도 'stable type tag'를 부여 받을 수 있음 
 
 Compose 컴파일러는 코드를 실행할 때 각 함수와 타입에 여러 태그 중 하나를 부여하며,  
 이 태그는 ReComposition 중 Compose가 함수 또는 타입을 어떻게 처리하는지를 나타냅니다.
