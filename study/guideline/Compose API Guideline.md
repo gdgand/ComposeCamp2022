@@ -67,3 +67,66 @@ enum class Color {
 //     RED, GREEN, BLUE
 // }
 ```
+
+---
+
+## Compose baseline
+
+Compose의 'compiler plugin'과 'runtime'은 kotlin 언어에 추가적인 기능을 제공 합니다.  
+'compiler plugin'은 kotlin 코드를 분석하고, `@Composable`, '상태 관리' 등을 처리합니다.  
+'runtime'은 이러한 코드가 실행될 때 필요한 동작을 관리합니다.  
+예를 들어 실제 UI 요소들이 어떻게 보여지는지, 데이터 변화에 따라 적절히 UI를 업데이트 하도록 관리합니다.
+
+Compose는 '선언형 프로그래밍 모델'을 제공하고, 이 모델은 시간에 따라 변화하는 가변 트리 데이터 구조를 구성하고 관리하는데 사용됩니다.  
+이는 UI 요소들이 트리 구조의 노드로 표현되어 상호 연결됨을 의미합니다.
+
+'Compose UI'는 'runtime'이 관리할 수 있는 트리의 한 예시입니다.  
+이는 UI를 트리 구조로 조직화하고, 다양한 UI 요소들을 통합하여 복잡한 인터페이스를 구성할 수 있게 합니다.
+
+### Naming Unit @Composable functions as entities
+
+> - `@Composable`이 붙은 모든 함수는 'PascalCase'로 작성, `Unit`을 반환, 함수의 이름은 '명사'여야 함
+>   - 'Composable'은 'declarative entities'로 간주되기에 '명사'를 사용하는 것이 적합
+>   - 'Composable'은 UI에서 추가되거나 제거될 수 있지만, '일관된 Identity'를 유지되기에 '명사'를 사용하는 것이 적합
+
+---
+
+**`@Composable`이 붙은 모든 함수는 'PascalCase'로 작성, `Unit`을 반환, 함수의 이름은 '명사'여야 합니다.**
+
+`Unit`을 반환하는 'Composable'은 **'declarative entities'로 간주**됩니다.  
+즉, `Unit`을 반환하는 'Composable'은 'Composition'에서 UI의 일부로 존재하거나 존재하지 않을 수 있습니다.  
+예를 들어, 특정 조건에 따라 UI의 특정 부분을 표시하거나 숨길 수 있습니다.  
+이러한 특성으로 인해, `Unit`을 반환하는 'Composable'은 UI 구성 요소를 나타내는 실체로 볼 수 있기에, '명사'를 사용하는 것이 적합 합니다.
+
+'Composable'의 존재 또는 부재는 해당 'Composable'을 호출하는 코드의 제어 흐름에 따라 결정됩니다.  
+이는 'Composable'이 'ReComposition'을 거치는 동안 '일관된 Identity'를 유지하고, 해당 'Identity'에 대한 생명주기를 가진다는 것을 의미합니다.  
+즉, 'Composable'은 상태 변화나 다른 요인에 따라 UI에서 추가되거나 제거될 수 있지만, **그 자체는 '일관된 entities'로 유지** 됩니다.  
+이러한 특성으로 인해, 'Composable'이 UI 내에서 '특정 Entities'나 구성 요소를 대표한다는 개념과 일치하기에 '명사'를 사용하는 것은 'Composable'의 역할과 정체성을 명확하게 전달하는 데 도움이 됩니다.
+
+**Do**
+
+```kotlin
+// 시각적인 UI 요소로써 PascalCase 명사입니다.
+@Composable
+fun FancyButton(text: String, onClick: () -> Unit)
+
+// 비-시각적인 요소로써 PascalCase 명사입니다.
+@Composable
+fun BackButtonHandler(onBack: () -> Unit)
+```
+
+**Don't**
+
+```kotlin
+// PascalCase X, 명사 O 
+@Composable
+fun fancyButton(text: String, onClick: () -> Unit)
+
+// PascalCase O, 명사 X
+@Composable
+fun RenderFancyButton(text: String, onClick: () -> Unit)
+
+// PascalCase X, 명사 X
+@Composable
+fun drawProfileImage(image: Asset)
+```
