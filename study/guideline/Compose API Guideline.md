@@ -175,3 +175,40 @@ fun defaultStyle(): Style { ... }
 @Composable
 fun Style(): Style { ... }
 ```
+
+### Naming `@Composable` functions that `remember {}` the objects they return
+
+> - Composable에서 `remember`를 사용하여 가변 객체를 반환할 떄 함수 이름 앞에 `remember` 접두어를 붙여야 함
+>   - 'ReComposition'을 거쳐도 값이 유지되는 특징 등, 호출자에게 명확하게 전달하기 위해
+>   - 내부적으로 `remember`를 통해 객체를 캐싱하고 있음을 호출자에게 알려 다시 `remember`로 감싸지 않도록 안내하기 위해
+> - 객체 반환만을 이유로 'Composable Factory function'으로 간주하기 보단 함수의 '주요 목적'을 고려해야 함
+>   - `Flow<T>.collectAsState()`의 주요 목적은 `Flow` 구독 설정, 반환되는 `State<T>`객체의 `remember` 작업은 부차적인 작업일 수 있음
+
+내부에 `remember` API를 사용하여 가변 객체를 반환하는 'Composable'은 함수 이름 앞에 'remember' 접두어를 붙여야 합니다.
+
+**why?**
+
+1-1. `remember`를 사용하여 가변 객체를 반환하는 'Composable'은 해당 가변 객체가 시간이 지남에 따라 변경될 수 있고, 
+'Recomposition'을 거쳐도 지속되는 'observable side effects'를 가지고 있습니다.
+즉, 객체의 상태가 변경될 떄 UI에 영향을 줄 수 있기에, 이러한 특성을 호출자에게 명확하게 전달하기 위해 'remember' 접두어를 사용합니다.
+
+1-2. 함수 이름에 'remember' 접두어를 사용하는 것은 해당 함수가 내부적으로 `remember` API를 사용하여 객체를 캐싱하고 있음을 나타냅니다.  
+이는 호출자가 해당 객체를 다시 `remember`로 감싸서 유지할 필요가 없음을 안내할 수 있습니다.
+
+**Note**
+
+Compose에서 객체를 반환하는 것만으로 'Composable'을 'Factory function'으로 간주하기 보다는 함수의 '주요 목적'을 고려해야 합니다.  
+예를 들어 `Flow<T>.collectAsState()`의 주요 목적은 `Flow`에 대한 구독을 설정하는 것이며, 반환되는 `State<T>`객체를 `remember`하는 것은 부차적인 작업일 수 있습니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun rememberCoroutineScope() : CoroutineScope { ... }
+```
+
+**Don't**
+```kotlin
+@Composable
+fun createCoroutineScope() : CoroutineScope { ... }
+```
