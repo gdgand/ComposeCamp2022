@@ -130,3 +130,85 @@ fun RenderFancyButton(text: String, onClick: () -> Unit)
 @Composable
 fun drawProfileImage(image: Asset)
 ```
+
+### Naming @Composable functions that return values
+
+> - 값을 반환하는 Composable은 'Factory function exemption' 규칙을 사용하면 안됨
+>   - 'Composable'의 역할과 정체성을 명확하게 전달하지 못함
+>   - 'Composable'이 단순한 생성자처럼 객체를 생성하고 반환하는 것처럼 잘못 해석될 수 있음
+>   - 'Virtual DOM'과 혼동되어, 'UI Entity'를 반환하는 것처럼 잘못 해석될 수 있음
+
+`Unit`이 아닌 값을 반환하는 'Composable'은 'kotlin coding-convention'을 따라야 합니다.  
+일반적인 'kotlin coding-convention'에서는 객체를 생성하고 반환하는 함수는 'Factory function exemption' 규칙을 허용합니다.  
+이 규칙에 따르면, 함수는 생성되는 객체 타입을 반영하는 'PascalCase' 이름을 가질 수 있습니다.  
+
+그러나 **Compose에서는 'Factory function exemption' 규칙을 사용해서는 안됩니다.**
+
+**Why?**
+
+1-1. 'Composable'은 단순히 객체를 생성하는 것이 아닌, 더 복잡한 역할을 수행하기에, 
+'Factory function exemption' 규칙을 사용할 경우 'Composable'의 역할과 정체성을 명확하게 전달하지 못합니다.
+
+1-2. 값을 반환하는 'Composable'은 Compose 생명주기에 맞추어 객체의 상태를 관리하거나, `CompositionLocal`을 사용하여 객체에 필요한 값을 제공하는 등의 역할을 수행할 수 있습니다.   
+이런 경우에 'Factory function exemption' 규칙을 적용하면, 함수가 단순히 생성자처럼 객체를 생성하고 반환하는 것처럼 잘못 해석 될 수 있습니다. 
+이는 'Composable'이 수행하는 실제 역할과 다를 수 있기에, 'Factory function exemption' 규칙을 사용해선 안됩니다. 
+
+1-3. 'Composable'에 'Factory function exemption' 규칙을 적용하면, Web 프레임워크에서 사용되는 'Virtual DOM'과 혼동될 수 있습니다.  
+'Virtual DOM'에서는 'UI Entity'가 메모리에 유지되며 상태 변경에 따라 자동으로 UI를 업데이트 합니다.   
+그러나 'Composable'은 UI 구성이 선언적으로 이루어지며, 'UI Entity'의 반환이 아닌 '구성'을 중점으로 둡니다.  
+이처럼 'Composable'에 'Factory function exemption' 규칙하면, 'UI Entity'를 반환하는 것처럼 잘못 해석될 수 있습니다.  
+이런 방식은 선언형 프로그래밍 패러다임과 일치하지 않으며, 'UI Entity' 상태는 'Hoisting State'를 사용하여 관리하는 것이 더 바람직 합니다.
+
+**Do**
+
+```kotlin
+// CompositionLocal 설정을 기반으로 Style 값을 반환
+// 값의 출처가 명확함
+@Composable
+fun defaultStyle(): Style { ... }
+```
+
+**Don't**
+```kotlin
+// CompositionLocal 적용을 위한 Style 값을 반환
+// Style 타입의 새로운 인스턴스를 생성하고 반환하는 것으로 보임
+@Composable
+fun Style(): Style { ... }
+```
+
+### Naming `@Composable` functions that `remember {}` the objects they return
+
+> - Composable에서 `remember`를 사용하여 가변 객체를 반환할 떄 함수 이름 앞에 `remember` 접두어를 붙여야 함
+>   - 'ReComposition'을 거쳐도 값이 유지되는 특징 등, 호출자에게 명확하게 전달하기 위해
+>   - 내부적으로 `remember`를 통해 객체를 캐싱하고 있음을 호출자에게 알려 다시 `remember`로 감싸지 않도록 안내하기 위해
+> - 객체 반환만을 이유로 'Composable Factory function'으로 간주하기 보단 함수의 '주요 목적'을 고려해야 함
+>   - `Flow<T>.collectAsState()`의 주요 목적은 `Flow` 구독 설정, 반환되는 `State<T>`객체의 `remember` 작업은 부차적인 작업일 수 있음
+
+내부에 `remember` API를 사용하여 가변 객체를 반환하는 'Composable'은 함수 이름 앞에 'remember' 접두어를 붙여야 합니다.
+
+**why?**
+
+1-1. `remember`를 사용하여 가변 객체를 반환하는 'Composable'은 해당 가변 객체가 시간이 지남에 따라 변경될 수 있고, 
+'Recomposition'을 거쳐도 지속되는 'observable side effects'를 가지고 있습니다.
+즉, 객체의 상태가 변경될 떄 UI에 영향을 줄 수 있기에, 이러한 특성을 호출자에게 명확하게 전달하기 위해 'remember' 접두어를 사용합니다.
+
+1-2. 함수 이름에 'remember' 접두어를 사용하는 것은 해당 함수가 내부적으로 `remember` API를 사용하여 객체를 캐싱하고 있음을 나타냅니다.  
+이는 호출자가 해당 객체를 다시 `remember`로 감싸서 유지할 필요가 없음을 안내할 수 있습니다.
+
+**Note**
+
+Compose에서 객체를 반환하는 것만으로 'Composable'을 'Factory function'으로 간주하기 보다는 함수의 '주요 목적'을 고려해야 합니다.  
+예를 들어 `Flow<T>.collectAsState()`의 주요 목적은 `Flow`에 대한 구독을 설정하는 것이며, 반환되는 `State<T>`객체를 `remember`하는 것은 부차적인 작업일 수 있습니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun rememberCoroutineScope() : CoroutineScope { ... }
+```
+
+**Don't**
+```kotlin
+@Composable
+fun createCoroutineScope() : CoroutineScope { ... }
+```
