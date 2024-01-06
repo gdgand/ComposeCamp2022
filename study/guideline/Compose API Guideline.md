@@ -212,3 +212,30 @@ fun rememberCoroutineScope() : CoroutineScope { ... }
 @Composable
 fun createCoroutineScope() : CoroutineScope { ... }
 ```
+
+### Naming CompositionLocals
+
+> - `CompositionLocal`의 'Key' 명명 시, 'CompositionLocal' 또는 'Local'을 명사 접미사로 사용 X
+> - 그 값에 기반한 서술적인 이름을 가져야 함, 더 서술적인 이름이 적합하지 않을 경우 'Local'을 접두사로 사용할 수 있음
+>   - LocalTheme → 'key'가 지역적으로 제한된 Theme 값을 나타냄을 명확하게 표현
+
+`CompositionLocal`은 'Composition-Scope' 내의 'key-value' 테이블의 접근을 위한 'key' 역할을 합니다.  
+또한 'Composition'의 특정 하위 트리에 전역적인 값들을 제공하는 데 사용될 수 있습니다.
+
+`CompositionLocal`의 'key'를 명명할 때 'CompositionLocal' 또는 'Local'을 명사 접미사로 사용하지 말고, 
+그 값에 기반한 서술적인 이름을 가져야 합니다.
+만약 더 서술적인 이름이 적합하지 않을 경우, `CompositionLocal`의 'Key' 이름에 'Local'을 접두사로 사용할 수 있습니다.
+
+**Do**
+
+```kotlin
+// 'Local' 형용사, 'Theme' 명사
+val LocalTheme = staticCompositionLocalOf<Theme>()
+```
+
+**Don't**
+
+```kotlin
+// 'Local'을 명사로 사용
+val ThemeLocal = staticCompositionLocalOf<Theme>()
+```
