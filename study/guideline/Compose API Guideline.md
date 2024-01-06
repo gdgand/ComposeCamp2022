@@ -212,3 +212,83 @@ fun rememberCoroutineScope() : CoroutineScope { ... }
 @Composable
 fun createCoroutineScope() : CoroutineScope { ... }
 ```
+
+### Naming CompositionLocals
+
+> - `CompositionLocal`의 'Key' 명명 시, 'CompositionLocal' 또는 'Local'을 명사 접미사로 사용 X
+> - 그 값에 기반한 서술적인 이름을 가져야 함, 더 서술적인 이름이 적합하지 않을 경우 'Local'을 접두사로 사용할 수 있음
+>   - LocalTheme → 'key'가 지역적으로 제한된 Theme 값을 나타냄을 명확하게 표현
+
+`CompositionLocal`은 'Composition-Scope' 내의 'key-value' 테이블의 접근을 위한 'key' 역할을 합니다.  
+또한 'Composition'의 특정 하위 트리에 전역적인 값들을 제공하는 데 사용될 수 있습니다.
+
+`CompositionLocal`의 'key'를 명명할 때 'CompositionLocal' 또는 'Local'을 명사 접미사로 사용하지 말고, 
+그 값에 기반한 서술적인 이름을 가져야 합니다.
+만약 더 서술적인 이름이 적합하지 않을 경우, `CompositionLocal`의 'Key' 이름에 'Local'을 접두사로 사용할 수 있습니다.
+
+**Do**
+
+```kotlin
+// 'Local' 형용사, 'Theme' 명사
+val LocalTheme = staticCompositionLocalOf<Theme>()
+```
+
+**Don't**
+
+```kotlin
+// 'Local'을 명사로 사용
+val ThemeLocal = staticCompositionLocalOf<Theme>()
+```
+
+### Stable Types
+
+> - 'Compose runtime'은 `@Stable`, `@Immutable`을 제공, 타입과 함수의 안정성을 표시하여 'Compose compiler'에 의해 최적화 가능
+>   - 최적화 : Composable 파라미터가 변경되지 않는 한 'ReComposition' 시 해당 Composable의 호출을 건너뛸 수 있음
+> - 'Compose compiler'는 원시 타입, 불변 객체 (`@Immutable`로 표기된 객체)의 안정성을 자동으로 추론 가능
+>   - 'interface', '안정성 추론이 어려운 타입'의 경우 `@Stable`, `@Immutable`을 사용하여 명시적으로 타입 안정성 표시 가능
+> - `@Immutable`
+>   - 객체 상태가 불변임을 의미, 메서드는 참조 투명성을 가져야 함
+>   - `const` 표현식에 사용될 수 있는 모든 타입들은 자동으로 `@Immutable`로 간주
+> - `@Stable`
+>   - 가변 타입을 적용할 수 있고, 해당 타입의 '속성' 또는 '메서드 동작'이 이전 호출과 다른 결과를 낼 때 '알림'을 받음
+>   - '알림'은 'snapshot system'을 통해 지원되며, `@Stable MutableState`도 이러한 알림 메커니즘에 의존
+>   - `@Stable`로 표시된 타입의 '속성'들은 다른 `@Stable` 또는 `@Immutable`로 표시된 타입을 사용해야 함
+> - `@Stable` 타입의 두 객체 a와 b에 대해, `a.equals(b)`의 결과는 시간이 지나도 변하지 않아야 함
+>   - a와 b가 서로 영향을 받음을 의미, a의 상태가 변경되면, b에 대해서도 동일한 변경이 반영되어야 함
+
+'Compose runtime'은 2가지 어노테이션을 제공하여 타입이나 함수를 안정적인 것으로 표시할 수 있으며,  
+이는 'Compose compiler plugin'에 의해 최적화될 수 있습니다.
+즉, 'Compose runtime'은 'Composable'의 파라미터가 변경되지 않는 한 'Composable'의 결과가 변경되지 않음을 알기에 'Composable'의 호출을 건너뛸 수 있습니다. 
+
+'Compose compiler'는 원시 타입이나 불변 객체(`@Immutable`로 표시된 객체) 같이 명확한 경우 자동으로 안정성을 추론할 수 있습니다.  
+그러나 인터페이스나 안정성을 추론하기 어려운 다른 타입들의 경우, 자동으로 추론되지 않습니다.  
+이런 경우 `@Stable` 또는 `@Immutable`을 사용하여 명시적으로 타입 안정성을 표시할 수 있습니다.  
+
+`@Immutable`은 객체 상태가 불변임을 의미하며, 이러한 객체의 모든 메서드는 참조 투명성(referential transparency)을 가져야 합니다.  
+이는 메서드가 동일한 입력에 대해 항상 동일한 결과를 반환해야 함을 의미합니다. 또한 `const` 표현식에 사용될 수 있는 모든 타입들은(원시 타입, 문자열 등) 자동으로 `@Immutable`로 간주됩니다.
+
+`@Stable`은 적용된 타입이 가변일 수 있지만, 'Compose runtime'은 해당 타입의 'public properties' 또는 '메서드 동작'이 이전 호출과 다른 결과를 낼 떄 알림을 받습니다.
+이 알림은 실제로 'snapshot system'을 통해 지원되며, `@Stable MutableState`는 이러한 알림 메커니즘에 의존합니다.
+
+또한 `@Stable`로 표시된 타입이 가지고 있는 'properties'는 다른 `@Stable` 또는 `@Immutable` 타입을 사용해야 합니다.  
+이는 해당 'properties'가 안정적이거나 불변의 특성을 유지해야 함을 의미합니다. 
+예를 들어, `@Stable` 타입 내부에 가변 리스트나 컬렉션을 가지는 경우, 
+해당 리스트나 컬렉션은 `@Stable` 또는 `@Immutable`로 표시된 타입으로 구성되어야 합니다.
+
+---
+
+`@Stable` 타입에 대해 `equals()`는 항상 일관된 결과를 반환해야 합니다.  
+즉, `@Stable` 타입의 두 객체 a와 b에 대해, `a.equals(b)`의 결과는 시간이 지나도 변하지 않아야 합니다.  
+이는 a와 b가 서로 영향을 받음을 의미하며, a의 상태가 변경되면, b에 대해서도 동일한 변경이 반영되어야 합니다.
+
+이전 안정적인 릴리스에서 `@Stable` 또는 `@Immutable`으로 선언된 타입은 해당 어노테이션을 제거하면 안됩니다.  
+또한 해당 어노테이션 없이 제공되었던 'non-final' 타입에 `@Stable` 또는 `@Immutable`을 추가해서는 안됩니다.
+
+**Why?**
+
+`@Stable`과 `@Immutable`은 'Compose compiler plugin'에 의해 생성된 코드의 '바이너리 호환성'에 영향을 줍니다.
+바이너리 호환성은 새로운 버전의 라이브러리가 이전 버전과 호환되어 기존 어플리케이션에서 문제 없이 작동할 수 있도록 하는 것을 말합니다.   
+
+여기서 라이브러리가 기존의 'non-final' 타입에 `@Stable` 또는 `@Immutable`을 선언하면, 이미 릴리즈된 구현체들이 올바르게 구현되지 못할 리스크가 있습니다. 
+이는 기존 코드와의 호환성 문제를 일으킬 수 있으며, 라이브러리를 사용하던 개발자들이 이를 인지하지 못하는 경우 치명적일 수 있습니다.
+
