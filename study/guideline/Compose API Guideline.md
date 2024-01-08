@@ -292,3 +292,44 @@ val ThemeLocal = staticCompositionLocalOf<Theme>()
 여기서 라이브러리가 기존의 'non-final' 타입에 `@Stable` 또는 `@Immutable`을 선언하면, 이미 릴리즈된 구현체들이 올바르게 구현되지 못할 리스크가 있습니다. 
 이는 기존 코드와의 호환성 문제를 일으킬 수 있으며, 라이브러리를 사용하던 개발자들이 이를 인지하지 못하는 경우 치명적일 수 있습니다.
 
+### Emit XOR return a value
+
+> - 'Composable'은 'Composition'에 UI 요소를 추가하거나, 값을 반환하는 역할 중 하나만 수행해야 함
+>   - 선언형 프로그래밍은 UI 구조와 상태를 명확하게 '선언' 해야함, 만약 그 외의 역할을 수행하면 선언적 UI 원칙이 흐려질 수 있음
+> - 'Composable'에 추가적인 제어 기능 및 콜백 제공 시, 'Composable'의 파라미터로 제공되어야 함
+>   - 'Composable'이 값을 반환하여 '다른 Composable'과 정보를 주고 받으면, 선언적 UI 흐름의 순서와 명확성을 흐리게 할 수 있음
+
+'Composable'은 UI 요소를 'Composition'에 추가하는 역할을 하거나, 값을 반환하는 역할 중 하나만 수행해야 합니다.  
+또한 'Composable'은 호출자에게 추가적인 제어 기능이나 콜백을 제공해야 하는 경우, 'Composable'의 파라미터로 제공되어야 합니다.
+
+**Why?**
+
+'Compose'는 선언형 프로그래밍 패러다임을 따르기에, UI 구조와 상태는 코드를 통해 명확하게 '선언'됩니다.  
+만약 'Composable'이 UI 요소를 배치하는 작업과 동시에 값을 반환한다면, 이는 선언적 UI 원칙이 흐려질 수 있습니다.
+
+'Composable'이 값을 반환하여 호출자와 정보를 주고 받으면, 이는 선언적 UI 흐름의 순서와 명확성을 흐리게 할 수 있습니다.  
+예를 들어, A가 B를 호출하여 B에 반환된 값에 따라 A 동작이 결정된다면, 이는 A의 UI 구성이 B의 반환 값에 의존하게 될 수 있습니다.  
+또한 반환 값이 존재하는 'Composable'은 호출 구조가 제한 되어 '다른 Composable'과 자유롭게 조합하여 사용하기 어려워 집니다.
+
+**Do**
+```kotlin
+@Composable
+fun InputField(inputState: InputState) { /* ... */ }
+    
+// inputFiled와 통신은 순서에 의존하지 않음
+val inputState = remember { InputState() }
+
+Button("Clear input", onClick = { inputState.clear() })
+
+InputField(inputState)
+```
+
+**Don't**
+```kotlin
+@Composable
+fun InputField(): UserInputState { /* ... */ }
+
+// inputFiled와 통신이 어려움
+Button("Clear input", onClick = { TODO() })
+val inputState = InputField()
+```
