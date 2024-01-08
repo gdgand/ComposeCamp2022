@@ -333,3 +333,133 @@ fun InputField(): UserInputState { /* ... */ }
 Button("Clear input", onClick = { TODO() })
 val inputState = InputField()
 ```
+
+---
+
+## Compose UI API structure
+
+'Compose UI'는 'Compose runtime' 상 구축된 'UI 툴킷'을 말합니다.  
+이 섹션은 'UI 툴킷'을 사용하고 확장하는 API 가이드라인을 설명합니다.
+
+### Compose UI elements
+
+> - 'Composable'은 자신의 'root UI node'를 생성해야 함
+>   - 다른 'Composable'을 호출하여 해당 함수가 생성한 'UI 노드' 사용
+>   - `emit()`을 통해 'UI 트리'에 새로운 노드를 직접 추가
+> - 값을 반환하지 않는 'Composable'은 'declarative entities'로 간주되어 'Composition'의 일부로 포함됨
+>   - 'Composition'에서 벗어나면 'UI 트리'에서 제거되어 UI에 표시되지 않음
+> - 'Composable'의 파라미터를 통해 상태와 동작을 제공함으로 써, 상태 관리를 'Composable' 외부로 이동시키고 재사용성을 높임 
+> - 'Composable'은 반드시 `Modifier` 파라미터를 받아야 함
+>   - `Modifier`를 통해 공통 동작•스타일을 분리하여 세부적으로 관리할 수 있고 여러 'Composable'에 재사용 할 수 있음
+>   - `Modifier` 체인을 형성하여 여러 개의 `Modifier`를 조합하여 하나의 `Modifier`로 생성 후 사용 가능
+> - 'Composable Content'가 자연스러운 최소 크기를 가지는 경우, 기본 값으로 `companion object Modifier` 사용
+>   - `companion object Modifier` 사용 시, 'Composable Content'의 기본적인 크기와 동작을 보장 (예 : `Text` 컴포넌트)
+> - 'Composable Content'가 측정 가능한 최소 크기를 가지지 않는 경우, 기본 값 없이 `Modifier` 파라미터를 요구할 수 있음
+>   - 'Content' 크기나 모양이 외부에서 전달되는 `Modifier`에 의해 결정되어야 하는 상황에서 사용 (예 : `Canvas`)
+> - `Modifier` 체인을 끝에서 추가하여 `Modifier`의 적용 순서를 유지해야 함
+>   - 패딩을 배경색 전에 적용하면 배경색이 패딩 영역에도 적용되지만, 반대의 경우 배경색이 패딩 영역에 적용되지 않음
+
+Compose에서 'UI 트리 노드'를 생성하는 하나의 'Composable'을 `element`라고 합니다.
+
+```kotlin
+@Composable
+fun SimpleLabel(
+    text: String,
+    modifier: Modifier = Modifier
+)
+```
+
+#### Elements return Unit
+
+'element'는 자신의 'root UI node'를 생성해야 하며, 2가지 방법으로 수행될 수 있습니다.  
+1. `emit()`을 호출하여 'UI 트리'에 새로운 노드를 직접 추가합니다.  
+2. 다른 'Composable'을 호출하여, 그 함수가 생성하는 'UI 노드'를 '자신의 노드'로 사용합니다.
+
+여기서 'element'는 값을 반환해서는 안됩니다.   
+이는 'Composable'이 UI 구성에 집중하며, 외부로부터 데이터를 반환하거나 전달하는데 사용되지 않음을 의미합니다.
+
+현재 'Composition'의 상태에서 'element'의 동작이나 상태를 직접적으로 접근할 수 없는 경우, 'element'에 전달된 파라미터를 통해 제공해야 합니다.
+이는 'element'가 외부 상태에 의존하거나, 특정 동작을 필요로 하는 경우, 이러한 요구 사항을 파라미터로 전달되어야 함을 의미합니다.
+
+**why?**
+
+값을 반환하지 않는 'element'는 'declarative entities'로 간주되어, 'UI Composition'의 일부로 포함됩니다.  
+이 'element'들은 'Composition'에 포함되거나 제외되는 것으로 최종 UI에 어떻게 표시될 지를 결정합니다.
+
+'element'를 제어하는 방법은 파라미터로 제공되어야 하며, 'element'를 호출함으로써 반환되어서는 안됩니다.  
+이를 통해 상태와 'element'의 결합을 줄이고, 'element'의 재사용성을 높일 수 있습니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun FancyButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+)
+```
+
+**Don't**
+```kotlin
+interface ButtonState {
+    val clicks: Flow<ClickEvent>
+    val measuredSize: Size
+}
+
+@Composable
+fun FancyButton(
+    text: String,
+    modifier: Modifier = Modifier
+): ButtonState { ... }
+```
+
+#### Elements accept and respect a Modifier parameter
+
+모든 'element'는 `Modifier` 타입의 파라미터를 받아야 합니다. 
+이 파라미터는 'modifier'라는 이름을 가지며 파라미터 목록에서 첫 번째 파라미터로 나타나야 합니다.
+또한 'element'는 여러 개의 `Modifier` 파라미터를 받아서는 안됩니다.
+
+'element'의 'content'가 자연스럽게 최소 크기를 가질 경우, `Modifier` 파라미터의 기본 값은 `companion object`의 `Modifier` 타입으로 설정되어야 합니다.
+('natural minimum size' == 'minWidth - minHeight'의 제약이 0일 때, 즉 'non-zero size'로 측정되는 경우)  
+측정 가능한 'content' 크기가 없는 'element'는 기본 값 없이, `Modifier` 파라미터를 요구할 수 있습니다.
+
+'element'는 생성하는 'Compose UI node'에 'modifier' 파라미터를 전달해야 합니다.  
+이는 직접적으로 'UI node'를 생성하거나 다른 'element'를 호출할 때 적용됩니다.
+
+'element'는 전달 받은 'modifier' 파라미터에 추가적인 'modifier'들을 연결할 수 있으며, 이는 주로 파라미터 체인의 끝에 추가됩니다.  
+전달 받은 `Modifier` 파라미터의 시작 부분에 추가적인 'modifier'들을 연결해서는 안됩니다.
+
+**why?**
+
+`Modifier`는 'Compose UI'에서 'element'의 외부 동작, 레이아웃, 스타일 등을 추가하는 표준 수단 입니다.  
+이를 통해, 공통되는 동작이나 스타일을 'individual element' 또는 'base element' API로부터 분리할 수 있습니다.  
+결과적으로, 'element'를 더 작고 집중적인 표준 동작으로 만들 수 있으며, `Modifier`를 사용하여 'element'에 표준 동작을 장식할 수 있습니다.
+
+단일 `Modifier` 파라미터를 사용함으로써, `Modifier` 체인을 통해 필요한 변경사항을 효율적으로 적용할 수 있습니다.
+
+기본 값으로 `companion object Modifier`를 사용하게 되면, 'element'에 추가적인 스타일이나 동작을 적용하지 않아도, 기본적인 크기와 동작을 가지도록 보장합니다.
+기본 값 없이 `Modifier`를 요구하는 경우, 'element'의 크기나 모양이 외부에서 전달되는 `Modifier`에 의해 결정되어야 하기 때문에, 명시적으로 스타일이나 동작을 정의 받아야 합니다.
+
+`Modifier` 체인을 만드는 이유는 여러 개의 `Modifier`를 조합하여 하나의 'element'에 다양한 동작과 스타일을 적용하기 위함입니다.  
+여기서 `Modifier` 체인의 끝에만 추가적인 'modifier'를 연결하는 이유는, `Modifier`의 적용 순서를 유지하기 위함입니다.  
+이는 'modifier'의 순서가 'element'의 동작과 스타일에 영향을 줄 수 있기 때문입니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun FancyButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        modifier = modifier
+            .surface(eleveation = 4.dp)
+            .clickable(onClick = onClick)
+            .padding(16.dp)
+    )
+}
+```
