@@ -463,3 +463,27 @@ fun FancyButton(
     )
 }
 ```
+
+### Compose UI layouts
+
+> - layout : N개 이상의 `@Composable` 파라미터를 받는 Composable
+> - `@Composable` 파라미터 이름은 'content' 사용
+> - `@Composable` 파라미터가 N개의 경우, 가장 중요하거나 일반적인 파라미터에 'content' 이름 사용
+> - 'trailing lambda syntax' 사용을 위해 `@Composable` 파라미터는 항상 마지막 파라미터로 위치해야 함
+
+'Compose UI'에서 하나 이상의 `@Composable` 파라미터를 받는 'element'를 'layout(레이아웃)'으로 부릅니다.  
+'layout'은 UI 구조를 정의하는데 사용됩니다.
+
+```kotlin
+@Composable
+fun SimpleRow(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+)
+```
+
+'layout'에서 오직 하나의 `@Composable` 파라미터를 받는 경우, 코드 일관성과 가독성을 위해서, 이 파라미터의 이름을 'content'로 사용해야 합니다.
+만약 여러 개의 `@Composable` 파라미터를 받는 경우, 가장 중요하거나 일반적인 파라미터의 이름을 'content'로 사용해야 합니다. 
+'content' 이름을 가진 파라미터는 해당 'layout'의 핵심 콘텐츠를 나타내는 경우가 많기 때문입니다.
+
+kotlin의 'trailing lambda' 문법을 이용할 수 있도록 하기 위해, 'layout'에서 `@Composable` 파라미터는 항상 마지막 파라미터로 위치해야 합니다.
