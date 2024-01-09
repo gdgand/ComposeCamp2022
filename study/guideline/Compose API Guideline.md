@@ -487,3 +487,80 @@ fun SimpleRow(
 'content' 이름을 가진 파라미터는 해당 'layout'의 핵심 콘텐츠를 나타내는 경우가 많기 때문입니다.
 
 kotlin의 'trailing lambda' 문법을 이용할 수 있도록 하기 위해, 'layout'에서 `@Composable` 파라미터는 항상 마지막 파라미터로 위치해야 합니다.
+
+### Compose UI modifiers
+
+> - Modifier
+>   - `Modifier.Element` 구현 객체들의 불변하고, 정렬된 컬렉션
+>   - 'Compose UI'에서 'element'의 공통 동작과 스타일을 정의하는데 사용
+>   - 'element'의 크기, 패딩, 터치 이벤트 처리 등 다양한 목적으로 사용될 수 있음
+> - Modifier Chain
+>   - kotlin 확장 함수로 표현되는 빌더 문법을 사용하여 구성
+>   - `Modifier.Element` 구현 타입을 노출 X, `then`을 사용하여 'factory function'으로 노출 O
+> - Layout-scoped modifiers
+>   - LayoutParams : ViewGroup이 Child View를 어떻게 배치하고 크기를 조정하는지에 대한 지침을 제공
+>   - ParentDataModifier : 'Layout composable'에게 'Child composable'에 대한 추가 정보 제공 
+>   - 'Layout composable'에 ParentDataModifier 제공 시, Scoped modifier factory function 사용
+
+`Modifier`는 `Modifier.Element` 인터페이스를 구현하는 객체들의 'immutable, ordered collection' 입니다.  
+
+`Modifier`들은 'Compose UI element'에 적용할 보편적인 동작과 스타일을 정의하는데 사용될 수 있으며,
+다양한 'element'에 공통적으로 적용될 수 있는 기능을 가질 수 있습니다. 
+
+또한 개발자들은 `Modifier` 사용 시, 정확한 내부 메커니즘을 알 필요 없이 그저 원하는 결과를 얻을 수 있으며,   
+`Modifier` 자체가 다른 코드와 상호작용을 하지 않아, 하나의 `Modifier`가 다른 `Modifier` 동작에 영향을 주지 않습니다.
+
+`Modifier`의 예시로는 'element'의 크기 및 패딩 변경, 'element' 아래나 위에 내용을 그리는 것, 'element'의 터치 이벤트 처리 등 다양한 목적으로 사용될 수 있습니다.
+
+#### Modifier factory functions
+
+'Modifier 체인'은 'kotlin extension function'으로 표현되는 builder syntax를 사용하여 구성됩니다.
+
+```kotlin
+Modifier.preferredSize(50.dp)
+    .backgroundColor(Color.Blue)
+    .padding(10.dp)
+```
+
+`Modifier`는 자신의 `Modifier.Element` 인터페이스 구현 타입을 노출해서는 안됩니다.  
+이는 캡슐화를 유지하고, `Modifier`의 내부 구현을 숨기기 위함입니다.
+
+`Modifier`는 아래 스타일을 따라 'factory function'으로 노출되어야 합니다. 
+
+```kotlin
+fun Modifier.myModifier(
+    param1: ...,
+    param2: ...,
+): Modifier = this.then(MyModifierImpl(param1, param2))
+```
+
+#### Layout-scoped modifiers
+
+Android View 시스템에는 'LayoutParams' 개념이 있습니다.   
+이는 'ViewGroup'이 'Child View'를 어떻게 배치하고 크기를 조정하는지에 대한 지침을 제공합니다.
+
+`Modifier`는 `ParentDataModifier`와 함께 'Receiver Scope' 객체를 사용하여,  
+'`Modifier`를 적용하는 Composable'이 '다른 Composable'을 어떻게 배치하고 크기를 조정할지에 대한 패턴을 제공할 수 있습니다.
+
+```kotlin
+@Stable
+interface WeightScope {  // ReceiverScope
+    fun Modifier.weight(weight: Float): Modifier  // ParentDataModifier
+}
+
+@Composable
+fun WeightedRow( // ViewGroup
+    modifier: Modifier = Modifier,
+    content: @Composable WeightScope.() -> Unit // Child View
+) {
+    // ...
+}
+
+// Usage
+WeightedRow { 
+    Text("Hello", Modifier.weight(1f))
+    Text("World", Modifier.weight(2f))
+}
+```
+
+'Parent layout composable(ViewGroup)'에 특정 `ParentDataModifier`를 제공하기 위해 'Scoped modifier factory function'을 사용해야 합니다.
