@@ -564,3 +564,54 @@ WeightedRow {
 ```
 
 'Parent layout composable(ViewGroup)'에 특정 `ParentDataModifier`를 제공하기 위해 'Scoped modifier factory function'을 사용해야 합니다.
+
+---
+
+## Compose API design patterns
+
+### Prefer stateless and controlled @Composable functions
+
+> - Stateless Composable : 내부 상태 X, 필요한 상태를 파라미터로 전달 받아 사용하는 Composable
+> - Controlled Composable : 'Child Composable'에 전달한 상태를 완전히 제어할 수 있는 'Caller Composable' 
+
+'Stateless Composable'은 내부 상태를 유지하지 않고, 대신 필요한 상태를 파라미터로 전달 받아 사용하는 'Composable'을 의미합니다.  
+이 접근 방식은 상태 관리를 호출자에게 넘기고 재사용성을 높이는 데 도움이 됩니다.
+
+'Controlled Composable'은 호출자가 'Composable'에 전달한 상태를 완전히 제어 할 수 있음을 의미합니다.  
+예를 들어, `isChecked`로 상태를 받고, `onToggle`로 상태 변화를 처리하는 등 호출자가 상태를 완전히 제어할 수 있습니다.
+
+**Do**
+
+````kotlin
+@Composable
+fun Checkbox(
+    isChecked: Boolean,
+    onToggle: () -> Unit
+)
+
+// 호출자가 optIn을 변경하고, SSOT 역할을 수행
+Checkbox(
+    isChecked = myState.optIn,
+    onToggle = { myState.optIn = !myState.optIn }
+)
+````
+
+**Don't**
+
+```kotlin
+@Composable
+fun Checkbox(
+    initialValue: Boolean,
+    onChecked: (Boolean) -> Unit
+) {
+    var checkedState by remember { mutableStateOf(initialValue) }
+    // ...
+}
+
+// `Checkbox`가 `checkState`를 소유하고, 호출자는 변경 사항을 알림 받음
+// 호출자가 유효성 검사 정책을 쉽게 구현할 수 없음 
+Checkbox(
+    initialValue = myState.optIn,
+    onChecked = { myState.optIn = it }
+)
+```
