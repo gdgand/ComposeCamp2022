@@ -644,3 +644,53 @@ Compose `mutableStateOf()`는 'Snapshot system'을 기반으로 값을 관찰하
 
 'Composable'은 현재 상태를 기반으로 UI를 그리고, 상태 변화에 반응하여 UI를 업데이트 합니다.  
 이 상태는 'Composable' 파라미터로 전달될 수도 있고, 'Composable' 내부에서 `mutableStateOf()`를 통해 생성될 수 있습니다.
+
+### Hoisted state types
+
+> - Composable의 파라미터 목록이 커지면 관련 속성을 묶어 하나의 'Hoisted state' 타입으로 그룹화하는 것을 권장 
+>   - 'Hoisted state'는 `@Stable`과 함께 선언되고, `@Stable` [계약을 올바르게 구현](#stable-types)해야 함
+>   - 'Hoisted state' 명명 시, 관련된 'Composable'의 이름에 "State" 접미사를 붙여 작성
+
+'Stateless 파라미터'와 '다수의 이벤트 콜백 파라미터' 패턴은 규모가 커질수록 관리하기 어려워집니다.  
+'Composable'의 파라미터 목록이 커지면 상태와 콜백의 집합을 인터페이스로 분리하는 것이 적절할 수 있습니다.  
+이를 통해 호출자는 일관된 단일 객체를 제공할 수 있습니다.
+
+**Before**
+
+```kotlin
+@Composable
+fun VerticlaScroller(
+    scrollPosition: Int,
+    scrollRange: Int,
+    onScrollPositionChange: (Int) -> Unit,
+    onScrollRangeChange: (Int) -> Unit,
+)
+```
+
+**After**
+
+```kotlin
+@Stable
+interface VerticalScrollerState {
+    var scrollPosition: Int
+    var scrollRange: Int
+}
+
+@Composable
+fun VerticalScroller(
+    verticalScrollerState: VerticalScrollerState
+)
+```
+
+위의 예제에서, `VerticalScrollerState` 구현에서 정의된 상태 속성들에 대한 'getter/setter'를 정의할 수 있습니다.
+또한 이러한 구현으로 상태의 실제 저장 위치를 외부로 위임할 수 있습니다.
+
+Compose에서는 여러 정책 또는 기능들을 하나의 'Hoisted state' 타입으로 그룹화하는 것을 권장합니다.  
+위의 `VerticalScrollerState` 예제에서는 `scrollPosition`과 `scrollRange` 속성 간 의존성을 보여주며, 이들은 내부 일관성을 유지하는 것이 중요합니다.
+예를 들어, `scrollPosition` 값을 설정할 때, 이 값이 `scrollRange` 유효 범위 내에 있는지 확인해야 합니다.  
+만약 유효 범위를 벗어난다면, 적절한 방식으로 오류를 나타내거나 값을 조정해야 합니다.
+이처럼 관련된 속성들을 하나의 상태 객체로 그룹화함으로써, 일관성 유지가 간단해지며 더 효율적으로 상태 관리를 할 수 있습니다.
+
+'Hoisted state' 타입은 `@Stable`과 함께 선언하고, `@Stable` 계약을 올바르게 구현 해야 합니다. 
+
+'Hoisted state' 타입에 이름을 작성할 때, 그 이름은 관련된 'Composable'의 이름에 "State" 접미사를 붙여 작성해야 합니다.
