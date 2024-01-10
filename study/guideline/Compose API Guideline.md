@@ -615,3 +615,82 @@ Checkbox(
     onChecked = { myState.optIn = it }
 )
 ```
+
+### Separate state and events
+
+> - `mutableStateOf()`
+>   - 상태를 관찰 가능한 객체로 변환시켜, 상태가 변경될 때 관찰자에게 알림을 보냄
+>   - 이런 알림은 Compose UI의 ReComposition, ReLayout, ReDraw를 요청하기 위한 주요 메커니즘
+> - Observable event
+>   - 이벤트 발생 시, 등록된 모든 관찰자에게 알림을 보냄
+>   - 동일한 이벤트 반복 시, 등록된 관찰자는 이러한 이벤트를 모두 놓치지 않고 관찰해야 함
+> - Observable state
+>   - 상태 값이 변경될 때 변경 이벤트를 발생시키며, 
+>   - 가장 최신 상태만 처리함, 즉 연속적인 상태 변경이 일어날 때 중간 상태 값은 무시될 수 있음
+>   - 동일한 상태가 여러 번 호출되더라도, 항상 동일한 결과를 생성하는 멱등성을 가져야 함
+
+Compose `mutableStateOf()`는 'Snapshot system'을 기반으로 값을 관찰하고, 변경 되었을 때 관찰자에게 알릴 수 있습니다.  
+이는 Compose UI의 ReComposition, ReLayout, ReDraw를 요청하기 위한 주요 메커니즘 입니다.  
+이처럼 'observable state'를 효과적으로 다루기 위해서는 'State'와 'Event'를 구분하는 것이 중요합니다.
+
+'observable event'는 특정 시점에 발생하고 사라집니다. 'Event'가 발생되면 등록된 모든 관찰자에게 알림을 보냅니다.  
+이벤트 스트림의 모든 개별 이벤트는 서로 관련이 있다고 가정되며, 영향을 줄 수 있습니다.  
+또한 동일한 이벤트가 반복되면 등록된 관찰자는 이러한 이벤트를 모두 놓치지 않고 관찰해야 합니다.
+
+'observable state'는 'state'가 하나의 값에서 다른 값으로 변경될 때 변경 이벤트를 발생시킵니다.  
+연속적으로 상태 변경이 빠르게 발생할 때 '중간 상태 변경'을 처리하는 대신, 가장 최근의 상태만 처리합니다.  
+이는 상태 관찰자가 중간 상태를 건너뛰어 마지막 최종 상태만 처리됨을 의미합니다.  
+또한 상태 관찰자는 동일한 상태가 여러 번 호출 되더라도, 항상 동일한 결과를 생성하는 멱등성을 가져야 합니다.
+
+'Composable'은 현재 상태를 기반으로 UI를 그리고, 상태 변화에 반응하여 UI를 업데이트 합니다.  
+이 상태는 'Composable' 파라미터로 전달될 수도 있고, 'Composable' 내부에서 `mutableStateOf()`를 통해 생성될 수 있습니다.
+
+### Hoisted state types
+
+> - Composable의 파라미터 목록이 커지면 관련 속성을 묶어 하나의 'Hoisted state' 타입으로 그룹화하는 것을 권장 
+>   - 'Hoisted state'는 `@Stable`과 함께 선언되고, `@Stable` [계약을 올바르게 구현](#stable-types)해야 함
+>   - 'Hoisted state' 명명 시, 관련된 'Composable'의 이름에 "State" 접미사를 붙여 작성
+
+'Stateless 파라미터'와 '다수의 이벤트 콜백 파라미터' 패턴은 규모가 커질수록 관리하기 어려워집니다.  
+'Composable'의 파라미터 목록이 커지면 상태와 콜백의 집합을 인터페이스로 분리하는 것이 적절할 수 있습니다.  
+이를 통해 호출자는 일관된 단일 객체를 제공할 수 있습니다.
+
+**Before**
+
+```kotlin
+@Composable
+fun VerticlaScroller(
+    scrollPosition: Int,
+    scrollRange: Int,
+    onScrollPositionChange: (Int) -> Unit,
+    onScrollRangeChange: (Int) -> Unit,
+)
+```
+
+**After**
+
+```kotlin
+@Stable
+interface VerticalScrollerState {
+    var scrollPosition: Int
+    var scrollRange: Int
+}
+
+@Composable
+fun VerticalScroller(
+    verticalScrollerState: VerticalScrollerState
+)
+```
+
+위의 예제에서, `VerticalScrollerState` 구현에서 정의된 상태 속성들에 대한 'getter/setter'를 정의할 수 있습니다.
+또한 이러한 구현으로 상태의 실제 저장 위치를 외부로 위임할 수 있습니다.
+
+Compose에서는 여러 정책 또는 기능들을 하나의 'Hoisted state' 타입으로 그룹화하는 것을 권장합니다.  
+위의 `VerticalScrollerState` 예제에서는 `scrollPosition`과 `scrollRange` 속성 간 의존성을 보여주며, 이들은 내부 일관성을 유지하는 것이 중요합니다.
+예를 들어, `scrollPosition` 값을 설정할 때, 이 값이 `scrollRange` 유효 범위 내에 있는지 확인해야 합니다.  
+만약 유효 범위를 벗어난다면, 적절한 방식으로 오류를 나타내거나 값을 조정해야 합니다.
+이처럼 관련된 속성들을 하나의 상태 객체로 그룹화함으로써, 일관성 유지가 간단해지며 더 효율적으로 상태 관리를 할 수 있습니다.
+
+'Hoisted state' 타입은 `@Stable`과 함께 선언하고, `@Stable` 계약을 올바르게 구현 해야 합니다. 
+
+'Hoisted state' 타입에 이름을 작성할 때, 그 이름은 관련된 'Composable'의 이름에 "State" 접미사를 붙여 작성해야 합니다.
