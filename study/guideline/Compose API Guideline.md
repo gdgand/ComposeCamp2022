@@ -694,3 +694,91 @@ Compose에서는 여러 정책 또는 기능들을 하나의 'Hoisted state' 타
 'Hoisted state' 타입은 `@Stable`과 함께 선언하고, `@Stable` 계약을 올바르게 구현 해야 합니다. 
 
 'Hoisted state' 타입에 이름을 작성할 때, 그 이름은 관련된 'Composable'의 이름에 "State" 접미사를 붙여 작성해야 합니다.
+
+### Default policies through hoisted state objects
+
+> - 'Hoisted state' 타입을 인터페이스 작성 시 장점
+>   - 더 유연하고 확장 가능한 설계 가능
+>   - abstract or open 클래스에서 발생할 수 있는 복잡한 상태 동기화와 내부 일관성을 위한 요구 사항을 줄일 수 있음
+>   - 'Composable'과 'Hoisted state' 사이에 생기는 'private contracts' 억제하여 코드 명확성을 높일 수 있음
+> - 'Hoisted state object'는 'default argument'를 제공하고, 이를 기반으로 기본적인 상태 관리 로직을 제공 해야 함
+> - 'Hoisted state object'에서 호출자에게 `null` 제공 X 
+
+'Hoisted state object'의 사용자 정의 구현, 외부 위임 등을 하지 않고, 
+'kotlin default argument', `remember` API, 'Kotlin extension constructor' 패턴을 통해, 
+단순한 사용을 위한 기본 상태 처리 정책을 제공함과 동시에 원하는 경우 더 복잡한 사용을 위한 확장성을 제공할 수 있습니다.
+
+**Example**
+
+```kotlin
+private class VerticalScrollerStateImpl(
+    scrollPosition: Int = 0,
+    scrollRange: Int = 0
+): VerticalScrollerState {
+    
+    private var _scrollPosition by
+        mutableStateOf(scrollPosition, structuralEqualityPolicy())
+    
+    override var scrollPosition: Int
+        get() = _scrollPosition
+        set(value) { 
+            _scrollPosition = value.coerceIn(0, scrollRagne)
+        }
+    
+    private var _scrollRange by 
+        mutableStateOf(scrollRange, structuralEqualityPolicy())
+    
+    override var scrollRagne: Int
+        get() = _scrollRange
+        set(value) { 
+            reuqire(value >= 0) { "value must be > 0" }
+            _scrollRange = value
+            scrollPosition = scrollPosition
+        }
+}
+
+fun VerticalScrollerState(): VerticalScrollerState = 
+    VerticalScrollerStateImpl()
+
+@Composable
+fun VerticalScroller(
+    verticalScrollerState: VerticalScrollerState = remember { (VerticalScrollerState()) }
+) {
+    // ...
+}
+```
+
+'Hoisted state' 타입을 인터페이스로 선언하면, 최종적인 클래스가 아닌 경우에도 더 유연하고 확장 가능한 설계가 가능하게 됩니다.  
+만약, `abstract` or `open` 클래스로 선언하면, 내부적인 상태 동기화와 일관성을 위한 '숨겨진 요구 사항'이 발생되기 쉽습니다.  
+이러한 '요구 사항'은 상속을 통해 클래스를 확장하는 개발자가 유지하기 어려울 수 있습니다.  
+반면, 인터페이스는 이러한 복잡성을 줄이고 상태 관리를 더 명확하게 할 수 있습니다.
+또한 kotlin의 'internal scoped properties' 또는 메서드들을 통해, 
+'Composable'과 'Hoisted state' 사이에 생기는 'private contracts'를 강하게 억제할 수 있습니다.
+
+'Hoisted state object'는 호출하는 'Composable'에서 'state object'가 없는 경우를 대비하여, 'default argument'로 구현되는 기본 상태 관리 로직을 제공해야 합니다.
+
+'Hoisted state object'를 파라미터로 받는 'Composable'이, `null`을 받았을 때, 이를 "내부에서 상태를 생성하라" 라는 신호로 해석하면 문제가 발생될 수 있습니다. 
+만약 호출자가 `null`을 받아 특별하게 사용한다면, 예상치 못한 동작이나 일관성 없는 상태 관리가 발생될 수 있습니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun VerticalScroller(
+    verticalScrollerState: VerticalScrollerState = remember { (VerticalScrollerState()) }
+) {
+    // ...
+}
+```
+
+**Don't**
+
+```kotlin
+// 파라미터가 이쓴ㄴ 경우 기본적으로 `null`은 예기치 못한 동작이 발생될 수 있음
+@Composable
+fun VerticalScroller(
+    verticalScrollerState: VerticalScrollerState? = null
+) {
+    val realState = verticalScrollerState ?: remember { (VerticalScrollerState()) }
+}
+```
