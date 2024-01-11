@@ -774,7 +774,7 @@ fun VerticalScroller(
 **Don't**
 
 ```kotlin
-// 파라미터가 이쓴ㄴ 경우 기본적으로 `null`은 예기치 못한 동작이 발생될 수 있음
+// 파라미터가 있는 경우 기본적으로 `null`은 예기치 못한 동작이 발생될 수 있음
 @Composable
 fun VerticalScroller(
     verticalScrollerState: VerticalScrollerState? = null
