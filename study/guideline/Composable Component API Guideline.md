@@ -10,14 +10,14 @@
 
 > - 'Composable component'
 >   - 단일 책임을 가져야 함, 즉 하나의 문제를 해결해야 함
->   - 하나 이상의 문제가 있는 경우, 하위 수준의 'building block'이나 '서브 컴포넌트'로 분할해야 함
+>   - 하나 이상의 문제가 있는 경우, 'lower-level building block'이나 'sub-component'로 분할해야 함
 > - Lower-level 'building block' or 'sub-component'
->   - 특정한 단일 기능을 가지며, 다른 컴포넌트와 쉽게 결합될 수 있도록 설계되어야 함
+>   - 특정한 단일 기능을 가지며, 'other component'와 쉽게 결합될 수 있도록 설계되어야 함
 >   - 자체적으로 복잡한 기능을 수행하지 않지만, 서로 결합되어 더 크고 복잡한 UI 요소를 구성할 수 있음
 >   - 예시 : `Text`, `Image`, `TextField` 등 단일 기능
 > - Higher-level component
->   - Lover-level 'building block'이나 'sub-component'를 결합하여 더 큰 기능을 제공함
->   - 특정한 사용 사례나 기능에 맞춰져 있으며, 여러 하위 컴포넌트를 결합하여 '사용할 준비가 된 상태'를 제공함
+>   - 'lower-level building block'이나 'sub-component'를 결합하여 더 큰 기능을 제공함
+>   - 특정한 사용 사례나 기능에 맞춰져 있으며, '여러 sub-component'를 결합하여 '사용할 준비가 된 상태'를 제공함
 >   - 예시 : 로그인 폼, `TextField`(이메일 및 비밀번호 입력), `Button`(로그인 버튼), `Text`(Regex 오류) 등 조합
 
 "새로운 컴포넌트 생성 시 고려사항"과 같이 컴포넌트는 하나의 문제만 해결하고, 그 곳에서 해결되야 됩니다.  
@@ -150,3 +150,59 @@ Column(
 
 이처럼, 새로운 컴포넌트 생성은 개발, 테스팅, 장기적인 지원 및 API 업데이트 등 대한 비용이 많이 발생할 수 있기에,
 새로운 컴포넌트를 만드는 것이 실제로 필요한지, 그리고 그 가치가 이런 비용을 정당화할 수 있는지 고려해야 합니다.
+
+### Component or Modifier
+
+> - Component 사용 시기
+>   - 'UI 구조적 변경' 및 'other component에 적용 불가능한 독특한 UI 구성'이 필요한 경우
+>   - 'Composable' 계층 구조 변경이 필요한 경우 (enter/leave Composition)
+> - Modifier 사용 시기
+>   - 임의의 단일 컴포넌트에 특정 동작이나 기능을 추가하는 경우
+
+다른 컴포넌트에 적용할 수 없는 독특한 UI 또는 UI의 구조적 변경('add/remove other component')이 필요한 경우에만 컴포넌트를 만들어야 합니다.
+
+그 외, 임의의 단일 컴포넌트에 동작이나 기능을 추가해야 하는 경우, `Modifier`를 사용해야 합니다.  
+이는, 특정 기능을 동시에 여러 UI 컴포넌트에 적용할 때 예상치 못한 동작을 할 수 있으므로, `Modifier`를 사용하는 것이 적절합니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun Padding(allSides: Dp) { 
+    // Impl 
+}
+
+Padding(12.dp) {
+    UserCard()
+    UserPicture()
+}
+```
+
+**Do**
+
+```kotlin
+fun Modifier.padding(allSides: Dp): Modifier = // implementation
+
+UserCard(modifier = Modifier.padding(12.dp))
+```
+
+특정 기능이 어떤 'Composable'에도 적용이 가능하지만, 'Composable' 계층 구조를 변경해야 하는 경우(enter/leave Composition)
+`Modifier`는 계층 구조를 변경할 수 없으므로, 컴포넌트를 사용해야 합니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun AnimatedVisiblity(
+    visible: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    // implementation
+}
+
+// usage
+AnimatedVisiblity(visible = false) { 
+    UserCard()
+}
+```
