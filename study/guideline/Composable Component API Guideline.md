@@ -58,3 +58,40 @@ fun ToggleButton(
     onCheckedChange: (Boolean) -> Unit
 )
 ```
+
+### Component layering
+
+> - 'Composable component' 생성
+>   - 순서 : 'lower-level building block' 생성 → 'higher-level component' 생성
+>   - lower → higher 이동됨에 따라 구체적인 패턴이 제시되고, 커스터마이징 옵션을 줄여야 함
+
+컴포넌트 생성 시, 컴포넌트가 작동하는 데 필요한 'single purpose building block'을 먼저 제공해야 합니다.  
+또한 하위 수준에서 상위 수준으로 이동함에 따라 구체적인 패턴을 제시하고, 커스터마이징 할 수 있는 옵션을 줄여야 합니다. 
+
+하위 수준의 컴포넌트는 개발자가 많은 부분을 자유롭게 조정할 수 있으며, 기본적이고 범용적인 기능을 제공하여 다양한 상황에 맞춰서 사용할 수 있도록 합니다. 
+반면, 상위 수준의 컴포넌트는 특정한 사용 사례나 목적에 맞게 미리 설정된 옵션과 스타일을 가지고 있습니다. 이는 개발자가 더 빠르고 쉽게 특정 기능을 구현할 수 있지만 커스터마이징 할 수 있는 옵션은 적습니다. 
+
+`@Composable`은 Compsoe에서 쉽게 생성될 수 있도록 설계 되었으므로, 개발자가 단일 목적 컴포넌트를 생성하고 필요에 따라 조정할 수 있습니다.
+
+**Do**
+
+```kotlin
+// single purpose building blocks component
+@Composable
+fun Checkbox(...) { ... }
+
+@Composable
+fun Text(...) { ... }
+
+@Composable
+fun Row(...) { ... }
+
+// high level component
+@Composable
+fun CheckboxRow() {
+    Row {
+        Checkbox(...)
+        Text(...)
+    }
+}
+```
