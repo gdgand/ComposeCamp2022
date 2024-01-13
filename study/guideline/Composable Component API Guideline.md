@@ -206,3 +206,102 @@ AnimatedVisiblity(visible = false) {
     UserCard()
 }
 ```
+
+---
+
+## Name of a Component
+
+### BasicComponent vs Component
+
+> - BasicComponent
+>   - 디자인이나 추가적인 기능이 최소화 되어 있으며, 컴포넌트의 기본적인 기능을 제공함
+>   - 필요한 스타일링 또는 기능을 추가하여 프로젝트 요구사항에 맞게 커스터마이징 할 수 있음
+> - Component
+>   - 특정 디자인 시스템이나 스타일링을 가지고 있으며, 추가적인 작업 없이 바로 사용 가능
+>   - 더 복잡한 디자인 가이드라인을 따르며, 프로젝트의 일관된 UI 구성을 위해 사용 
+
+'Basic' 접두사를 가진 컴포넌트는 가장 간단한 형태로 구현되어 제공합니다. 즉, 복잡한 스타일이나 추가적인 기능을 포함하지 않습니다. 
+이는 개발자가 'BasicComponent'에 스타일링이나 기능을 추가하여 커스터마이징 할 수 있음을 의미합니다.  
+
+이와 대조적으로 접두사가 없는 컴포넌트는 어떠한 디자인 시스템이나 스타일링을 가지고 있으며, 바로 사용할 준비가 된 컴포넌트를 나타냅니다.
+즉, 추가적인 커스타마이징 없이도 바로 사용될 수 있으며, 더 복잡하고 구체적인 디자인 가이드라인이 적용된 컴포넌트 입니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun BasicTextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    ...
+)
+
+@Composable
+fun TextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    ...
+)
+```
+
+### Design, Usecase or Company/Project specific prefixes
+
+> - Component 이름에 Company, Module 이름 등의 접두사를 사용하지 않는 것이 좋음
+> - Compose Layer 중 'foundation', 'ui' 등을 기반으로 컴포넌트 구축 시, 비접두사로(`Button`, `Icon` 등) 제공 가능
+> - 컴포넌트 래핑 또는 다른 디자인 시스템을 확장하여 컴포넌트 구축 시, 'Usecase'에서 파생된 이름 사용 권장
+>   - 불가능하거나, 기존 컴포넌트와 충돌 발생 시, `GlideImage`와 같이 '모듈/라이브러리' 접두사 사용 가능
+> - 특정 디자인 시스템이 유사한 컴포넌트를 제공하지만 다양한 스타일을 갖는 경우, 'specification' 접두사 사용 권장
+> - 여러 컴포넌트에서 각각 다른 접두사를 가지고 있다면, 기본 컴포넌트를 선택하여 접두사 없이 사용 권장
+
+컴포넌트 이름에 회사 이름(GoogleButton)이나 모듈 이름(WearButton)과 같은 접두사를 사용하는 것을 피하는 것이 좋습니다.  
+이는 컴포넌트의 범용성을 제한하고, 특정 회사나 모듈에만 국한된 느낌을 줄 수 있습니다.  
+필요한 경우, 컴포넌트가 수행하는 'UseCase 또는 Domain'을 반영하는 이름을 사용하는 것이 좋습니다.
+
+만약 'compose-foundation'이나 'compose-ui'와 같은 'basic building block' 컴포넌트를 기반으로 구축 하는 경우,   
+대부분의 비접두사 이름(`Button`, `Icon` 등)은 개발자에게 충돌 없이 제공 될 수 있습니다.  
+이러한 이름은 컴포넌트가 프로젝트 내에서 중요하고 기본적인 요소로 인식될 수 있도록 합니다. ('first-class' 처럼 느끼기 해줌)
+
+'building block' 컴포넌트를 래핑하거나, 'Material'과 같이 다른 디자인 시스템을 기반으로 구축하는 경우, 
+`ScalingLazyColumn`, `CurvedText`과 같이, 'Usecase'에서 파생된 이름을 사용하는 것을 권장합니다.  
+만약 'Usecase' 기반 이름 사용이 불가능하거나, 새로운 컴포넌트가 기존 컴포넌트와 충돌하는 경우, 
+`GlideImage`와 같이 '모듈/라이브러리' 접두사를 사용할 수 있습니다.
+
+특정 디자인 시스템이 유사한 컴포넌트를 제공하지만, 다양한 스타일을 갖는 경우,  
+`ContainedButton`, `OutlinedButton`, `SuggestionChip`와 같이, 'specification' 접두사를 사용하여 '스타일' 패턴을 피하고 API를 단순하게 유지할 수 있습니다.
+
+만약 여러 컴포넌트가 있고 각각 다른 접두사를 가지고 있다면, 그 중에서 가장 일반적으로 사용될 것으로 예상되는 컴포넌트를 선택하여 기본 컴포넌트로 선택하여 접두사 없이 사용하는 것이 좋습니다.
+예를 들어, `Button`, `OutlinedButton`, `TextButton`과 같은 컴포넌트가 있다면, `Button`을 접두사 없이 사용하고, 나머지 컴포넌트는 접두사를 사용하는 것이 좋습니다.
+
+**Do**
+
+```kotlin
+// ContainedButton.kt
+
+// `ContainedButton`으로 명시 되었지만, 가장 일반적인으로 사용되는 버튼이므로 접두사 없이 사용
+@Composable
+fun Button(...)
+
+@Composable
+fun OutlineButton(...)
+
+@Composable
+fun TextButton(...)
+
+@Composable
+fun GlideImage(...)
+```
+
+'compose-foundation' 기반 라이브러리
+
+```kotlin
+// Package com.company.project
+// 해당 컴포넌트들은 material, material3 의존 하지 않고, foundation 라이브러리 기반 구축
+
+@Composable
+fun Button(...) // 기본 버튼
+
+@Composable
+fun TextField(...) // 기본 텍스트 필드
+```
