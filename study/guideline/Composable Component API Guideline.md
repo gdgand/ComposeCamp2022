@@ -95,3 +95,58 @@ fun CheckboxRow() {
     }
 }
 ```
+
+### Do you need a component?
+
+컴포넌트를 생성하기 전 실제로 필요한지, 아래와 같은 고민을 해야 합니다.
+
+- 상위 컴포넌트 생성 전, 실제로 해결할 문제가 있는지 또는 기존에 있는 'building block'으로 해결 가능한 지?
+  - 단순한 기능 추가로 인한 새로운 컴포넌트 생성은 비효율적
+- 상위 컴포넌트 생성 전, 'basic building block'으로 컴포넌트로 구현 가능한 지?
+  - 구현이 가능하다면, 이는 더 큰 유연성을 가지며, 불필요한 복잡성을 피할 수 있음
+- 컴포넌트를 직접 구현하는 것보다, 상위 컴포넌트를 생성하여 사용하는 것이 더 나은 가치를 제공하는 지?
+  - 컴포넌트 생성 시, 해당 컴포넌트의 구현을 배워야만 하는 부담이 있을 수 있음
+
+예를 들어, `RadioGroup` 컴포넌트를 만들 때, 다양한 레이아웃과 데이터 유형을 지원해야 하기 위해, 다음과 같이 설계 할 수 있습니다.
+
+```kotlin
+@Composable 
+fun <T> RadioGroup(
+    options: List<T>,
+    orientation: Orientation,
+    contentPadding: PaddingValues,
+    modifier: Modifier = Modifier,
+    optionContent: @Composable (T) -> Unit
+)
+```
+
+위 `RadioGroup` 컴포넌트를 'basic building block'을 사용하여 다음과 같이 작성할 수 있습니다.
+
+```kotlin
+Column(
+    modifier = Modifier.selectableGroup()
+) {
+    options.forEach { item -> 
+        Row(
+            modifier = Modifier.selectable(
+                selected = (select.value == item),
+                onClick = { select.value = item }
+            ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = item.toString())
+            RadioButton(
+                selected = (select.value == item),
+                onClick = { select.value = item }
+            )
+        }
+    }
+}
+```
+
+위 예시와 같이 `Row`, `Text`, `RadioButton` 등의 'basic building block'을 사용하여 직접 구현할 수 있습니다.  
+이런 구현은 필요한 레이아웃을 정의하거나 커스터마이징이 가능한 유연성을 얻을 수 있습니다.  
+이로 인해, `RadioGroup`을 도입하는 것이 좋지 않은 선택일 수 있습니다.
+
+이처럼, 새로운 컴포넌트 생성은 개발, 테스팅, 장기적인 지원 및 API 업데이트 등 대한 비용이 많이 발생할 수 있기에,
+새로운 컴포넌트를 만드는 것이 실제로 필요한지, 그리고 그 가치가 이런 비용을 정당화할 수 있는지 고려해야 합니다.
