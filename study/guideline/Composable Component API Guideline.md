@@ -305,3 +305,322 @@ fun Button(...) // 기본 버튼
 @Composable
 fun TextField(...) // 기본 텍스트 필드
 ```
+
+---
+
+## Component dependencies
+
+### Prefer multiple components over style classes
+
+> `ComponentStyle` 또는 `ComponentConfiguration`과 같은 일반적인 스타일 파라미터나 클래스 사용을 피하고, 
+> 'styling' 또는 'Usecase'에 맞는 더 명확한 'Composable'을 제공하는 것이 좋음
+
+`ComponentStyle` 이나 `ComponentConfiguration`과 같은 일반적인 스타일 파라미터나 클래스 사용을 피하고,
+의존성을 세밀하고 의미있게 표현해야 합니다.
+
+'동일 타입 서브 컴포넌트 집합'이 동일한 구성이나 스타일을 가져야 할 때, 
+개발자는 컴포넌트를 래핑하거나 'lower-level building block'을 사용하여 맞춤형 컴포넌트를 만드는 것이 좋습니다. 
+이렇게 하면 각 컴포넌트가 특정한 목적이나 스타일에 맞춰 조정될 수 있습니다.
+
+`ComponentStyle`을 사용하여 다양한 컴포넌트 타입을 지정하는 대신, 
+스타일링과 usecase에서의 차이를 나타내는 별도의 `@Composable` 함수를 제공하는 것이 좋습니다. 
+
+
+**Don't**
+
+```kotlin
+class ButtonStyles(
+    background: Color,
+    border: BorderStroke,
+    textColor: Color,
+    shape: Shape,
+    contentPadding: PaddingValues
+)
+
+val PrimaryButtonStyle = ButtonStyle(...)
+val SecondaryButtonStyle = ButtonStyle(...)
+val AdditiveButtonStyle = ButtonStyle(...)
+
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    style: ButtonStyle = PrimaryButtonStyle
+) {
+    // implementation
+}
+
+// usage
+val myLoginStyle = ButtonStyle(...)
+Button(onClick = { /*...*/ }, style = myLoginStyle)
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun PrimaryButton(
+    onClick: () -> Unit,
+    background: Color,
+    border: BorderStroke,
+    // other relevant parameters
+) {
+    // impl
+}
+
+@Composable
+fun SecondaryButton(
+    onClick: () -> Unit,
+    background: Color,
+    border: BorderStroke,
+    // other relevant parameters
+) {
+    // impl
+}
+
+// usage 1:
+PrimaryButton(
+    onClick = { /*...*/ },
+    background = Color.Blue,
+    border = BorderStroke(1.dp, Color.Black)
+)
+
+// usage 2:
+@Composable
+fun MyLoginButton(
+    onClick: () -> Unit
+) {
+    SecondaryButton(
+        onClick = onClick,
+        background = Color.Red,
+        border = BorderStroke(1.dp, Color.Black)
+    )
+}
+```
+
+### Explicit vs Implicit dependencies
+
+> - 컴포넌트의 '명시적 입력'은 동작 예측과 재정의, 테스트, 사용성을 향상시킴
+>   - 명시적 입력 : Composable 파라미터 전달
+> - 컴포넌트의 '암시적 입력'은 사용성을 복잡하게 하고, 값의 출처를 추적하기 어렵게 만듬
+>   - 암시적 입력 : `CompositionLocal` 또는 `Local`을 통해 값 제공
+>   - Theme, Typography, ColorScheme 등, Application-Screen 단위에 일관된 값을 제공해야 하는 경우 `CompositionLocal` 사용을 고려 할 수 있음
+>   - `CompositionLocal` 사용 시, 'Composable' 파라미터의 기본 값으로 사용하여 개발자가 쉽게 재정의 할 수 있도록 해야 함
+
+컴포넌트에서는 'explicit input'과 'configuration options'을 선호해야 합니다.   
+컴포넌트의 'explicit input'은 컴포넌트의 동작을 예측하고, 조정하고, 테스트하고, 사용하기 쉽게 만듭니다.
+
+`CompositionLocal` 또는 다른 유사한 메커니즘을 통해 제공되는 'implicit input'을 피해야 합니다.  
+'implicit input'은 컴포넌트의 사용성을 복잡하게 하고, 개발자가 커스터마이징의 출처를 추적하기 어렵게 만듭니다.  
+'implicit input'을 피하기 위해서는, 개발자가 원하는 'explicit input'의 부분 집합으로 커스터마이징 컴포넌트를 쉽게 만들 수 있게 해야 합니다.
+
+**Don't**
+
+```kotlin
+// 특정 컴포넌트 커스터마이징을 위한 CompositionLocal 피하기
+// CompositionLocal은 암시적이기에, 컴포넌트의 변경, 테스트, 사용을 어렵게 함
+val LocalButtonBorder = compositionLocalOf<BorderStroke>(...)
+
+@Composable
+fun Button(
+    onClick: () -> Unit,
+) {
+    val border = LocalButtonBorder.current
+}
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    // explicit parameter, default value를 가짐 
+    border: BorderStroke = ButtonDefaults.borderStroke,
+) {
+    // impl
+}
+```
+
+MaterialTheme, Typography, ColorScheme 등과 같이 Application, Screen 전체에 일관되게 적용해야 하는 경우, `CompositionLocal`을 사용하여 암시적으로 제공할 수 있습니다.
+이를 수행 할 때, `CompositionLocal`이 컴포넌트 파라미터의 기본 값으로만 사용되고, 개발자가 필요에 따라 쉽게 재정의 할 수 있도록 해야 합니다.
+이는 개별 컴포넌트의 유연성과 전체 앱의 일관성을 유지하는데 도움이 됩니다.
+
+따라서 컴포넌트는 자체 구현에서 직접적으로 `CompositionLocal`을 읽어오기보다는, 파라미터 기본 값에서 읽어오는 것이 좋습니다.
+
+**Don't**
+
+```kotlin
+class Theme(val mainAppColor: Color)
+val LocalAppTheme = compositionLocalOf { Theme(Color.Green) }
+
+@Composable
+fun Button(
+    onClick: () -> Unit,
+) {
+    val buttonColor = LocalAppTheme.current.mainAppColor
+    // use theme
+}
+```
+
+**Do**
+
+```kotlin
+class Theme(val mainAppColor: Color)
+val LocalAppTheme = compositionLocalOf { Theme(Color.Green) }
+
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    backgroundColor: Color = LocalAppTheme.current.mainAppColor
+) {
+    // use theme
+}
+```
+
+---
+
+## Component parameters
+
+### Parameters vs Modifier on the component
+
+> '파라미터'는 컴포넌트의 기본 동작이나 특징 설정에 중점, `Modifier`는 스타일링 또는 레이아웃 조정에 중점
+
+파라미터는 컴포넌트의 기본적인 동작이나 특징을 설정하는데 중점을 두어야 합니다.  
+반면, `Modifier`는 스타일링 또는 레이아웃을 조정하는데 사용되어야 합니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun Image(
+    bitmap: ImageBitmap,
+    // 핵심 기능이 아닐 경우, `Modifier.clickble`을 통해 추가 가능 
+    onClick: () -> Unit = { },
+    modifier: Modifier = Modifier,
+    // `Modifire.clip(CircleShape)`을 통해 지정 가능
+    clipToCircle: Boolean = false
+)
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colors.primary
+)
+```
+
+### `modifier` parameter
+
+> - 컴포넌트는 `Modifier` 타입 파라미터를 가져야 하며, 단 하나의 `Modifier` 파라미터만 가져야 함
+> - 컴포넌트는 첫 번째 optional parameter 이어야 함
+> - 컴포넌트는 no-op `Modifier`를 기본 값으로 가져야 함
+> - 컴포넌트는 `Modifier`는 컴포넌트의 가장 루트에 가까운 레이아웃에 첫 번째로 한 번 적용되어야 함
+
+UI를 생성하는 컴포넌트는 모두 `Modifier` 파라미터를 가져야 하며, 다음을 준수하여야 합니다.
+
+- `Modifier` 타입을 가져야 합니다.
+  - 컴포넌트가 다양한 `Modifier`를 수용할 수 있도록 하여, 컴포넌트 스타일링과 동작을 유연하게 할 수 있습니다.
+- 첫 번째 'optional parameter' 이어야 합니다.
+  - 컴포넌트가 기본 크기를 가진 경우, `modifier`를 선택 파라미터로 받을 수 있습니다.
+  - 컴포넌트의 기본 크기가 0인 경우, `modifier`를 필수 파라미터로 받아야 합니다.
+  - `modifier`는 모든 컴포넌트에 권장되어 자주 사용되므로, 이를 첫 번째로 두면 명명된 파라미터 없이 설정할 수 있으며, 모든 컴포넌트에서 일관성 있게 사용할 수 있습니다.
+- no-op(연산 없음) `Modifier`를 기본 값으로 가집니다.
+  - `modifier` 파라미터가 제공되지 않았을 때 컴포넌트의 기본 동작이나 외형에 영향을 주지 않도록 합니다.
+- `Modifier` 타입의 파라미터가 하나만 있어야 합니다.
+  - `Modifier`는 컴포넌트의 외형이나 동작을 수정하는데 사용되므로, 하나의 `Modifier` 만으로 충분합니다.
+  - 여러 `Modifier`가 필요하다고 판단된 경우, 컴포넌트의 설계를 다시하는 것이 좋습니다. (예 : 컴포넌트를 두 개로 분할)
+- `Modifier`는 컴포넌트의 가장 루트에 가까운 레이아웃에 첫 번째로 한 번 적용되어야 합니다.
+  - `Modifier`가 체인의 첫 번째로 적용되면, 이를 기반으로 모든 후속 `modifier`를 적용합니다.
+  - 파라미터로 전달된 `modifier`에 다른 `modifier`를 체인으로 연결할 수 있습니다.
+
+**Why?**
+
+Compose를 사용하는 개발자들은 `Modifier`를 통해 컴포넌트의 크기, 위치, 패딩, 클릭 이벤트 등을 쉽게 조절할 수 있음을 알고 있습니다.
+본질적으로 파라미터로 입력되는 `modifier`는 외부 컴포넌트의 동작과 외형을 수정하는 방법을 제공하는 반면, 컴포넌트 구현에서는 내부 동작과 외형을 책임집니다.
+
+**Don't**
+
+```kotlin
+// modifier parameter 없음
+@Composable
+fun Icon(
+    bitmap: ImageBitmap,
+    tint: Color = Color.Black,
+)
+
+// 첫 번째 modifier optional parameter가 아님
+// 개발자가 modifier를 설정하는 즉시 padding이 손실됨
+@Composable
+fun Icon(
+    bitmap: ImageBitmap,
+    tint: Color = Color.Black,
+    modifier: Modifier = Modifier.padding(8.dp),
+)
+
+// 아래 modifier들은 CheckboxRow 외부 동작을 지정하기 위해 의도된게 아닌, 
+// 하위 부분을 수정하는 데 사용됨
+@Composable
+fun CheckboxRow(
+    checked: Boolean,
+    onChckedChange: (Boolean) -> Unit,
+    rowModifier: Modifier = Modifier,
+    checkboxModifier: Modifier = Modifier,
+)
+
+// modifier는 가장 가까운 루트 레이아웃에 첫 번째로 적용해야 하고,
+// 이를 체인의 첫 번째 요소로 사용해야 함
+@Composable
+fun IconButton(
+    buttonBitmap: ImageBitmap,
+    modifier: Modifier = Modifier,
+    tint: Color = Color.Black
+) {
+    Box(
+        modifier = Modifier.padding(16.dp)
+    ) {
+        Icon(
+            bitmap = buttonBitmap,
+            tint = tint,
+            modifier = Modifier
+                .aspectRatio(1f)
+                .then(modifier)
+        )
+    }
+}
+```
+
+**Do**
+```kotlin
+@Composable
+fun IconButton(
+    buttonBitmap: ImageBitmap,
+    modifier: Modifier = Modifier,
+    tint: Color = Color.Black
+) {
+    Box(
+        modifier = modifier.padding(16.dp)
+    ) {
+        Icon(
+            bitmap = buttonBitmap,
+            tint = tint,
+            modifier = Modifier.aspectRatio(1f)
+        )
+    }
+}
+
+@Composable
+fun ColoredCanvas(
+    modifier: Modifier,
+    color: Color = Color.White,
+) {
+    Box(
+        modifier = modifier.background(color)
+    ) {
+        // ...
+    }
+}
+```
