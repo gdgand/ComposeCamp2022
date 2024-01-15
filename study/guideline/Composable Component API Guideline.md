@@ -305,3 +305,94 @@ fun Button(...) // 기본 버튼
 @Composable
 fun TextField(...) // 기본 텍스트 필드
 ```
+
+---
+
+## Component dependencies
+
+### Prefer multiple components over style classes
+
+> `ComponentStyle` 또는 `ComponentConfiguration`과 같은 일반적인 스타일 파라미터나 클래스 사용을 피하고, 
+> 'styling' 또는 'Usecase'에 맞는 더 명확한 'Composable'을 제공하는 것이 좋음
+
+`ComponentStyle` 이나 `ComponentConfiguration`과 같은 일반적인 스타일 파라미터나 클래스 사용을 피하고,
+의존성을 세밀하고 의미있게 표현해야 합니다.
+
+'동일 타입 서브 컴포넌트 집합'이 동일한 구성이나 스타일을 가져야 할 때, 
+개발자는 컴포넌트를 래핑하거나 'lower-level building block'을 사용하여 맞춤형 컴포넌트를 만드는 것이 좋습니다. 
+이렇게 하면 각 컴포넌트가 특정한 목적이나 스타일에 맞춰 조정될 수 있습니다.
+
+`ComponentStyle`을 사용하여 다양한 컴포넌트 타입을 지정하는 대신, 
+스타일링과 usecase에서의 차이를 나타내는 별도의 `@Composable` 함수를 제공하는 것이 좋습니다. 
+
+
+**Don't**
+
+```kotlin
+class ButtonStyles(
+    background: Color,
+    border: BorderStroke,
+    textColor: Color,
+    shape: Shape,
+    contentPadding: PaddingValues
+)
+
+val PrimaryButtonStyle = ButtonStyle(...)
+val SecondaryButtonStyle = ButtonStyle(...)
+val AdditiveButtonStyle = ButtonStyle(...)
+
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    style: ButtonStyle = PrimaryButtonStyle
+) {
+    // implementation
+}
+
+// usage
+val myLoginStyle = ButtonStyle(...)
+Button(onClick = { /*...*/ }, style = myLoginStyle)
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun PrimaryButton(
+    onClick: () -> Unit,
+    background: Color,
+    border: BorderStroke,
+    // other relevant parameters
+) {
+    // impl
+}
+
+@Composable
+fun SecondaryButton(
+    onClick: () -> Unit,
+    background: Color,
+    border: BorderStroke,
+    // other relevant parameters
+) {
+    // impl
+}
+
+// usage 1:
+PrimaryButton(
+    onClick = { /*...*/ },
+    background = Color.Blue,
+    border = BorderStroke(1.dp, Color.Black)
+)
+
+// usage 2:
+@Composable
+fun MyLoginButton(
+    onClick: () -> Unit
+) {
+    SecondaryButton(
+        onClick = onClick,
+        background = Color.Red,
+        border = BorderStroke(1.dp, Color.Black)
+    )
+}
+```
