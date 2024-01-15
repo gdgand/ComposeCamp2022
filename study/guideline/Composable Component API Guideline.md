@@ -476,3 +476,39 @@ fun Button(
     // use theme
 }
 ```
+
+---
+
+## Component parameters
+
+### Parameters vs Modifier on the component
+
+> '파라미터'는 컴포넌트의 기본 동작이나 특징 설정에 중점, `Modifier`는 스타일링 또는 레이아웃 조정에 중점
+
+파라미터는 컴포넌트의 기본적인 동작이나 특징을 설정하는데 중점을 두어야 합니다.  
+반면, `Modifier`는 스타일링 또는 레이아웃을 조정하는데 사용되어야 합니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun Image(
+    bitmap: ImageBitmap,
+    // 핵심 기능이 아닐 경우, `Modifier.clickble`을 통해 추가 가능 
+    onClick: () -> Unit = { },
+    modifier: Modifier = Modifier,
+    // `Modifire.clip(CircleShape)`을 통해 지정 가능
+    clipToCircle: Boolean = false
+)
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colors.primary
+)
+```
