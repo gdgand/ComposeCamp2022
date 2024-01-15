@@ -512,3 +512,115 @@ fun Button(
     backgroundColor: Color = MaterialTheme.colors.primary
 )
 ```
+
+### `modifier` parameter
+
+> - 컴포넌트는 `Modifier` 타입 파라미터를 가져야 하며, 단 하나의 `Modifier` 파라미터만 가져야 함
+> - 컴포넌트는 첫 번째 optional parameter 이어야 함
+> - 컴포넌트는 no-op `Modifier`를 기본 값으로 가져야 함
+> - 컴포넌트는 `Modifier`는 컴포넌트의 가장 루트에 가까운 레이아웃에 첫 번째로 한 번 적용되어야 함
+
+UI를 생성하는 컴포넌트는 모두 `Modifier` 파라미터를 가져야 하며, 다음을 준수하여야 합니다.
+
+- `Modifier` 타입을 가져야 합니다.
+  - 컴포넌트가 다양한 `Modifier`를 수용할 수 있도록 하여, 컴포넌트 스타일링과 동작을 유연하게 할 수 있습니다.
+- 첫 번째 'optional parameter' 이어야 합니다.
+  - 컴포넌트가 기본 크기를 가진 경우, `modifier`를 선택 파라미터로 받을 수 있습니다.
+  - 컴포넌트의 기본 크기가 0인 경우, `modifier`를 필수 파라미터로 받아야 합니다.
+  - `modifier`는 모든 컴포넌트에 권장되어 자주 사용되므로, 이를 첫 번째로 두면 명명된 파라미터 없이 설정할 수 있으며, 모든 컴포넌트에서 일관성 있게 사용할 수 있습니다.
+- no-op(연산 없음) `Modifier`를 기본 값으로 가집니다.
+  - `modifier` 파라미터가 제공되지 않았을 때 컴포넌트의 기본 동작이나 외형에 영향을 주지 않도록 합니다.
+- `Modifier` 타입의 파라미터가 하나만 있어야 합니다.
+  - `Modifier`는 컴포넌트의 외형이나 동작을 수정하는데 사용되므로, 하나의 `Modifier` 만으로 충분합니다.
+  - 여러 `Modifier`가 필요하다고 판단된 경우, 컴포넌트의 설계를 다시하는 것이 좋습니다. (예 : 컴포넌트를 두 개로 분할)
+- `Modifier`는 컴포넌트의 가장 루트에 가까운 레이아웃에 첫 번째로 한 번 적용되어야 합니다.
+  - `Modifier`가 체인의 첫 번째로 적용되면, 이를 기반으로 모든 후속 `modifier`를 적용합니다.
+  - 파라미터로 전달된 `modifier`에 다른 `modifier`를 체인으로 연결할 수 있습니다.
+
+**Why?**
+
+Compose를 사용하는 개발자들은 `Modifier`를 통해 컴포넌트의 크기, 위치, 패딩, 클릭 이벤트 등을 쉽게 조절할 수 있음을 알고 있습니다.
+본질적으로 파라미터로 입력되는 `modifier`는 외부 컴포넌트의 동작과 외형을 수정하는 방법을 제공하는 반면, 컴포넌트 구현에서는 내부 동작과 외형을 책임집니다.
+
+**Don't**
+
+```kotlin
+// modifier parameter 없음
+@Composable
+fun Icon(
+    bitmap: ImageBitmap,
+    tint: Color = Color.Black,
+)
+
+// 첫 번째 modifier optional parameter가 아님
+// 개발자가 modifier를 설정하는 즉시 padding이 손실됨
+@Composable
+fun Icon(
+    bitmap: ImageBitmap,
+    tint: Color = Color.Black,
+    modifier: Modifier = Modifier.padding(8.dp),
+)
+
+// 아래 modifier들은 CheckboxRow 외부 동작을 지정하기 위해 의도된게 아닌, 
+// 하위 부분을 수정하는 데 사용됨
+@Composable
+fun CheckboxRow(
+    checked: Boolean,
+    onChckedChange: (Boolean) -> Unit,
+    rowModifier: Modifier = Modifier,
+    checkboxModifier: Modifier = Modifier,
+)
+
+// modifier는 가장 가까운 루트 레이아웃에 첫 번째로 적용해야 하고,
+// 이를 체인의 첫 번째 요소로 사용해야 함
+@Composable
+fun IconButton(
+    buttonBitmap: ImageBitmap,
+    modifier: Modifier = Modifier,
+    tint: Color = Color.Black
+) {
+    Box(
+        modifier = Modifier.padding(16.dp)
+    ) {
+        Icon(
+            bitmap = buttonBitmap,
+            tint = tint,
+            modifier = Modifier
+                .aspectRatio(1f)
+                .then(modifier)
+        )
+    }
+}
+```
+
+**Do**
+```kotlin
+@Composable
+fun IconButton(
+    buttonBitmap: ImageBitmap,
+    modifier: Modifier = Modifier,
+    tint: Color = Color.Black
+) {
+    Box(
+        modifier = modifier.padding(16.dp)
+    ) {
+        Icon(
+            bitmap = buttonBitmap,
+            tint = tint,
+            modifier = Modifier.aspectRatio(1f)
+        )
+    }
+}
+
+@Composable
+fun ColoredCanvas(
+    modifier: Modifier,
+    color: Color = Color.White,
+) {
+    Box(
+        modifier = modifier.background(color)
+    ) {
+        // ...
+    }
+}
+```
