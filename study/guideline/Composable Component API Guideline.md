@@ -758,3 +758,62 @@ fun IconCard(
     // ...
 }
 ```
+
+### Default expressions
+
+> - 'optional parameter'에 대한 'default expressions' 설정 시, 다음 관행을 따르는 것이 좋음
+>   - 'default expressions'는 `private/internal` 호출 포함 X
+>   - 'default expressions'는 'meaningful default value' 이여야 함
+>     - 파라미터나 속성의 기본 값이 다른 개발자에게 직관적, 예측 가능, 합리적인 값을 가짐을 의미
+>   - 'absence'를 나타내는 경우 `null` 허용, 'default value'를 사용하기 위한 '마커'로 `null` 사용 X
+> - 'multiple default expressions'가 있는 경우, `ComponentDefaults`를 통해 '네임스페이스' 제공 권장
+
+개발자들은 'optional parameter'에 대한 기본 표현식(default expressions)을 설정할 때 다음 관행을 따르는것이 좋습니다.
+
+기본 표현식은 `private/internal` 호출을 포함해서는 안됩니다.   
+이는 다른 개발자들이 해당 컴포넌트를 확장하거나 래핑할 때 동일한 '기본 값'을 제공할 수 있게 합니다.  
+또는 개발자가 `if`문에서 해당 '기본 값'을 사용할 수 있습니다. : `if (condition) default else myUserValue` 
+
+기본 표현식은 의미가 있고 명확해야 합니다.  
+내부적으로 값의 'absence'를 나타내는 경우 `null`을 사용해야 하며, '기본 값'을 사용하기 위한 '마커'로 `null`을 사용하는 것은 피해야 합니다. 
+
+여러 기본 표현식이 있는 경우, `ComponentDefaults` 객체를 사용하여 '네임스페이스'를 제공하는 것이 좋습니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun IconCard(
+    bitmap: ImageBitmap,
+    backgroundColor: Color = DefaultBackgroundColor,
+    // null을 기본값으로 사용하여 '마커'로 사용하는 것을 피해야 함
+    elevation: Dp? = null
+) {
+    val resolvedElevation = elevation ?: DefaultElevation
+}
+
+// 컴포넌트 래핑 시, 접근 할 수 없어 코드를 이해하기 어렵고, 수정하기 어려움 (private)
+private val DefaultBackgroundColor = Color.White
+private val DefaultElevation = 8.dp
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun IconCard(
+    bitmap: ImageBitmap,
+    backgroundColor: Color = IconCardDefaults.BackgroundColor,
+    elevation: Dp = IconCardDefaults.Elevation
+) {
+    // ...
+}
+
+object IconCardDefaults {
+    val BackgroundColor = Color.White
+    val Elevation = 8.dp
+}
+```
+
+컴포넌트 파라미터가 기본값이 짧고 예측 가능한 경우(`elevation = 0.dp`), 
+`ComponentDefaults` 객체를 생략하고 간단한 인라인 상수를 사용할 수 있습니다.
