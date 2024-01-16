@@ -700,3 +700,61 @@ fun LazyColumn(
     content: LazyListScope.() -> Unit
 )
 ```
+
+### Nullable parameter
+
+> - 'nullable parameter' 도입 시, 파라미터 상태(default, empty, absent)를 구분하고, 어떤 의미인지 이해하는 것이 중요
+>   - 'absent'로 표현 시, 'optional parameter'로 유연성을 제공할 수 있음 (ex : Image param - contentDescription)
+>   - `default` 구현하라는 신호로 `null`을 활용하는 'nullable parameter' 생성 X
+>   - 'empty'로 표현 시, 명확한 'default value'를 사용하여 표현하는 것이 좋음 (ex : backgroundColor = Color.White)
+
+'nullable parameter' 도입 시, 파라미터가 가질 수 있는 다양한 상태(default, empty, absent)를 명확히 구분하고, 
+이들이 각각 어떤 의미로 전달되는지를 이해하는 것이 중요합니다. 
+
+'Nullability parameter'는 개발자에게 해당 파라미터가 'absence' 할 수 있음을 표현 할 수 있습니다.  
+이는 파라미터가 선택적일 수 있음을 의미하며, 이를 통해 유연성을 제공할 수 있음을 의미합니다.  
+그러나, 이는 잠재적인 'null' 관련 오류 가능성을 증가시킬 수 있으므로 신중하게 사용되어야 합니다.
+
+'default value'를 구현하라는 신호로 `null`을 활용하는 'nullable parameter'를 만들면 안됩니다.  
+이는 컴포넌트의 사용을 복잡하게 만들고, 예기치 않은 오류를 발생시킬 수 있습니다.
+
+값이 존재하지만 비어 있다는 신호로 'nullable parameter'를 만들면 안됩니다.  
+대신에, 명확하게 'empty' 상태를 나타내는 'default value'를 사용하는 것이 좋습니다.  
+예를 들어, 문자열 파라미터의 경우, 'empty' 상태를 나타내는 `""`를 사용하는 것이 좋습니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun IconCard(
+    bitmap: ImageBitmap,
+    elevation: Dp? = null,
+) {
+    val resolvedElevation = elevation ?: DefaultElevation
+}
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun IconCard(
+    bitmap: ImageBitmap,
+    elevation: Dp = 8.dp,
+) {
+    // ...
+}
+```
+
+**Or Do (null is meaningful here)**
+
+```kotlin
+@Composable
+fun IconCard(
+    bitmap: ImageBitmap,
+    // null일 경우, contentDescription을 제공하지 않음을 의미
+    contentDescription: String?,
+) {
+    // ...
+}
+```
