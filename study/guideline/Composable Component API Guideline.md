@@ -624,3 +624,196 @@ fun ColoredCanvas(
     }
 }
 ```
+
+### Parameters order
+
+> - Component - parameter order
+>   1. Required parameters
+>   2. Single modifier: Modifier = Modifier
+>   3. Optional parameters
+>   4. (optional) trailing @Composable lambda
+> - Required•Optional parameter group order
+>   - 컴포넌트 데이터 우선순위에 따라 순서 조정 필요, 그 다음 metaData, customisation 파라미터 배치
+>   - 의미적으로 관련된 파라미터 그룹화 (ex. 'color', 'arrangement-alignment' 등)
+
+컴포넌트의 파라미터 순서는 다음과 같아야 합니다.
+
+1. Required parameters.
+2. Single modifier: Modifier = Modifier.
+3. Optional parameters.
+4. (optional) trailing @Composable lambda.
+
+**Why?**
+
+'required parameter'들은 컴포넌트의 핵심 기능을 위해 반드시 필요하므로, 개발자에게 해당 파라미터들을 제공해야만 컴포넌트가 제대로 동작함을 알리기 위해 가장 먼저 배치합니다.
+
+'modifier parameter'는 UI 요소의 레이아웃, 스타일링, 동작을 조정하는데 사용됩니다.  
+이는 컴포넌트의 외관과 동작에 중요한 영향을 미치므로 'first optional parameter'로 배치합니다.
+
+'optional parameter'들은 컴포넌트의 추가 기능이나 커스터마이징을 위해 사용됩니다.  
+개발자는 이 파라미터들을 필수적으로 제공할 필요는 없지만, 필요에 따라 재정의 할 수 있습니다.  
+이들은 'required parameter'와 'modifier parameter' 다음에 배치함으로써, 
+개발자가 컴포넌트의 기본 동작에 먼저 집중하고, 필요에 따라 추가 설정을 할 수 있도록 합니다.
+
+'`@Composable` lambda'는 컴포넌트의 콘텐츠를 나타내며, 'content'로 명명됩니다.  
+개발자에게 컴포넌트 안에 자신의 UI 콘텐츠를 제공할 수 있게 해주는 옵션입니다.  
+`LazyColumn`과 같은 DSL 형식 컴포넌트에서는 `@Composable`이 아닌 람다를 사용하는 것이 허용됩니다.
+
+---
+
+'required' 및 'optional' 파라미터 그룹 내에서, 컴포넌트의 'What' 데이터 우선순위가 있을 것입니다.  
+이런 우선순위를 고려하여 파라미터 그룹 내에서 순서를 정리하고, 그 다음 메타 데이터, 커스터미이징 등의 'How' 파라미터를 배치하는 것이 좋습니다.
+
+또한 'required' 및 'optional' 파라미터 그룹 내에서 파라미터를 의미적으로 그룹화하는 것이 좋습니다.  
+예를 들어, 여러 색상 파라미터('backgroundColor', 'contentColor')가 있다면, 커스터마이징 옵션을 쉽게 볼 수 있도록 이들을 함께 배치하는 것이 좋습니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun Icon(
+    // 아이콘 표현을 위한 필수 데이터, 가장 먼저 위치 
+    bitmap: ImageBitmap,
+    // 접근성을 위한 메타 데이터, 필수 데이터 다음에 위치
+    contentDescription: String?,
+    // modifier param = first optional parameter
+    modifier: Modifier = Modifier,
+    // optional param, Theme or CompositionLocal에서 제공되는 기본 값
+    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+)
+
+@Composable
+fun LazyColumn(
+    // 'required param'이 없기에, 'modifier param'이 첫 번째로 위치 
+    modifier: Modifier = Modifier,
+    // list의 상태를 나타내며, '데이터'로 분류되기에 두 번째로 위치
+    state: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    // arrangement 및 alignment는 연관되어 있기에 함께 위치 
+    verticalArrangement: Arrangement.Vertical = 
+      if(!reverseLayout) Arrangement.Top else Arrangement.Bottom,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    // 'trailing lambda' 콘텐츠, 마지막에 위치
+    content: LazyListScope.() -> Unit
+)
+```
+
+### Nullable parameter
+
+> - 'nullable parameter' 도입 시, 파라미터 상태(default, empty, absent)를 구분하고, 어떤 의미인지 이해하는 것이 중요
+>   - 'absent'로 표현 시, 'optional parameter'로 유연성을 제공할 수 있음 (ex : Image param - contentDescription)
+>   - `default` 구현하라는 신호로 `null`을 활용하는 'nullable parameter' 생성 X
+>   - 'empty'로 표현 시, 명확한 'default value'를 사용하여 표현하는 것이 좋음 (ex : backgroundColor = Color.White)
+
+'nullable parameter' 도입 시, 파라미터가 가질 수 있는 다양한 상태(default, empty, absent)를 명확히 구분하고, 
+이들이 각각 어떤 의미로 전달되는지를 이해하는 것이 중요합니다. 
+
+'Nullability parameter'는 개발자에게 해당 파라미터가 'absence' 할 수 있음을 표현 할 수 있습니다.  
+이는 파라미터가 선택적일 수 있음을 의미하며, 이를 통해 유연성을 제공할 수 있음을 의미합니다.  
+그러나, 이는 잠재적인 'null' 관련 오류 가능성을 증가시킬 수 있으므로 신중하게 사용되어야 합니다.
+
+'default value'를 구현하라는 신호로 `null`을 활용하는 'nullable parameter'를 만들면 안됩니다.  
+이는 컴포넌트의 사용을 복잡하게 만들고, 예기치 않은 오류를 발생시킬 수 있습니다.
+
+값이 존재하지만 비어 있다는 신호로 'nullable parameter'를 만들면 안됩니다.  
+대신에, 명확하게 'empty' 상태를 나타내는 'default value'를 사용하는 것이 좋습니다.  
+예를 들어, 문자열 파라미터의 경우, 'empty' 상태를 나타내는 `""`를 사용하는 것이 좋습니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun IconCard(
+    bitmap: ImageBitmap,
+    elevation: Dp? = null,
+) {
+    val resolvedElevation = elevation ?: DefaultElevation
+}
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun IconCard(
+    bitmap: ImageBitmap,
+    elevation: Dp = 8.dp,
+) {
+    // ...
+}
+```
+
+**Or Do (null is meaningful here)**
+
+```kotlin
+@Composable
+fun IconCard(
+    bitmap: ImageBitmap,
+    // null일 경우, contentDescription을 제공하지 않음을 의미
+    contentDescription: String?,
+) {
+    // ...
+}
+```
+
+### Default expressions
+
+> - 'optional parameter'에 대한 'default expressions' 설정 시, 다음 관행을 따르는 것이 좋음
+>   - 'default expressions'는 `private/internal` 호출 포함 X
+>   - 'default expressions'는 'meaningful default value' 이여야 함
+>     - 파라미터나 속성의 기본 값이 다른 개발자에게 직관적, 예측 가능, 합리적인 값을 가짐을 의미
+>   - 'absence'를 나타내는 경우 `null` 허용, 'default value'를 사용하기 위한 '마커'로 `null` 사용 X
+> - 'multiple default expressions'가 있는 경우, `ComponentDefaults`를 통해 '네임스페이스' 제공 권장
+
+개발자들은 'optional parameter'에 대한 기본 표현식(default expressions)을 설정할 때 다음 관행을 따르는것이 좋습니다.
+
+기본 표현식은 `private/internal` 호출을 포함해서는 안됩니다.   
+이는 다른 개발자들이 해당 컴포넌트를 확장하거나 래핑할 때 동일한 '기본 값'을 제공할 수 있게 합니다.  
+또는 개발자가 `if`문에서 해당 '기본 값'을 사용할 수 있습니다. : `if (condition) default else myUserValue` 
+
+기본 표현식은 의미가 있고 명확해야 합니다.  
+내부적으로 값의 'absence'를 나타내는 경우 `null`을 사용해야 하며, '기본 값'을 사용하기 위한 '마커'로 `null`을 사용하는 것은 피해야 합니다. 
+
+여러 기본 표현식이 있는 경우, `ComponentDefaults` 객체를 사용하여 '네임스페이스'를 제공하는 것이 좋습니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun IconCard(
+    bitmap: ImageBitmap,
+    backgroundColor: Color = DefaultBackgroundColor,
+    // null을 기본값으로 사용하여 '마커'로 사용하는 것을 피해야 함
+    elevation: Dp? = null
+) {
+    val resolvedElevation = elevation ?: DefaultElevation
+}
+
+// 컴포넌트 래핑 시, 접근 할 수 없어 코드를 이해하기 어렵고, 수정하기 어려움 (private)
+private val DefaultBackgroundColor = Color.White
+private val DefaultElevation = 8.dp
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun IconCard(
+    bitmap: ImageBitmap,
+    backgroundColor: Color = IconCardDefaults.BackgroundColor,
+    elevation: Dp = IconCardDefaults.Elevation
+) {
+    // ...
+}
+
+object IconCardDefaults {
+    val BackgroundColor = Color.White
+    val Elevation = 8.dp
+}
+```
+
+컴포넌트 파라미터가 기본값이 짧고 예측 가능한 경우(`elevation = 0.dp`), 
+`ComponentDefaults` 객체를 생략하고 간단한 인라인 상수를 사용할 수 있습니다.
