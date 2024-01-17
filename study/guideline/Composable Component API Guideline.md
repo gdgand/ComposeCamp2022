@@ -817,3 +817,233 @@ object IconCardDefaults {
 
 컴포넌트 파라미터가 기본값이 짧고 예측 가능한 경우(`elevation = 0.dp`), 
 `ComponentDefaults` 객체를 생략하고 간단한 인라인 상수를 사용할 수 있습니다.
+
+### MutableState<T> as a parameter
+
+> - `MutableState<T>` 파라미터 사용은 컴포넌트와 호출자 간 공동으로 상태를 소유하는 것을 유도하므로, 권장되지 않음  
+>   - 가능하면 stateless 컴포넌트로 만들고 호출자에게 상태 변경을 위임하는 것이 좋음 
+>   - 만약 컴포넌트에서 호출자가 소유한 상태 변경이 필요한 경우, `ComponentState` 클래스를 만들어 사용하는 것이 좋음 
+
+`MutableState<T>` 타입의 파라미터 사용은 컴포넌트와 호출자 간의 상태에 대한 공동 소유권을 유도하므로, 권장되지 않습니다.
+가능하다면 'stateless 컴포넌트'로 만들고 호출자에게 상태 변경을 위임하는 것이 좋습니다.  
+만약 컴포넌트에서 호출자가 소유한 속성의 변경이 필요한 경우, `MutableState<T>`가 아닌, `ComponentState` 클래스를 만들어 사용하는 것이 좋습니다.
+
+컴포넌트가 `MutableState<T>`를 파라미터로 받으면 상태를 변경하는 능력을 얻게 됩니다.  
+이는 상태 소유권이 분리되어 있어, 상태를 소유하고 있던 호출자는 컴포넌트 구현 내에서 언제 어떻게 변경될지 제어할 수 없게 됩니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun Scroller(
+    offset: MutableState<Float>
+) { ... }
+```
+
+**Do (stateless version, if possible)**
+
+```kotlin
+@Composable
+fun Scroller(
+    offset: Float,
+    onOffsetChange: (Float) -> Unit
+) { ... }
+```
+
+**Or do (state-based component version, if stateless not possible)**
+
+```kotlin
+class ScrollerState {
+    val offset: Float by mutableStateOf(0f)
+}
+
+@Composable
+fun Scroller(
+    state: ScrollerState
+) { ... }
+```
+
+### State<T> as a parameter
+
+> - `State<T>` 타입 파라미터는 객체 타입을 불필요하게 제한하므로 권장되지 않음, 대신 다른 대안 사용 권장
+>   - `param: Float` : 상태 변경이 빈번하지 않고, 단순하게 상태 제공을 위해 사용
+>   - `param: () -> Float` : 'delay read'를 통해 필요할 때만 값을 읽고, [불필요한 작업](../UI%20Architecture/Compose%20Phases.md#phases-state-reads)을 피할 수 있음
+>     - `param = { myState.value }` : `State<T>`의 값을 읽음
+>     - `param = { justValueWithoutState }` : `State<T>`를 사용하지 않는 단순 값
+>     - `param = { myObject.offset }` : `mutableStateOf()`로 지원되는 커스텀 상태 객체
+
+`State<T>` 타입 파라미터 사용은 컴포넌트에 전달되는 객체 타입을 불필요하게 제한하기에 권장되지 않습니다.  
+이에 따라 `param: State<Float>` 대신, 2가지 대안이 있습니다. 
+
+- `param: Float` : 파라미터가 자주 변경되지 않거나 컴포넌트에서 즉시 읽는 경우, 단순하게 파라미터를 제공하고, 변경 시 컴포넌트를 recompose 합니다.
+- `param: () -> Float` : 나중에 `param.invoke()`를 통해 값을 읽을 수 있도록 람다를 파라미터로 제공합니다.  
+  이는 컴포넌트의 개발자가 필요할 때만 값을 읽을 수 있으므로, 불필요한 작업을 피할 수 있습니다.  
+  예를 들어, 그리기 작업 중에만 값을 읽는다면, 그리기 작업 중에만 다시 그리기가 발생합니다.  
+  이는 개발자에게 `State<T>`의 값을 읽는 표현식을 제공할 수 있는 유연성을 남겨 줍니다.
+  - `param = { myState.value }` : `State<T>`의 값을 읽음
+  - `param = { justValueWithoutState }` : `State<T>`를 사용하지 않는 단순 값
+  - `param = { myObject.offset }` : `mutableStateOf()`로 지원되는 커스텀 상태 객체
+
+**Don't**
+
+```kotlin
+fun Badge(position: State<Dp>) {}
+Badge(position = scrollState.offset)
+```
+
+**Do**
+```kotlin
+val myState = mutableStateOf(10f)
+Badge(position = { myState.value })
+
+// or
+
+val justValueWithoutState = 15f
+Badge(position = { justValueWithoutState })
+
+// or
+
+val state = rememberListState()
+Badge(position = { state.offset })
+
+/// impl
+
+fun Badge(position: () -> Float) {
+  val currentPosition = position()
+  // ...
+}
+```
+
+---
+
+## Slot parameters
+
+### What are slots
+
+> Slot : 컴포넌트의 특정 하위 계층을 지정하는 `@Composable`의 람다 파라미터  
+> 'Slot pattern'은 컴포넌트가 주요 기능을 유지하면서, 하위 계층 구성에 유연성을 가지기에 맞춤형 UI 컴포넌트 생성이 간단함
+
+슬롯은 컴포넌트의 특정 하위 계층을 지정하는 `@Composable`의 람다 파라미터를 말합니다.  
+예를 들어, `Button`의 'content slot'은 다음과 같습니다.
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) { ... }
+
+// usage
+Button(onClick = { /*...*/ }) {
+    Text("Button")
+}
+```
+
+이러한 패턴은 `Button` 컴포넌트가 내부의 'content'에 대해 특정 요구사항이나 스타일을 가지지 않으며, 기본적인 외관을 제공하고, 'click'과 'ripple'을 처리하도록 합니다. 
+즉, 'Slot pattern'은 컴포넌트가 자신의 주요 기능을 유지하면서, 그 내용을 유연하게 변경할 수 있게 해주며, 맞춤형 UI 컴포넌트를 쉽게 만들 수 있게 해줍니다.
+
+### Why slots
+
+> - 'Slot pattern'이 아닌, 특정 타입을 파라미터로 받는 컴포넌트는 다음과 같은 유연성 문제가 있을 수 있음
+>   - 스타일링 선택 제한 : `String`만 받는다면, `AnnotatedString`이나 다른 텍스트 정보를 사용할 수 없음
+>   - 컴포넌트 선택 제한 : `String`만 받는다면, 로깅 이벤트를 하는 컴포넌트를 사용할 수 없음
+>   - 오버로드 폭발 : 컴포넌트 유연성을 위해, `ImageBitmap`과 `VectorPainter`를 모두 받을 수 있도록 하려면, 이를 위한 추가 구현이 필요하며, 다른 타입이 더 있는 경우에는 더 많아 질 수 있음
+>   - 컴포넌트 레이아웃 기능 제한 : 컴포넌트 내부에서 '배치'를 하기에, 패딩 추가 등과 같은 커스터마이징 불가능
+
+`Text`와 `Icon`이 포함된 `Button` 컴포넌트 작성 시, 
+다음과 같이 작성하는 것이 솔깃 할 수 있지만, 이는 권장되지 않습니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    text: String? = null,
+    icon: ImageBitmap? = null,
+)
+```
+
+이 경우, `Button`은 `text`와 `icon`을 받아, 둘 다 사용하거나, 둘 다 사용하지 않거나, 둘 중 하나만을 사용 할 수 있습니다.  
+이런 방식은 기본적인 사용 사례에서는 잘 동작하지만, 아래와 같은 몇 가지 근본적인 유연성 문제가 있습니다.
+
+스타일링 선택 제한 : `Button`은 `String`만 받기 때문에, `AnnotatedString`이나 다른 텍스트 정보를 사용할 수 없습니다.   
+이를 위해 `Button`은 `TextStyle` 파라미터를 추가해야 하며, 이는 컴포넌트를 복잡하게 만듭니다.
+
+컴포넌트 선택 제한 : `Button`에서 `MyTextWithLogging()`를 통해 '로깅 이벤트' 같은 추가 로직을 수행하고 싶을 수 있습니다.
+여기서 `String`만을 받게되면 개발자는 `Button`을 수정 해야하는 상황에 직면하게 됩니다.
+
+오버로드 폭발 : 컴포넌트 유연성을 위해, `Button`이 `ImageBitmap`과 `VectorPainter`를 모두 받을 수 있도록 하려면, 이를 위한 '오버로드가 추가'로 필요합니다.
+이는 `text` 파라미터도 `String`, `AnnotatedString`, `CharSequence` 등 여러 유형을 지원하는 경우에도 동일합니다.
+
+컴포넌트 레이아웃 기능 제한 : `Button`은 텍스트와 아이콘을 표시할 수 있지만, 텍스트와 아이콘의 '배치'는 `Button`이 결정합니다.
+이는 곧, 텍스트와 아이콘 사이에 패딩을 추가하는 등의 커스터마이징이 불가능함을 의미합니다.
+
+---
+
+슬롯을 가진 컴포넌트들은 위 문제들로부터 자유로워 슬롯에 어떤 컴포넌트와 어떤 스타일링도 넣을 수 있게됩니다.   
+이는 컴포넌트의 유연성을 높이고, 컴포넌트의 사용성을 높이며, 컴포넌트의 재사용성을 높일 수 있습니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    text: @Composable () -> Unit,
+    icon: @Composable () -> Unit,
+)
+```
+
+### Single 'content' slot overloads
+
+여러 슬롯을 가지는 컴포넌트의 경우, 'content'로 명명된 'single slot' 오버로드를 제공하는 것이 좋습니다.
+이는 레이아웃 로직을 변경 할 수 있기에, 사용 측면에서 더 많은 유연성을 제공합니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
+) { ... }
+
+// usage
+Button(onClick = { /*...*/ }) {
+    Row {
+        Icon(...)
+        Text(...)
+    }
+}
+```
+
+### Layout strategy scope for slot APIs
+
+> - 'single content overload'의 경우, 컴포넌트 사용성과 유연성을 높이기 위해 알맞은 레이아웃 전략 선택이 중요함  
+> - 컴포넌트의 사용 패턴을 기반으로 `RowScope`, `ColumnScope`, `BoxScope` 등 레이아웃 전략 선택
+
+'single content overload'의 경우, 컴포넌트를 쉽고 효과적으로 사용할 수 있도록 적합한 레이아웃 전략(layout strategy)를 선택하는 것이 중요합니다.
+이는 컴포넌트의 사용성과 유연성을 높이는데 도움이 됩니다.
+
+위 예시에서 `Button` 컴포넌트는 일반적으로 '단일 텍스트', '단일 아이콘', '행에 있는 아이콘과 텍스트', '행에 있는 텍스트와 아이콘' 등으로 사용 할 수 있습니다.
+이런 사용 패턴을 기반으로, `RowScope`를 제공하면 `Button` 컴포넌트의 사용이 좀 더 쉬워집니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    content: @Composable RowScope.() -> Unit
+) { ... }
+
+// usage
+Button(onClick = { /*...*/ }) {
+    Icon(...)
+    Text(...)
+}
+```
+
+컴포넌트에 대한 다른 타입의 레이아웃 전략으로 `ColumnScope`와 `BoxScope` 등이 있습니다.  
+컴포넌트의 저자는 슬롯에 여러 컴포넌트가 전달될 때 어떤 일이 발생할 지 항상 생각해야 하며, `Scope`를 통해 이런 행동을 사용자에게 전달하는 것을 고려해야 합니다.
