@@ -862,3 +862,54 @@ fun Scroller(
     state: ScrollerState
 ) { ... }
 ```
+
+### State<T> as a parameter
+
+> - `State<T>` 타입 파라미터는 객체 타입을 불필요하게 제한하므로 권장되지 않음, 대신 다른 대안 사용 권장
+>   - `param: Float` : 상태 변경이 빈번하지 않고, 단순하게 상태 제공을 위해 사용
+>   - `param: () -> Float` : 'delay read'를 통해 필요할 때만 값을 읽고, [불필요한 작업](../UI%20Architecture/Compose%20Phases.md#phases-state-reads)을 피할 수 있음
+>     - `param = { myState.value }` : `State<T>`의 값을 읽음
+>     - `param = { justValueWithoutState }` : `State<T>`를 사용하지 않는 단순 값
+>     - `param = { myObject.offset }` : `mutableStateOf()`로 지원되는 커스텀 상태 객체
+
+`State<T>` 타입 파라미터 사용은 컴포넌트에 전달되는 객체 타입을 불필요하게 제한하기에 권장되지 않습니다.  
+이에 따라 `param: State<Float>` 대신, 2가지 대안이 있습니다. 
+
+- `param: Float` : 파라미터가 자주 변경되지 않거나 컴포넌트에서 즉시 읽는 경우, 단순하게 파라미터를 제공하고, 변경 시 컴포넌트를 recompose 합니다.
+- `param: () -> Float` : 나중에 `param.invoke()`를 통해 값을 읽을 수 있도록 람다를 파라미터로 제공합니다.  
+  이는 컴포넌트의 개발자가 필요할 때만 값을 읽을 수 있으므로, 불필요한 작업을 피할 수 있습니다.  
+  예를 들어, 그리기 작업 중에만 값을 읽는다면, 그리기 작업 중에만 다시 그리기가 발생합니다.  
+  이는 개발자에게 `State<T>`의 값을 읽는 표현식을 제공할 수 있는 유연성을 남겨 줍니다.
+  - `param = { myState.value }` : `State<T>`의 값을 읽음
+  - `param = { justValueWithoutState }` : `State<T>`를 사용하지 않는 단순 값
+  - `param = { myObject.offset }` : `mutableStateOf()`로 지원되는 커스텀 상태 객체
+
+**Don't**
+
+```kotlin
+fun Badge(position: State<Dp>) {}
+Badge(position = scrollState.offset)
+```
+
+**Do**
+```kotlin
+val myState = mutableStateOf(10f)
+Badge(position = { myState.value })
+
+// or
+
+val justValueWithoutState = 15f
+Badge(position = { justValueWithoutState })
+
+// or
+
+val state = rememberListState()
+Badge(position = { state.offset })
+
+/// impl
+
+fun Badge(position: () -> Float) {
+  val currentPosition = position()
+  // ...
+}
+```
