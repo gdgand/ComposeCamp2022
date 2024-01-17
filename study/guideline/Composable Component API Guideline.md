@@ -1017,3 +1017,33 @@ Button(onClick = { /*...*/ }) {
     }
 }
 ```
+
+### Layout strategy scope for slot APIs
+
+> - 'single content overload'의 경우, 컴포넌트 사용성과 유연성을 높이기 위해 알맞은 레이아웃 전략 선택이 중요함  
+> - 컴포넌트의 사용 패턴을 기반으로 `RowScope`, `ColumnScope`, `BoxScope` 등 레이아웃 전략 선택
+
+'single content overload'의 경우, 컴포넌트를 쉽고 효과적으로 사용할 수 있도록 적합한 레이아웃 전략(layout strategy)를 선택하는 것이 중요합니다.
+이는 컴포넌트의 사용성과 유연성을 높이는데 도움이 됩니다.
+
+위 예시에서 `Button` 컴포넌트는 일반적으로 '단일 텍스트', '단일 아이콘', '행에 있는 아이콘과 텍스트', '행에 있는 텍스트와 아이콘' 등으로 사용 할 수 있습니다.
+이런 사용 패턴을 기반으로, `RowScope`를 제공하면 `Button` 컴포넌트의 사용이 좀 더 쉬워집니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    content: @Composable RowScope.() -> Unit
+) { ... }
+
+// usage
+Button(onClick = { /*...*/ }) {
+    Icon(...)
+    Text(...)
+}
+```
+
+컴포넌트에 대한 다른 타입의 레이아웃 전략으로 `ColumnScope`와 `BoxScope` 등이 있습니다.  
+컴포넌트의 저자는 슬롯에 여러 컴포넌트가 전달될 때 어떤 일이 발생할 지 항상 생각해야 하며, `Scope`를 통해 이런 행동을 사용자에게 전달하는 것을 고려해야 합니다.
