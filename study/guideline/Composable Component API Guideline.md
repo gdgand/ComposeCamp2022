@@ -913,3 +913,31 @@ fun Badge(position: () -> Float) {
   // ...
 }
 ```
+
+---
+
+## Slot parameters
+
+### What are slots
+
+> Slot : 컴포넌트의 특정 하위 계층을 지정하는 `@Composable`의 람다 파라미터  
+> 'Slot pattern'은 컴포넌트가 주요 기능을 유지하면서, 하위 계층 구성에 유연성을 가지기에 맞춤형 UI 컴포넌트 생성이 간단함
+
+슬롯은 컴포넌트의 특정 하위 계층을 지정하는 `@Composable`의 람다 파라미터를 말합니다.  
+예를 들어, `Button`의 'content slot'은 다음과 같습니다.
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) { ... }
+
+// usage
+Button(onClick = { /*...*/ }) {
+    Text("Button")
+}
+```
+
+이러한 패턴은 `Button` 컴포넌트가 내부의 'content'에 대해 특정 요구사항이나 스타일을 가지지 않으며, 기본적인 외관을 제공하고, 'click'과 'ripple'을 처리하도록 합니다. 
+즉, 'Slot pattern'은 컴포넌트가 자신의 주요 기능을 유지하면서, 그 내용을 유연하게 변경할 수 있게 해주며, 맞춤형 UI 컴포넌트를 쉽게 만들 수 있게 해줍니다.
