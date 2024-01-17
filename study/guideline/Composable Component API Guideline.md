@@ -817,3 +817,48 @@ object IconCardDefaults {
 
 컴포넌트 파라미터가 기본값이 짧고 예측 가능한 경우(`elevation = 0.dp`), 
 `ComponentDefaults` 객체를 생략하고 간단한 인라인 상수를 사용할 수 있습니다.
+
+### MutableState<T> as a parameter
+
+> - `MutableState<T>` 파라미터 사용은 컴포넌트와 호출자 간 공동으로 상태를 소유하는 것을 유도하므로, 권장되지 않음  
+>   - 가능하면 stateless 컴포넌트로 만들고 호출자에게 상태 변경을 위임하는 것이 좋음 
+>   - 만약 컴포넌트에서 호출자가 소유한 상태 변경이 필요한 경우, `ComponentState` 클래스를 만들어 사용하는 것이 좋음 
+
+`MutableState<T>` 타입의 파라미터 사용은 컴포넌트와 호출자 간의 상태에 대한 공동 소유권을 유도하므로, 권장되지 않습니다.
+가능하다면 'stateless 컴포넌트'로 만들고 호출자에게 상태 변경을 위임하는 것이 좋습니다.  
+만약 컴포넌트에서 호출자가 소유한 속성의 변경이 필요한 경우, `MutableState<T>`가 아닌, `ComponentState` 클래스를 만들어 사용하는 것이 좋습니다.
+
+컴포넌트가 `MutableState<T>`를 파라미터로 받으면 상태를 변경하는 능력을 얻게 됩니다.  
+이는 상태 소유권이 분리되어 있어, 상태를 소유하고 있던 호출자는 컴포넌트 구현 내에서 언제 어떻게 변경될지 제어할 수 없게 됩니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun Scroller(
+    offset: MutableState<Float>
+) { ... }
+```
+
+**Do (stateless version, if possible)**
+
+```kotlin
+@Composable
+fun Scroller(
+    offset: Float,
+    onOffsetChange: (Float) -> Unit
+) { ... }
+```
+
+**Or do (state-based component version, if stateless not possible)**
+
+```kotlin
+class ScrollerState {
+    val offset: Float by mutableStateOf(0f)
+}
+
+@Composable
+fun Scroller(
+    state: ScrollerState
+) { ... }
+```
