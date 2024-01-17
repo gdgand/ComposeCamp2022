@@ -994,3 +994,26 @@ fun Button(
     icon: @Composable () -> Unit,
 )
 ```
+
+### Single 'content' slot overloads
+
+여러 슬롯을 가지는 컴포넌트의 경우, 'content'로 명명된 'single slot' 오버로드를 제공하는 것이 좋습니다.
+이는 레이아웃 로직을 변경 할 수 있기에, 사용 측면에서 더 많은 유연성을 제공합니다.
+
+**Do**
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
+) { ... }
+
+// usage
+Button(onClick = { /*...*/ }) {
+    Row {
+        Icon(...)
+        Text(...)
+    }
+}
+```
