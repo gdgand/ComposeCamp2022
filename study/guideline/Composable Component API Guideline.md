@@ -1149,3 +1149,90 @@ fun PreferenceItem(
     }
 }
 ```
+
+---
+
+## Component-related classes and functions
+
+### State
+
+Core design practices with state : [자세한 설명](Compose%20API%20Guideline.md#compose-api-design-patterns)
+
+### ComponentDefault object
+
+모든 컴포넌트 'default expressions'는 inline or 최상위 객체 `ComponentDefaults` 안에 있어야 합니다. : [자세한 설명](#default-expressions)
+
+### ComponentColor/ComponentElevation objects
+
+> - 컴포넌트 상태에 따른 특정 타입의 파라미터를 제공할 때 다음 방식을 사용할 수 있음
+>   - `if-else`문을 사용하여 간단한 분기 로직 사용
+>   - `ComponentColor` or `ComponentElevation` 등의 객체 사용, 명확하게 정의
+>     - [Compose no style](#prefer-multiple-components-over-style-classes)에서 권장하지 않는 스타일과 다름, `ComponentColor`와 같은 클래스는 컴포넌트의 '특정 타입 기능을 목표'로 하기에, 'explicit input'에 대한 정의가 가능함
+
+간단한 분기 로직을 위해 `if-else`문을 사용하거나, 특정 'Color/Elevation'이 반영될 수 있는 'input'을 명확하게 정의할 때, 
+`ComponentColor/ComponentElevation` 객체를 사용하는 것이 좋습니다.
+
+컴포넌트 상태(enabled/disabled, focused/hovered/pressed 등)에 따라 특정 단일 타입의 파라미터(Color, Dp 등)를 제공하거나, 정의 할 수 있는 여러 방법이 있습니다.
+
+**Do (if color choosing logic is simple)**
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    backgroundColor = 
+        if (enabled) ButtonDefaults.enabledBackgroundColor 
+        else ButtonDefaults.disabledBackgroundColor,
+    elevation =
+        if (enabled) ButtonDefaults.enabledElevation 
+        else ButtonDefaults.disabledElevation,
+    content: @Composable RowScope.() -> Unit
+)
+```
+
+위 방법은 잘 동작하지만, 이런 표현식은 더 크게 증가하여 코드를 복잡하게 만들 수 있습니다.  
+그래서, 이를 특정 도메인과 파라미터에 대한 전용 클래스를 따로 만드는 것이 좋을 수 있습니다.
+
+**Do (if color conditional logic is more complicated)**
+
+```kotlin
+class ButtonColors(
+    backgroundColor: Color,
+    disabledBackgroundColor: Color,
+    contentColor: Color,
+    disabledContentColor: Color,
+) {
+    fun backgroundColor(enabled: Boolean): Color { ... }
+    fun contentColor(enabled: Boolean): Color { ... }
+}
+
+object ButtonDefaults {
+    fun colors(
+        backgroundColor: Color = Color.Blue,
+        disabledBackgroundColor: Color = Color.Gray,
+        contentColor: Color = Color.White,
+        disabledContentColor: Color = Color.Black,
+    ): ButtonColors {
+        return ButtonColors(
+            backgroundColor,
+            disabledBackgroundColor,
+            contentColor,
+            disabledContentColor,
+        )  
+    } 
+}
+
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    colors: ButtonColors = ButtonDefaults.colors(),
+    content: @Composable RowScope.() -> Unit
+) {
+    val resolvedBackgroundColor = colors.backgroundColor(enabled)
+}
+```
+
+위와 같은 방법은, 'style pattern'의 오버헤드와 복잡성을 도입하지 않으면서, 컴포넌트의 특정 부분에 대한 구성을 분리할 수 있습니다.  
+또한, 일반적인 'default expressions'와 달리 `ComponentColors` 또는 `ComponentElevation`의 더 세밀한 제어가 가능합니다.
