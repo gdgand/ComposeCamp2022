@@ -1047,3 +1047,192 @@ Button(onClick = { /*...*/ }) {
 
 컴포넌트에 대한 다른 타입의 레이아웃 전략으로 `ColumnScope`와 `BoxScope` 등이 있습니다.  
 컴포넌트의 저자는 슬롯에 여러 컴포넌트가 전달될 때 어떤 일이 발생할 지 항상 생각해야 하며, `Scope`를 통해 이런 행동을 사용자에게 전달하는 것을 고려해야 합니다.
+
+### Lifecycle expectations for slot parameters
+
+> - 슬롯 파라미터로 사용되는 'Composable lifecycle'은 다음을 따라야 함
+>   - 해당 슬롯을 사용하는 '컴포넌트의 생명주기'와 '동일'해야 함
+>   - 해당 슬롯을 사용하는 컴포넌트가 'View port'에서 보여지는 동안 슬롯 파라미터 'Composable'은 유지되어야 함
+>   - 해당 슬롯을 사용하는 컴포넌트의 구조적 또는 시각적 변경에 따라 폐기되거나 다시 구성되어서는 안됨
+>     - 내부 구조 변경이 필요한 경우, `remember{}`와 `movableContentOf()`를 사용해야 함
+
+슬롯 파라미터로 사용되는 'Composable'은 해당 슬롯을 포함하는 컴포넌트의 생명주기와 동일하고, 
+슬롯 파라미터의 생명주기는 컴포넌트가 'viewport'에서 가시성을 유지하는 동안 유지되어야 합니다.
+
+슬롯 파라미터로 사용되는 'Composable'은 컴포넌트의 구조적 또는 시각적 변경에 따라 폐기되고 다시 구성되어서는 안됩니다.
+
+슬롯 컴포저블의 생명주기에 영향을 미치는 내부 구조 변경이 필요한 경우, `remember{}`와 `movableContentOf()`를 사용해야 합니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun PreferenceItem(
+    checked: Boolean,
+    content: @Composable () -> Unit
+) {
+    if (checked) {
+        Row {
+            Text("Checked")
+            content()
+        }
+    } else {
+        Column {
+            Text("Unchecked")
+            content()
+        }
+    }
+}
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun PreferenceItem(
+    checked: Boolean,
+    content: @Composable () -> Unit
+) {
+    Layout({
+        Text("Preference item")
+        content()
+    }) {
+        // checked 상태 변경에 따라 `content` 인스턴스를 다시 레이아웃
+    }
+}
+```
+
+**Or Do**
+
+```kotlin
+@Composable
+fun PreferenceItem(
+    checked: Boolean,
+    content: @Composable () -> Unit
+) {
+    // `row`와 `column`에서 `content` 생명주기 유지, 불필요한 재구성 방지
+    val movableContent = remember(content) { movableContentOf(content) }
+    
+    if (checked) {
+        Row {
+            Text("Checked")
+            movableContent()
+        }
+    } else {
+        Column {
+            Text("Unchecked")
+            movableContent()
+        }
+    }
+}
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun PreferenceItem(
+    checked: Boolean,
+    checkedContent: @Composable () -> Unit
+) {
+    // `checkedContent`는 체크된 상태에서만 보이기에, 
+    // 해당 슬롯이 존재하지 않을 때 폐기되고, 다시 존재할 때 다시 구성되는 것은 괜찮음
+    if (checked) {
+        Row {
+            Text("Checked")
+            checkedContent()
+        }
+    } else {
+        Column {
+            Text("Unchecked")
+        }
+    }
+}
+```
+
+---
+
+## Component-related classes and functions
+
+### State
+
+Core design practices with state : [자세한 설명](Compose%20API%20Guideline.md#compose-api-design-patterns)
+
+### ComponentDefault object
+
+모든 컴포넌트 'default expressions'는 inline or 최상위 객체 `ComponentDefaults` 안에 있어야 합니다. : [자세한 설명](#default-expressions)
+
+### ComponentColor/ComponentElevation objects
+
+> - 컴포넌트 상태에 따른 특정 타입의 파라미터를 제공할 때 다음 방식을 사용할 수 있음
+>   - `if-else`문을 사용하여 간단한 분기 로직 사용
+>   - `ComponentColor` or `ComponentElevation` 등의 객체 사용, 명확하게 정의
+>     - [Compose no style](#prefer-multiple-components-over-style-classes)에서 권장하지 않는 스타일과 다름, `ComponentColor`와 같은 클래스는 컴포넌트의 '특정 타입 기능을 목표'로 하기에, 'explicit input'에 대한 정의가 가능함
+
+간단한 분기 로직을 위해 `if-else`문을 사용하거나, 특정 'Color/Elevation'이 반영될 수 있는 'input'을 명확하게 정의할 때, 
+`ComponentColor/ComponentElevation` 객체를 사용하는 것이 좋습니다.
+
+컴포넌트 상태(enabled/disabled, focused/hovered/pressed 등)에 따라 특정 단일 타입의 파라미터(Color, Dp 등)를 제공하거나, 정의 할 수 있는 여러 방법이 있습니다.
+
+**Do (if color choosing logic is simple)**
+
+```kotlin
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    backgroundColor = 
+        if (enabled) ButtonDefaults.enabledBackgroundColor 
+        else ButtonDefaults.disabledBackgroundColor,
+    elevation =
+        if (enabled) ButtonDefaults.enabledElevation 
+        else ButtonDefaults.disabledElevation,
+    content: @Composable RowScope.() -> Unit
+)
+```
+
+위 방법은 잘 동작하지만, 이런 표현식은 더 크게 증가하여 코드를 복잡하게 만들 수 있습니다.  
+그래서, 이를 특정 도메인과 파라미터에 대한 전용 클래스를 따로 만드는 것이 좋을 수 있습니다.
+
+**Do (if color conditional logic is more complicated)**
+
+```kotlin
+class ButtonColors(
+    backgroundColor: Color,
+    disabledBackgroundColor: Color,
+    contentColor: Color,
+    disabledContentColor: Color,
+) {
+    fun backgroundColor(enabled: Boolean): Color { ... }
+    fun contentColor(enabled: Boolean): Color { ... }
+}
+
+object ButtonDefaults {
+    fun colors(
+        backgroundColor: Color = Color.Blue,
+        disabledBackgroundColor: Color = Color.Gray,
+        contentColor: Color = Color.White,
+        disabledContentColor: Color = Color.Black,
+    ): ButtonColors {
+        return ButtonColors(
+            backgroundColor,
+            disabledBackgroundColor,
+            contentColor,
+            disabledContentColor,
+        )  
+    } 
+}
+
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    colors: ButtonColors = ButtonDefaults.colors(),
+    content: @Composable RowScope.() -> Unit
+) {
+    val resolvedBackgroundColor = colors.backgroundColor(enabled)
+}
+```
+
+위와 같은 방법은, 'style pattern'의 오버헤드와 복잡성을 도입하지 않으면서, 컴포넌트의 특정 부분에 대한 구성을 분리할 수 있습니다.  
+또한, 일반적인 'default expressions'와 달리 `ComponentColors` 또는 `ComponentElevation`의 더 세밀한 제어가 가능합니다.
