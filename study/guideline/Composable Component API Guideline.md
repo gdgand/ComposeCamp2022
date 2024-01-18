@@ -1047,3 +1047,105 @@ Button(onClick = { /*...*/ }) {
 
 컴포넌트에 대한 다른 타입의 레이아웃 전략으로 `ColumnScope`와 `BoxScope` 등이 있습니다.  
 컴포넌트의 저자는 슬롯에 여러 컴포넌트가 전달될 때 어떤 일이 발생할 지 항상 생각해야 하며, `Scope`를 통해 이런 행동을 사용자에게 전달하는 것을 고려해야 합니다.
+
+### Lifecycle expectations for slot parameters
+
+> - 슬롯 파라미터로 사용되는 'Composable lifecycle'은 다음을 따라야 함
+>   - 해당 슬롯을 사용하는 '컴포넌트의 생명주기'와 '동일'해야 함
+>   - 해당 슬롯을 사용하는 컴포넌트가 'View port'에서 보여지는 동안 슬롯 파라미터 'Composable'은 유지되어야 함
+>   - 해당 슬롯을 사용하는 컴포넌트의 구조적 또는 시각적 변경에 따라 폐기되거나 다시 구성되어서는 안됨
+>     - 내부 구조 변경이 필요한 경우, `remember{}`와 `movableContentOf()`를 사용해야 함
+
+슬롯 파라미터로 사용되는 'Composable'은 해당 슬롯을 포함하는 컴포넌트의 생명주기와 동일하고, 
+슬롯 파라미터의 생명주기는 컴포넌트가 'viewport'에서 가시성을 유지하는 동안 유지되어야 합니다.
+
+슬롯 파라미터로 사용되는 'Composable'은 컴포넌트의 구조적 또는 시각적 변경에 따라 폐기되고 다시 구성되어서는 안됩니다.
+
+슬롯 컴포저블의 생명주기에 영향을 미치는 내부 구조 변경이 필요한 경우, `remember{}`와 `movableContentOf()`를 사용해야 합니다.
+
+**Don't**
+
+```kotlin
+@Composable
+fun PreferenceItem(
+    checked: Boolean,
+    content: @Composable () -> Unit
+) {
+    if (checked) {
+        Row {
+            Text("Checked")
+            content()
+        }
+    } else {
+        Column {
+            Text("Unchecked")
+            content()
+        }
+    }
+}
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun PreferenceItem(
+    checked: Boolean,
+    content: @Composable () -> Unit
+) {
+    Layout({
+        Text("Preference item")
+        content()
+    }) {
+        // checked 상태 변경에 따라 `content` 인스턴스를 다시 레이아웃
+    }
+}
+```
+
+**Or Do**
+
+```kotlin
+@Composable
+fun PreferenceItem(
+    checked: Boolean,
+    content: @Composable () -> Unit
+) {
+    // `row`와 `column`에서 `content` 생명주기 유지, 불필요한 재구성 방지
+    val movableContent = remember(content) { movableContentOf(content) }
+    
+    if (checked) {
+        Row {
+            Text("Checked")
+            movableContent()
+        }
+    } else {
+        Column {
+            Text("Unchecked")
+            movableContent()
+        }
+    }
+}
+```
+
+**Do**
+
+```kotlin
+@Composable
+fun PreferenceItem(
+    checked: Boolean,
+    checkedContent: @Composable () -> Unit
+) {
+    // `checkedContent`는 체크된 상태에서만 보이기에, 
+    // 해당 슬롯이 존재하지 않을 때 폐기되고, 다시 존재할 때 다시 구성되는 것은 괜찮음
+    if (checked) {
+        Row {
+            Text("Checked")
+            checkedContent()
+        }
+    } else {
+        Column {
+            Text("Unchecked")
+        }
+    }
+}
+```
