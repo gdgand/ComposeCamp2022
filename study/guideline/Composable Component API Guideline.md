@@ -1236,3 +1236,40 @@ fun Button(
 
 위와 같은 방법은, 'style pattern'의 오버헤드와 복잡성을 도입하지 않으면서, 컴포넌트의 특정 부분에 대한 구성을 분리할 수 있습니다.  
 또한, 일반적인 'default expressions'와 달리 `ComponentColors` 또는 `ComponentElevation`의 더 세밀한 제어가 가능합니다.
+
+---
+
+## Accessibility of the component
+
+`Modifier.clickable`이나 `Image`와 같은 'basic building block'은 기본적으로 접근성을 고려한 디자인을 제공합니다.
+만약 접근성에 필요한 정보가 누락 되었다면, 이를 명시적으로 요청합니다. 
+반면, `Layout`이나 `Modifier.pointerInput`과 같은 UI 수준 블록 사용 시, 자동으로 접근성을 관리하지 않기에 수동으로 처리해 주어야 합니다.
+
+### Semantics merging
+
+> - `content` 슬롯을 가진 `Button`은 'semantics merging'을 통해, 내부 컴포넌트의 'semantics'가 자동으로 병합됨
+> - `Modifier.semantics(mergeDescendants = true)`는 컴포넌트의 모든 자식 요소들의 'semantics'를 병합하여 하나의 노드로 인식하게 할 수 있음
+> - `Modifier.clickable`이나 `Modifier.toggleable`과 같은 일부 기본 레이어 'modifier'들은 기본적으로 자식 요소들의 'semantics'를 병합함
+
+Compose는 접근성을 목적으로 'semantics merging'을 사용합니다.   
+이를 통해, `content` 슬롯을 가진 `Button`은 '접근성 서비스'가 알릴 텍스트를 별도로 설정하지 않아도 됩니다.  
+대신, `content`의 'semantics'(`Icon`의 'contentDescription' 또는 `Text`의 'text')가 버튼에 병합됩니다.
+
+`Modifier.semantics(mergeDescendants = true)`는 컴포넌트의 모든 자식 요소들의 'semantics'를 병합하여 하나의 노드로 만들 수 있습니다.  
+이렇게 함으로써, '접근성 서비스'는 해당 컴포넌트를 단일 엔티티로 처리하게 됩니다.  
+`Modifier.clickable`이나 `Modifier.toggleable`과 같은 일부 기본 레이어 'modifier'들은 기본적으로 자식 요소들의 'semantics'를 병합합니다.
+
+### Accessibility related parameters
+
+> - `Image`나 `Icon`과 같은 'Accessibility'가 중요한 컴포넌트는 관련 정보가 중요함
+>   - `Image`의 `contentDescription`은 이미지에 대한 설명과 스크린 리더와 같은 접근성 도구가 이미지의 내용을 시각 장애가 있는 사람들에게 전달하는데 사용됨
+> - 컴포넌트에 일반 `Modifier` 파라미터를 통해, `Modifier.semantics`를 커스터마이징 할 수 있도록 제공하는 것이 좋은 관례임
+>   - 만약, 하나의 'modifier chain'에 동일한 'key'를 가진 2개의 `SemanticsProperties`가 있는 경우, 첫 번째 `SemanticsProperties`를 우선으로 하고, 이후의 것들을 무시함
+
+`Image`나 `Icon`과 같은 컴포넌트에서는 개발자로부터 접근성 관련 정보를 받는 것이 중요합니다.  
+예를 들어, `Image` 컴포넌트는 `contentDescription`을 필수 파라미터로 받아, 이미지에 대한 설명을 제공하는데 사용되고, 
+스크린 리더와 같은 접근성 도구가 `contentDescription`를 사용하여 이미지의 내용을 시각 장애가 있는 사람들에게 전달할 수 있습니다. 
+
+컴포넌트에 일반 `Modifier` 파라미터를 제공하여, 개발자가 자신의 컴포넌트에 `Modifier.semantics`를 사용할 수 있도록 하는 것이 좋습니다.  
+그러나 만약, 하나의 'modifier chain'에 동일한 'key'를 가진 2개의 `SemanticsProperties`가 있는 경우, 첫 번째 `SemanticsProperties`를 우선으로 하고, 이후의 것들을 무시합니다.
+따라서 컴포넌트가 필요로 할 수 있는 모든 접근성 관련 기능에 대해 별도의 파라미터를 추가할 필요는 없습니다.
